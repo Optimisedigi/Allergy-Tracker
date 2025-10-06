@@ -12,6 +12,32 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
+const CONFIGURED_DOMAINS = process.env.REPLIT_DOMAINS!.split(",");
+const PRIMARY_DOMAIN = CONFIGURED_DOMAINS[0];
+
+function resolveAuthHost(req: any): string {
+  const forwardedHost = req.get('X-Forwarded-Host');
+  
+  if (forwardedHost) {
+    const firstHost = forwardedHost.split(',')[0].trim();
+    
+    if (CONFIGURED_DOMAINS.includes(firstHost)) {
+      console.log(`Using X-Forwarded-Host: ${firstHost}`);
+      return firstHost;
+    }
+    
+    console.warn(`X-Forwarded-Host "${firstHost}" not in REPLIT_DOMAINS, using primary domain`);
+  }
+  
+  if (req.hostname && req.hostname !== 'localhost' && CONFIGURED_DOMAINS.includes(req.hostname)) {
+    console.log(`Using req.hostname: ${req.hostname}`);
+    return req.hostname;
+  }
+  
+  console.log(`Falling back to PRIMARY_DOMAIN: ${PRIMARY_DOMAIN} (req.hostname was: ${req.hostname})`);
+  return PRIMARY_DOMAIN;
+}
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -102,25 +128,28 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const host = resolveAuthHost(req);
+    passport.authenticate(`replitauth:${host}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const host = resolveAuthHost(req);
+    passport.authenticate(`replitauth:${host}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
   });
 
   app.get("/api/logout", (req, res) => {
+    const host = resolveAuthHost(req);
     req.logout(() => {
       res.redirect(
         client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+          post_logout_redirect_uri: `${req.protocol}://${host}`,
         }).href
       );
     });
