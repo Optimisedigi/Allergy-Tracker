@@ -1,0 +1,323 @@
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { X, AlertTriangle } from "lucide-react";
+import { formatAustralianDateTime } from "@/lib/date-utils";
+
+interface ReactionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  trialId: string;
+  foodName: string;
+  foodEmoji?: string;
+}
+
+const REACTION_TYPES = [
+  "itchiness",
+  "hives", 
+  "swelling",
+  "rash",
+  "vomiting",
+  "diarrhea"
+];
+
+const SEVERITY_LEVELS = [
+  { value: "mild", label: "Mild", color: "success" },
+  { value: "moderate", label: "Moderate", color: "accent" },
+  { value: "severe", label: "Severe", color: "destructive" }
+] as const;
+
+export default function ReactionModal({ 
+  isOpen, 
+  onClose, 
+  trialId, 
+  foodName, 
+  foodEmoji 
+}: ReactionModalProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("mild");
+  const [startedAt, setStartedAt] = useState(formatAustralianDateTime(new Date(), "datetime"));
+  const [resolvedAt, setResolvedAt] = useState("");
+  const [notes, setNotes] = useState("");
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedTypes([]);
+      setSeverity("mild");
+      setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
+      setResolvedAt("");
+      setNotes("");
+    }
+  }, [isOpen]);
+
+  // Log reaction mutation
+  const logReactionMutation = useMutation({
+    mutationFn: async (reactionData: {
+      types: string[];
+      severity: "mild" | "moderate" | "severe";
+      startedAt: string;
+      resolvedAt?: string;
+      notes?: string;
+    }) => {
+      const response = await apiRequest("POST", `/api/trials/${trialId}/reactions`, {
+        ...reactionData,
+        startedAt: new Date(reactionData.startedAt).toISOString(),
+        resolvedAt: reactionData.resolvedAt ? new Date(reactionData.resolvedAt).toISOString() : undefined,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      toast({
+        title: "Reaction Logged",
+        description: "Reaction has been recorded successfully",
+      });
+      handleClose();
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to log reaction",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleClose = () => {
+    setSelectedTypes([]);
+    setSeverity("mild");
+    setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
+    setResolvedAt("");
+    setNotes("");
+    onClose();
+  };
+
+  const handleTypeToggle = (type: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTypes(prev => [...prev, type]);
+    } else {
+      setSelectedTypes(prev => prev.filter(t => t !== type));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (selectedTypes.length === 0) {
+      toast({
+        title: "Reaction Type Required",
+        description: "Please select at least one reaction type",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!startedAt) {
+      toast({
+        title: "Start Time Required", 
+        description: "Please specify when the reaction started",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    logReactionMutation.mutate({
+      types: selectedTypes,
+      severity,
+      startedAt,
+      resolvedAt: resolvedAt || undefined,
+      notes: notes.trim() || undefined,
+    });
+  };
+
+  if (!trialId) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-reaction">
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            Log Reaction
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClose}
+              className="h-8 w-8 p-0"
+              data-testid="button-close-reaction-modal"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Food Name Display */}
+        <div className="p-4 bg-muted/50 rounded-lg mb-6" data-testid="reaction-food-info">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{foodEmoji || "🍼"}</span>
+            <div>
+              <p className="text-sm text-muted-foreground">Reaction to</p>
+              <p className="font-semibold text-lg text-foreground">{foodName}</p>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6" data-testid="form-log-reaction">
+          {/* Reaction Type */}
+          <div>
+            <Label className="block text-sm font-medium text-foreground mb-3">
+              Reaction Type *
+            </Label>
+            <div className="grid grid-cols-2 gap-2">
+              {REACTION_TYPES.map((type) => (
+                <label 
+                  key={type}
+                  className="relative flex items-center p-3 bg-muted border border-border rounded-lg cursor-pointer hover:bg-primary/5 hover:border-primary transition-all"
+                >
+                  <Checkbox
+                    checked={selectedTypes.includes(type)}
+                    onCheckedChange={(checked) => handleTypeToggle(type, checked as boolean)}
+                    className="mr-3"
+                    data-testid={`checkbox-reaction-${type}`}
+                  />
+                  <span className="text-sm capitalize">{type}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Severity */}
+          <div>
+            <Label className="block text-sm font-medium text-foreground mb-3">
+              Severity *
+            </Label>
+            <div className="flex gap-2">
+              {SEVERITY_LEVELS.map((level) => (
+                <label key={level.value} className="flex-1">
+                  <input
+                    type="radio"
+                    name="severity"
+                    value={level.value}
+                    checked={severity === level.value}
+                    onChange={(e) => setSeverity(e.target.value as typeof severity)}
+                    className="peer sr-only"
+                    data-testid={`radio-severity-${level.value}`}
+                  />
+                  <div className={`p-3 text-center border-2 border-border rounded-lg cursor-pointer transition-all ${
+                    severity === level.value 
+                      ? `border-${level.color} bg-${level.color}/10` 
+                      : "peer-checked:border-primary peer-checked:bg-primary/10"
+                  }`}>
+                    <p className="font-medium text-sm">{level.label}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Timing */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="startedAt" className="block text-sm font-medium text-foreground mb-2">
+                Started At *
+              </Label>
+              <Input
+                id="startedAt"
+                type="datetime-local"
+                value={startedAt}
+                onChange={(e) => setStartedAt(e.target.value)}
+                required
+                data-testid="input-reaction-started"
+              />
+            </div>
+            <div>
+              <Label htmlFor="resolvedAt" className="block text-sm font-medium text-foreground mb-2">
+                Resolved At
+              </Label>
+              <Input
+                id="resolvedAt"
+                type="datetime-local"
+                value={resolvedAt}
+                onChange={(e) => setResolvedAt(e.target.value)}
+                placeholder="Ongoing"
+                data-testid="input-reaction-resolved"
+              />
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <Label htmlFor="reactionNotes" className="block text-sm font-medium text-foreground mb-2">
+              Additional Notes
+            </Label>
+            <Textarea
+              id="reactionNotes"
+              rows={3}
+              placeholder="Describe the reaction in detail..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="resize-none"
+              data-testid="textarea-reaction-notes"
+            />
+          </div>
+
+          {/* Emergency Notice */}
+          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <div className="flex gap-3">
+              <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-destructive-foreground">
+                <p className="font-semibold mb-1">Severe reactions require immediate medical attention</p>
+                <p>Call emergency services if your baby has difficulty breathing, severe swelling, or loss of consciousness.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={handleClose} 
+              className="flex-1"
+              disabled={logReactionMutation.isPending}
+              data-testid="button-cancel-reaction"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              variant="destructive" 
+              className="flex-1"
+              disabled={logReactionMutation.isPending}
+              data-testid="button-log-reaction"
+            >
+              {logReactionMutation.isPending ? "Logging..." : "Log Reaction"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
