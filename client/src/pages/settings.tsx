@@ -26,7 +26,6 @@ export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
-  const [inviteEmail, setInviteEmail] = useState("");
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -116,24 +115,6 @@ export default function Settings() {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     updateSettingsMutation.mutate({ [key]: value });
-  };
-
-  const handleInviteUser = () => {
-    if (!inviteEmail) {
-      toast({
-        title: "Email Required",
-        description: "Please enter an email address to send the invitation",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // In a real implementation, this would send an invitation via API
-    toast({
-      title: "Invitation Sent",
-      description: `Invitation has been sent to ${inviteEmail}`,
-    });
-    setInviteEmail("");
   };
 
   if (isLoading) {
@@ -268,50 +249,6 @@ export default function Settings() {
                   data-testid="checkbox-push-notifications"
                 />
               </label>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Multi-Parent Access */}
-        <Card className="mb-4" data-testid="card-shared-access">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Shared Access</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Invite other caregivers to access this baby's allergy tracking.
-            </p>
-            <div className="flex gap-3 mb-4">
-              <Input
-                type="email"
-                placeholder="partner@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="flex-1"
-                data-testid="input-invite-email"
-              />
-              <Button 
-                onClick={handleInviteUser}
-                data-testid="button-invite-user"
-              >
-                Invite
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                    {(user as any)?.firstName?.charAt(0) || (user as any)?.email?.charAt(0) || "U"}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {(user as any)?.firstName && (user as any)?.lastName 
-                        ? `${(user as any).firstName} ${(user as any).lastName}` 
-                        : (user as any)?.email || "Current User"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{(user as any)?.email}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground">Owner</span>
-              </div>
             </div>
           </CardContent>
         </Card>
