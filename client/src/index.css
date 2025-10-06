@@ -129,12 +129,12 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: hsl(var(--primary));
+    background: hsl(0 0% 0%);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: all 0.3s ease;
     z-index: 100;
