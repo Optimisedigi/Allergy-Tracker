@@ -240,8 +240,12 @@ export const createTrialSchema = insertTrialSchema.omit({
 export const createReactionSchema = insertReactionSchema.omit({ 
   id: true, 
   createdAt: true, 
-  updatedAt: true 
+  updatedAt: true,
+  trialId: true,
+  userId: true
 }).extend({
   types: z.array(z.string()).min(1),
   severity: z.enum(["mild", "moderate", "severe"]),
+  startedAt: z.string().transform((val) => new Date(val)),
+  resolvedAt: z.string().optional().transform((val) => val ? new Date(val) : undefined),
 });
