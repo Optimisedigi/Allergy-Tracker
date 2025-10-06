@@ -26,6 +26,7 @@ export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
+  const [babyName, setBabyName] = useState<string>("");
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -58,12 +59,21 @@ export default function Settings() {
     retry: false,
   });
 
-  // Set first baby as selected by default
+  // Set first baby as selected by default and update baby name
   useEffect(() => {
     if (babies.length > 0 && !selectedBaby) {
       setSelectedBaby(babies[0].id);
+      setBabyName(babies[0].name);
     }
   }, [babies, selectedBaby]);
+
+  // Update baby name when selected baby changes
+  useEffect(() => {
+    const selectedBabyData = babies.find((b) => b.id === selectedBaby);
+    if (selectedBabyData) {
+      setBabyName(selectedBabyData.name);
+    }
+  }, [selectedBaby, babies]);
 
   // Get user settings
   const { data: userSettings } = useQuery<UserSettings>({
@@ -111,10 +121,48 @@ export default function Settings() {
     },
   });
 
+  // Update baby name mutation
+  const updateBabyNameMutation = useMutation({
+    mutationFn: async (name: string) => {
+      await apiRequest("PATCH", `/api/babies/${selectedBaby}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/babies"] });
+      toast({
+        title: "Baby Name Updated",
+        description: "Baby's name has been updated successfully",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update baby name",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSettingChange = (key: keyof UserSettings, value: any) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     updateSettingsMutation.mutate({ [key]: value });
+  };
+
+  const handleSaveBabyName = () => {
+    if (babyName.trim()) {
+      updateBabyNameMutation.mutate(babyName.trim());
+    }
   };
 
   if (isLoading) {
@@ -157,14 +205,23 @@ export default function Settings() {
                 <Label htmlFor="babyName" className="block text-sm font-medium text-foreground mb-2">
                   Baby's Name
                 </Label>
-                <Input
-                  id="babyName"
-                  type="text"
-                  value={selectedBabyData?.name || ""}
-                  readOnly
-                  className="bg-muted"
-                  data-testid="input-baby-name"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="babyName"
+                    type="text"
+                    value={babyName}
+                    onChange={(e) => setBabyName(e.target.value)}
+                    placeholder="Enter baby's name"
+                    data-testid="input-baby-name"
+                  />
+                  <Button 
+                    onClick={handleSaveBabyName}
+                    disabled={updateBabyNameMutation.isPending || !babyName.trim()}
+                    data-testid="button-save-baby-name"
+                  >
+                    {updateBabyNameMutation.isPending ? "Saving..." : "Save"}
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

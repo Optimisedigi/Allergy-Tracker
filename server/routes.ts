@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { createTrialSchema, createReactionSchema } from "@shared/schema";
+import { createTrialSchema, createReactionSchema, type InsertBaby } from "@shared/schema";
 import { z } from "zod";
 import cron from "node-cron";
 import { reminderService } from "./services/reminder-service";
@@ -50,6 +50,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating baby:", error);
       res.status(500).json({ message: "Failed to create baby" });
+    }
+  });
+
+  app.patch('/api/babies/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === id);
+      if (!hasBaby) {
+        return res.status(403).json({ message: "Unauthorized access to this baby profile" });
+      }
+      
+      const updates: Partial<InsertBaby> = {};
+      if (req.body.name !== undefined) updates.name = req.body.name;
+      if (req.body.gender !== undefined) updates.gender = req.body.gender;
+      if (req.body.dateOfBirth !== undefined) {
+        updates.dateOfBirth = new Date(req.body.dateOfBirth);
+      }
+      
+      const baby = await storage.updateBaby(id, updates);
+      res.json(baby);
+    } catch (error) {
+      console.error("Error updating baby:", error);
+      res.status(500).json({ message: "Failed to update baby" });
     }
   });
 

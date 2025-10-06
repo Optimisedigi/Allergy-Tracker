@@ -37,6 +37,7 @@ export interface IStorage {
   createBaby(baby: InsertBaby): Promise<Baby>;
   getBabiesByUser(userId: string): Promise<Baby[]>;
   getBaby(id: string): Promise<Baby | undefined>;
+  updateBaby(id: string, updates: Partial<InsertBaby>): Promise<Baby>;
   
   // User-baby relationships
   addUserToBaby(userId: string, babyId: string, role?: string): Promise<void>;
@@ -131,6 +132,15 @@ export class DatabaseStorage implements IStorage {
   async getBaby(id: string): Promise<Baby | undefined> {
     const [baby] = await db.select().from(babies).where(eq(babies.id, id));
     return baby;
+  }
+
+  async updateBaby(id: string, updates: Partial<InsertBaby>): Promise<Baby> {
+    const [updatedBaby] = await db
+      .update(babies)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(babies.id, id))
+      .returning();
+    return updatedBaby;
   }
 
   async addUserToBaby(userId: string, babyId: string, role: string = "parent"): Promise<void> {
