@@ -215,24 +215,23 @@ export default function ReactionModal({
             </Label>
             <div className="flex gap-2">
               {SEVERITY_LEVELS.map((level) => (
-                <label key={level.value} className="flex-1">
-                  <input
-                    type="radio"
-                    name="severity"
-                    value={level.value}
-                    checked={severity === level.value}
-                    onChange={(e) => setSeverity(e.target.value as typeof severity)}
-                    className="peer sr-only"
-                    data-testid={`radio-severity-${level.value}`}
-                  />
-                  <div className={`p-3 text-center border-2 border-border rounded-lg cursor-pointer transition-all ${
+                <button
+                  key={level.value}
+                  type="button"
+                  onClick={() => setSeverity(level.value)}
+                  className={`flex-1 p-3 text-center border-2 rounded-lg cursor-pointer transition-all ${
                     severity === level.value 
-                      ? `border-${level.color} bg-${level.color}/10` 
-                      : "peer-checked:border-primary peer-checked:bg-primary/10"
-                  }`}>
-                    <p className="font-medium text-sm">{level.label}</p>
-                  </div>
-                </label>
+                      ? level.value === "mild" 
+                        ? "border-green-600 bg-green-50 dark:bg-green-950" 
+                        : level.value === "moderate"
+                        ? "border-amber-600 bg-amber-50 dark:bg-amber-950"
+                        : "border-red-600 bg-red-50 dark:bg-red-950"
+                      : "border-border hover:border-primary/50 hover:bg-muted/50"
+                  }`}
+                  data-testid={`radio-severity-${level.value}`}
+                >
+                  <p className="font-medium text-sm">{level.label}</p>
+                </button>
               ))}
             </div>
           </div>
