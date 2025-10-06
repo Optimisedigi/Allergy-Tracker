@@ -6,37 +6,28 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative px-4 py-16 text-center">
+      <div className="relative px-4 py-12 text-center">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-8 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <Shield className="h-8 w-8" />
             </div>
           </div>
           
-          <h1 className="mb-6 text-4xl font-bold text-foreground sm:text-5xl">
+          <h1 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
             AllergyTrack
           </h1>
           
-          <p className="mb-8 text-xl text-muted-foreground">
+          <p className="mb-6 text-xl text-muted-foreground">
             Track your baby's food journey with confidence. Monitor allergic reactions and build trust in safe foods, one trial at a time.
           </p>
-          
-          <Button 
-            size="lg" 
-            className="px-8 py-4 text-lg"
-            onClick={() => window.location.href = "/api/login"}
-            data-testid="button-login"
-          >
-            Get Started
-          </Button>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="px-4 py-16">
+      <div className="px-4 py-12">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             <Card data-testid="card-feature-tracking">
               <CardContent className="p-6">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
@@ -77,12 +68,12 @@ export default function Landing() {
       </div>
 
       {/* CTA Section */}
-      <div className="px-4 py-16 text-center">
+      <div className="px-4 py-12 text-center">
         <div className="mx-auto max-w-2xl">
-          <h2 className="mb-6 text-3xl font-bold text-foreground">
+          <h2 className="mb-4 text-3xl font-bold text-foreground">
             Ready to start tracking safely?
           </h2>
-          <p className="mb-8 text-lg text-muted-foreground">
+          <p className="mb-6 text-lg text-muted-foreground">
             Join parents who trust AllergyTrack to help navigate their baby's food journey with confidence and peace of mind.
           </p>
           <Button 
