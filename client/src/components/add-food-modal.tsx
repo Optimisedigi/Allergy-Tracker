@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, X } from "lucide-react";
+import { Search, X, Plus } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
 
 interface AddFoodModalProps {
@@ -26,18 +26,6 @@ interface Food {
   isCommon?: boolean;
 }
 
-const COMMON_FOODS = [
-  { name: "Milk", emoji: "🥛", category: "dairy" },
-  { name: "Egg", emoji: "🥚", category: "protein" },
-  { name: "Wheat", emoji: "🌾", category: "grain" },
-  { name: "Peanut", emoji: "🥜", category: "protein" },
-  { name: "Shellfish", emoji: "🦐", category: "protein" },
-  { name: "Fish", emoji: "🐟", category: "protein" },
-  { name: "Soy", emoji: "🫘", category: "protein" },
-  { name: "Tree Nuts", emoji: "🌰", category: "protein" },
-  { name: "Sesame", emoji: "🫴", category: "grain" },
-];
-
 export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -50,6 +38,11 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
   const [observationPeriod, setObservationPeriod] = useState("3");
   const [notes, setNotes] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+
+  // Fetch all foods from database
+  const { data: allFoods = [] } = useQuery<Food[]>({
+    queryKey: ["/api/foods"],
+  });
 
   // Get user settings for default observation period
   const { data: userSettings } = useQuery<{ defaultObservationPeriod: number }>({
@@ -69,6 +62,9 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     mutationFn: async (foodData: { name: string; emoji?: string; category?: string }) => {
       const response = await apiRequest("POST", "/api/foods", foodData);
       return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/foods"] });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -160,13 +156,8 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     onClose();
   };
 
-  const handleFoodSelect = (food: typeof COMMON_FOODS[0]) => {
-    setSelectedFood({
-      id: "", // Will be created
-      name: food.name,
-      emoji: food.emoji,
-      category: food.category,
-    });
+  const handleFoodSelect = (food: Food) => {
+    setSelectedFood(food);
     setSearchTerm(food.name);
     setShowCustomInput(false);
   };
@@ -175,6 +166,49 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     setShowCustomInput(true);
     setSelectedFood(null);
     setSearchTerm("");
+  };
+
+  const handleAddCustomFood = async () => {
+    if (!customFoodName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a food name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const newFood = await createFoodMutation.mutateAsync({
+        name: customFoodName.trim(),
+        emoji: "🍼",
+        category: "other",
+      });
+      setSelectedFood(newFood);
+      setSearchTerm(newFood.name);
+      setShowCustomInput(false);
+      setCustomFoodName("");
+      toast({
+        title: "Food Added",
+        description: `${newFood.name} has been added to your food list`,
+      });
+    } catch (error) {
+      // Error already handled in mutation
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Don't submit form, just filter the results
+    }
+  };
+
+  const handleCustomInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddCustomFood();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,42 +223,10 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       return;
     }
 
-    let foodToUse = selectedFood;
-
-    // Create custom food if needed
-    if (showCustomInput && customFoodName.trim()) {
-      const newFood = await createFoodMutation.mutateAsync({
-        name: customFoodName.trim(),
-        emoji: "🍼",
-        category: "other",
-      });
-      foodToUse = newFood;
-    } else if (selectedFood && !selectedFood.id) {
-      // Selected food doesn't have an ID yet, create it
-      const newFood = await createFoodMutation.mutateAsync({
-        name: selectedFood.name,
-        emoji: selectedFood.emoji || "🍼",
-        category: selectedFood.category || "other",
-      });
-      foodToUse = newFood;
-    } else if (!selectedFood && searchTerm.trim()) {
-      // Create food from search term
-      const matchingCommonFood = COMMON_FOODS.find(f => 
-        f.name.toLowerCase() === searchTerm.toLowerCase()
-      );
-      
-      const newFood = await createFoodMutation.mutateAsync({
-        name: searchTerm.trim(),
-        emoji: matchingCommonFood?.emoji || "🍼",
-        category: matchingCommonFood?.category || "other",
-      });
-      foodToUse = newFood;
-    }
-
-    if (!foodToUse || !foodToUse.id) {
+    if (!selectedFood) {
       toast({
         title: "Error",
-        description: "Please select or enter a food name",
+        description: "Please select a food before starting a trial",
         variant: "destructive",
       });
       return;
@@ -235,14 +237,14 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     
     createTrialMutation.mutate({
       babyId,
-      foodId: foodToUse.id,
+      foodId: selectedFood.id,
       trialDate: trialDateTime.toISOString(),
       observationPeriodDays: parseInt(observationPeriod),
       notes: notes.trim() || undefined,
     });
   };
 
-  const filteredFoods = COMMON_FOODS.filter(food =>
+  const filteredFoods = allFoods.filter(food =>
     food.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -270,7 +272,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
           {/* Food Selection */}
           <div>
             <Label className="block text-sm font-medium text-foreground mb-2">
-              Select Food
+              Select Food {selectedFood && <span className="text-primary">✓ {selectedFood.name} selected</span>}
             </Label>
             
             {!showCustomInput && (
@@ -278,9 +280,10 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                 <Search className="search-icon w-4 h-4" />
                 <Input
                   type="text"
-                  placeholder="Search common foods..."
+                  placeholder="Search foods..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="pl-10"
                   data-testid="input-food-search"
                 />
@@ -294,37 +297,59 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                   placeholder="Enter custom food name..."
                   value={customFoodName}
                   onChange={(e) => setCustomFoodName(e.target.value)}
+                  onKeyDown={handleCustomInputKeyDown}
                   data-testid="input-custom-food"
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setShowCustomInput(false)}
-                  data-testid="button-back-to-common"
-                >
-                  Back to Common Foods
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowCustomInput(false)}
+                    className="flex-1"
+                    data-testid="button-back-to-common"
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="default" 
+                    size="sm"
+                    onClick={handleAddCustomFood}
+                    disabled={!customFoodName.trim() || createFoodMutation.isPending}
+                    className="flex-1"
+                    data-testid="button-confirm-custom-food"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {createFoodMutation.isPending ? "Adding..." : "Add Food"}
+                  </Button>
+                </div>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-3 gap-2 mb-3">
-                  {filteredFoods.slice(0, 6).map((food) => (
-                    <button
-                      key={food.name}
-                      type="button"
-                      onClick={() => handleFoodSelect(food)}
-                      className={`p-3 border rounded-lg transition-all text-center ${
-                        selectedFood?.name === food.name
-                          ? "bg-primary/10 border-primary"
-                          : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
-                      }`}
-                      data-testid={`button-food-${food.name.toLowerCase()}`}
-                    >
-                      <span className="text-2xl block mb-1">{food.emoji}</span>
-                      <span className="text-xs font-medium">{food.name}</span>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-3 gap-2 mb-3 max-h-[300px] overflow-y-auto">
+                  {filteredFoods.length > 0 ? (
+                    filteredFoods.map((food) => (
+                      <button
+                        key={food.id}
+                        type="button"
+                        onClick={() => handleFoodSelect(food)}
+                        className={`p-3 border rounded-lg transition-all text-center ${
+                          selectedFood?.id === food.id
+                            ? "bg-primary/10 border-primary"
+                            : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
+                        }`}
+                        data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
+                        <span className="text-xs font-medium">{food.name}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-8 text-muted-foreground">
+                      No foods found
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -421,7 +446,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
             <Button 
               type="submit" 
               className="flex-1"
-              disabled={isLoading}
+              disabled={isLoading || !selectedFood}
               data-testid="button-start-trial"
             >
               {isLoading ? "Starting..." : "Start Trial"}
