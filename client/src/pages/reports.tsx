@@ -129,34 +129,34 @@ export default function Reports() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card data-testid="card-summary-total">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-muted-foreground">Total Foods Tested</p>
                 <Utensils className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-foreground">
                 {reportsData?.stats.totalFoods || 0}
               </p>
             </CardContent>
           </Card>
 
           <Card data-testid="card-summary-safe">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-muted-foreground">Safe Foods</p>
                 <CheckCircle className="w-5 h-5 text-success" />
               </div>
-              <p className="text-3xl font-bold text-success">{safeCount}</p>
+              <p className="text-2xl font-bold text-success">{safeCount}</p>
             </CardContent>
           </Card>
 
           <Card data-testid="card-summary-reactions">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-muted-foreground">Reactions Logged</p>
                 <CircleAlert className="w-5 h-5 text-destructive" />
               </div>
-              <p className="text-3xl font-bold text-destructive">{reactionCount}</p>
+              <p className="text-2xl font-bold text-destructive">{reactionCount}</p>
             </CardContent>
           </Card>
         </div>

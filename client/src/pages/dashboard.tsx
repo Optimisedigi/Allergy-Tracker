@@ -144,14 +144,6 @@ export default function Dashboard() {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* Welcome Section */}
-        <section className="mb-6">
-          <h2 className="text-2xl font-semibold text-foreground mb-2" data-testid="text-welcome">
-            Welcome back!
-          </h2>
-          <p className="text-muted-foreground">Track your baby's food journey with confidence</p>
-        </section>
-
         {/* Stats Overview */}
         <section className="grid grid-cols-3 gap-4 mb-6">
           <div className="stat-card" data-testid="card-stats-foods">
