@@ -9,8 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { X, AlertTriangle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X, AlertTriangle, CalendarIcon } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
+import { format } from "date-fns";
 
 interface ReactionModalProps {
   isOpen: boolean;
@@ -48,7 +52,9 @@ export default function ReactionModal({
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("mild");
   const [startedAt, setStartedAt] = useState(formatAustralianDateTime(new Date(), "datetime"));
-  const [resolvedAt, setResolvedAt] = useState("");
+  const [resolvedDate, setResolvedDate] = useState<Date | undefined>(undefined);
+  const [resolvedHour, setResolvedHour] = useState<string>("");
+  const [resolvedMinute, setResolvedMinute] = useState<string>("");
   const [notes, setNotes] = useState("");
 
   // Reset form when modal opens
@@ -57,7 +63,9 @@ export default function ReactionModal({
       setSelectedTypes([]);
       setSeverity("mild");
       setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
-      setResolvedAt("");
+      setResolvedDate(undefined);
+      setResolvedHour("");
+      setResolvedMinute("");
       setNotes("");
     }
   }, [isOpen]);
@@ -72,9 +80,11 @@ export default function ReactionModal({
       notes?: string;
     }) => {
       const response = await apiRequest("POST", `/api/trials/${trialId}/reactions`, {
-        ...reactionData,
+        types: reactionData.types,
+        severity: reactionData.severity,
         startedAt: new Date(reactionData.startedAt).toISOString(),
         resolvedAt: reactionData.resolvedAt ? new Date(reactionData.resolvedAt).toISOString() : undefined,
+        notes: reactionData.notes,
       });
       return response.json();
     },
@@ -110,7 +120,9 @@ export default function ReactionModal({
     setSelectedTypes([]);
     setSeverity("mild");
     setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
-    setResolvedAt("");
+    setResolvedDate(undefined);
+    setResolvedHour("");
+    setResolvedMinute("");
     setNotes("");
     onClose();
   };
@@ -144,11 +156,19 @@ export default function ReactionModal({
       return;
     }
 
+    // Combine resolved date and time if both are provided
+    let resolvedAtString: string | undefined = undefined;
+    if (resolvedDate && resolvedHour && resolvedMinute) {
+      const resolved = new Date(resolvedDate);
+      resolved.setHours(parseInt(resolvedHour), parseInt(resolvedMinute), 0, 0);
+      resolvedAtString = resolved.toISOString().slice(0, 16); // Format as YYYY-MM-DDTHH:mm
+    }
+
     logReactionMutation.mutate({
       types: selectedTypes,
       severity,
       startedAt,
-      resolvedAt: resolvedAt || undefined,
+      resolvedAt: resolvedAtString,
       notes: notes.trim() || undefined,
     });
   };
@@ -237,7 +257,7 @@ export default function ReactionModal({
           </div>
 
           {/* Timing */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="startedAt" className="block text-sm font-medium text-foreground mb-2">
                 Started At *
@@ -251,18 +271,64 @@ export default function ReactionModal({
                 data-testid="input-reaction-started"
               />
             </div>
+            
             <div>
-              <Label htmlFor="resolvedAt" className="block text-sm font-medium text-foreground mb-2">
-                Resolved At
+              <Label className="block text-sm font-medium text-foreground mb-2">
+                Resolved At (Optional)
               </Label>
-              <Input
-                id="resolvedAt"
-                type="datetime-local"
-                value={resolvedAt}
-                onChange={(e) => setResolvedAt(e.target.value)}
-                placeholder="Ongoing"
-                data-testid="input-reaction-resolved"
-              />
+              <div className="space-y-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                      data-testid="button-resolved-date"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {resolvedDate ? format(resolvedDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={resolvedDate}
+                      onSelect={setResolvedDate}
+                      initialFocus
+                      data-testid="calendar-resolved-date"
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                {resolvedDate && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Select value={resolvedHour} onValueChange={setResolvedHour}>
+                      <SelectTrigger data-testid="select-resolved-hour">
+                        <SelectValue placeholder="Hour" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                            {i.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={resolvedMinute} onValueChange={setResolvedMinute}>
+                      <SelectTrigger data-testid="select-resolved-minute">
+                        <SelectValue placeholder="Minute" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i * 5).map((min) => (
+                          <SelectItem key={min} value={min.toString().padStart(2, '0')}>
+                            {min.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
