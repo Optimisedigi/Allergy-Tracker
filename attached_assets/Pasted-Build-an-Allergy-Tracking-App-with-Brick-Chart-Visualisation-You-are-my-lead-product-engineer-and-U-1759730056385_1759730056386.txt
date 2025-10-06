@@ -1,0 +1,148 @@
+Build an Allergy-Tracking App with Brick Chart Visualisation
+
+You are my lead product engineer and UX partner. We’re building a mobile-first web app that helps parents track their baby or toddler’s potential food allergies. The tone is calm, friendly and trustworthy.
+
+1. Mission
+
+The app’s purpose is to let parents log every food trial, monitor allergic reactions, and build a visible “trust level” for each food over time.
+Each time a food is eaten and remains reaction-free for the chosen observation period (default 3 days), the app adds a new “brick” to that food’s stack in a brick chart visualisation.
+The end result: parents can literally see which foods are safe, because each brick represents one confirmed allergy-free trial.
+
+2. Core Features
+
+Quick Add Food
+
+A large “+” button on the home screen to log a new food trial with date/time.
+
+Food picker: searchable dropdown of common starter foods (milk, egg, wheat, etc.) plus option to add a custom food.
+
+Reaction Logging
+
+Parents can record reaction type (itchiness, hives, swelling, rash, vomiting, etc.) and optional notes.
+
+Ability to log when a reaction starts and when it resolves, so the app can calculate reaction duration.
+
+Brick Chart Visual
+
+Each food has its own vertical stack of bricks.
+
+Every brick = one successful allergy-free pass.
+
+Colours show pass vs reaction (e.g. green = safe pass, red = reaction).
+
+The chart grows one brick at a time, not a single smooth bar, to show progress visually.
+
+Reminders & Alerts
+
+Automatic reminder after the chosen observation period (default 3 days) to confirm reaction status.
+
+Gentle push notifications or in-app alerts.
+
+Reports
+
+A simple report page summarising:
+
+Total passes per food
+
+Reaction history with durations
+
+Dates of last successful pass
+
+Optional export to PDF or email for doctor/paediatrician.
+
+Multi-Parent Sync
+
+Lightweight account system so both parents/carers can log in and stay synced across devices.
+
+3. Non-Functional Requirements
+
+Privacy-first: explain data handling in a simple privacy notice.
+
+Secure data storage (hashed login credentials, HTTPS, no unnecessary third-party tracking).
+
+Mobile-first responsive design.
+
+Friendly onboarding tutorial on first launch.
+
+Local timezone default: Australia/Sydney.
+
+Date format: 06 Oct 2025.
+
+Accessibility: clear labels, large tap targets, readable colours.
+
+4. Tech Preferences
+
+Frontend: Next.js 14 (App Router) + React + TypeScript + TailwindCSS.
+
+Backend: Node.js 20 + PostgreSQL via Prisma.
+
+Auth: Auth.js (for email sign-in) plus secure session handling.
+
+Charts: Recharts or Chart.js for the brick chart; customise to show discrete bricks stacked vertically.
+
+Background tasks: serverless cron or lightweight worker to trigger reminders.
+
+Hosting: Vercel for frontend, Render/Fly.io for backend worker if needed.
+
+Testing: Vitest (unit), Playwright (e2e), ESLint & Prettier for code quality.
+
+Infra: Dockerfile + docker-compose for local dev.
+
+Provide a .env.sample listing all required secrets.
+
+5. Deliverables to Generate
+
+Architecture diagram in text form describing main components and data flow.
+
+Data model (Prisma schema) with tables:
+
+User, Food, Trial, ReactionEvent, BrickLog, Notification.
+
+Project structure with key files scaffolded:
+
+/app pages (dashboard, add food, chart view, reports)
+
+/api routes for CRUD on foods and trials
+
+lib/brickChart.tsx (custom chart component)
+
+lib/reminderService.ts
+
+components (form fields, chart legend, etc.)
+
+.env.sample including DB URL, NEXTAUTH_SECRET, CRON_SECRET, etc.
+
+Seed script for demo data.
+
+Basic brick chart component rendering sample data.
+
+README with setup, migration, and deploy steps.
+
+Security checklist and privacy policy template.
+
+6. Working Style
+
+Start by asking me 5 sharp questions to finalise scope.
+
+Then propose the architecture diagram and data model before coding.
+
+Provide runnable code (not pseudocode) in well-organised chunks.
+
+Keep copy-paste-ready formatting for all files.
+
+Conclude each milestone with acceptance criteria and simple manual test steps.
+
+7. First Milestone
+
+Goal: User can create an account, sign in, add a food, and see an empty brick chart ready to record trials.
+Provide code for:
+
+Auth flow
+
+Food model
+
+Brick chart placeholder
+
+Reminder scheduling stub
+
+Minimal mobile-friendly UI
