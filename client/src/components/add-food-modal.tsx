@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, X, Plus } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
 
 interface AddFoodModalProps {
@@ -244,9 +244,36 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     });
   };
 
+  // Filter and organize foods by category
   const filteredFoods = allFoods.filter(food =>
     food.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Group foods by category
+  const categoryOrder = ['protein', 'dairy', 'vegetable', 'fruit', 'grain', 'legume', 'other'];
+  const categoryLabels: Record<string, string> = {
+    protein: 'Proteins',
+    dairy: 'Dairy',
+    vegetable: 'Vegetables',
+    fruit: 'Fruits',
+    grain: 'Grains & Cereals',
+    legume: 'Legumes',
+    other: 'Other'
+  };
+
+  const foodsByCategory = filteredFoods.reduce((acc, food) => {
+    const category = food.category || 'other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(food);
+    return acc;
+  }, {} as Record<string, Food[]>);
+
+  // Sort foods within each category alphabetically
+  Object.keys(foodsByCategory).forEach(category => {
+    foodsByCategory[category].sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   const isLoading = createFoodMutation.isPending || createTrialMutation.isPending;
 
@@ -254,17 +281,8 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-add-food">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle>
             Add Food Trial
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-              data-testid="button-close-modal"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
         </DialogHeader>
 
@@ -327,26 +345,40 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-3 gap-2 mb-3 max-h-[300px] overflow-y-auto">
+                <div className="max-h-[350px] overflow-y-auto space-y-4 mb-3">
                   {filteredFoods.length > 0 ? (
-                    filteredFoods.map((food) => (
-                      <button
-                        key={food.id}
-                        type="button"
-                        onClick={() => handleFoodSelect(food)}
-                        className={`p-3 border rounded-lg transition-all text-center ${
-                          selectedFood?.id === food.id
-                            ? "bg-primary/10 border-primary"
-                            : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
-                        }`}
-                        data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
-                      >
-                        <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
-                        <span className="text-xs font-medium">{food.name}</span>
-                      </button>
-                    ))
+                    categoryOrder.map(category => {
+                      const foods = foodsByCategory[category];
+                      if (!foods || foods.length === 0) return null;
+                      
+                      return (
+                        <div key={category}>
+                          <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+                            {categoryLabels[category]}
+                          </h3>
+                          <div className="grid grid-cols-3 gap-2">
+                            {foods.map((food) => (
+                              <button
+                                key={food.id}
+                                type="button"
+                                onClick={() => handleFoodSelect(food)}
+                                className={`p-3 border rounded-lg transition-all text-center ${
+                                  selectedFood?.id === food.id
+                                    ? "bg-primary/10 border-primary"
+                                    : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
+                                }`}
+                                data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
+                                <span className="text-xs font-medium">{food.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
                   ) : (
-                    <div className="col-span-3 text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-muted-foreground">
                       No foods found
                     </div>
                   )}
