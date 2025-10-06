@@ -73,7 +73,7 @@ export interface IStorage {
   
   // Dashboard data
   getDashboardData(userId: string, babyId: string): Promise<{
-    stats: { totalFoods: number; safePasses: number };
+    stats: { totalFoods: number; safeFoods: number; foodAllergies: number };
     activeTrials: (Trial & { food: Food })[];
     recentActivity: Array<{
       id: string;
@@ -268,13 +268,14 @@ export class DatabaseStorage implements IStorage {
     const statsResult = await db
       .select({
         totalFoods: sql<number>`count(distinct ${trials.foodId})`,
-        safePasses: sql<number>`count(case when ${brickLogs.type} = 'safe' then 1 end)`,
+        safeFoods: sql<number>`count(case when ${brickLogs.type} = 'safe' then 1 end)`,
+        foodAllergies: sql<number>`count(case when ${brickLogs.type} = 'reaction' then 1 end)`,
       })
       .from(trials)
       .leftJoin(brickLogs, eq(trials.id, brickLogs.trialId))
       .where(eq(trials.babyId, babyId));
 
-    const stats = statsResult[0] || { totalFoods: 0, safePasses: 0 };
+    const stats = statsResult[0] || { totalFoods: 0, safeFoods: 0, foodAllergies: 0 };
 
     // Get active trials (currently observing)
     const activeTrials = await db

@@ -15,7 +15,7 @@ import { Plus, Clock, Check, AlertTriangle } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface DashboardData {
-  stats: { totalFoods: number; safePasses: number };
+  stats: { totalFoods: number; safeFoods: number; foodAllergies: number };
   activeTrials: Array<{
     id: string;
     observationEndsAt: string;
@@ -153,17 +153,23 @@ export default function Dashboard() {
         </section>
 
         {/* Stats Overview */}
-        <section className="grid grid-cols-2 gap-4 mb-6">
+        <section className="grid grid-cols-3 gap-4 mb-6">
           <div className="stat-card" data-testid="card-stats-foods">
             <div className="text-sm opacity-90 mb-1">Foods Tracked</div>
             <div className="text-3xl font-bold">
               {dashboardData?.stats.totalFoods || 0}
             </div>
           </div>
-          <div className="stat-card" data-testid="card-stats-passes">
-            <div className="text-sm opacity-90 mb-1">Safe Passes</div>
-            <div className="text-3xl font-bold">
-              {dashboardData?.stats.safePasses || 0}
+          <div className="stat-card" data-testid="card-stats-safe">
+            <div className="text-sm opacity-90 mb-1">Safe Foods</div>
+            <div className="text-3xl font-bold text-green-600">
+              {dashboardData?.stats.safeFoods || 0}
+            </div>
+          </div>
+          <div className="stat-card" data-testid="card-stats-allergies">
+            <div className="text-sm opacity-90 mb-1">Food Allergies</div>
+            <div className="text-3xl font-bold text-red-600">
+              {dashboardData?.stats.foodAllergies || 0}
             </div>
           </div>
         </section>
