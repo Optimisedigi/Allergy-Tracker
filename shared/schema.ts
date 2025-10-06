@@ -86,6 +86,9 @@ export const reactionTypeEnum = pgEnum("reaction_type", [
   "itchiness", "redness", "rash", "hives", "diarrhea", "vomiting", "swelling", "other"
 ]);
 
+// Food status enum
+export const foodStatusEnum = pgEnum("food_status", ["testing", "safe", "insensitivity", "allergy"]);
+
 // Reactions table
 export const reactions = pgTable("reactions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -108,6 +111,18 @@ export const brickLogs = pgTable("brick_logs", {
   trialId: varchar("trial_id").notNull().references(() => trials.id, { onDelete: "cascade" }),
   type: varchar("type").notNull(), // "safe" or "reaction"
   date: timestamp("date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Food status tracking table (tracks status per baby-food combination)
+export const foodStatus = pgTable("food_status", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  babyId: varchar("baby_id").notNull().references(() => babies.id, { onDelete: "cascade" }),
+  foodId: varchar("food_id").notNull().references(() => foods.id, { onDelete: "cascade" }),
+  status: foodStatusEnum("status").notNull().default("testing"),
+  passCount: integer("pass_count").notNull().default(0),
+  reactionCount: integer("reaction_count").notNull().default(0),
+  lastUpdated: timestamp("last_updated").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -153,6 +168,7 @@ export const babiesRelations = relations(babies, ({ many }) => ({
   trials: many(trials),
   brickLogs: many(brickLogs),
   notifications: many(notifications),
+  foodStatuses: many(foodStatus),
 }));
 
 export const userBabiesRelations = relations(userBabies, ({ one }) => ({
@@ -163,6 +179,7 @@ export const userBabiesRelations = relations(userBabies, ({ one }) => ({
 export const foodsRelations = relations(foods, ({ many }) => ({
   trials: many(trials),
   brickLogs: many(brickLogs),
+  foodStatuses: many(foodStatus),
 }));
 
 export const trialsRelations = relations(trials, ({ one, many }) => ({
@@ -189,6 +206,11 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, { fields: [notifications.userId], references: [users.id] }),
   baby: one(babies, { fields: [notifications.babyId], references: [babies.id] }),
   trial: one(trials, { fields: [notifications.trialId], references: [trials.id] }),
+}));
+
+export const foodStatusRelations = relations(foodStatus, ({ one }) => ({
+  baby: one(babies, { fields: [foodStatus.babyId], references: [babies.id] }),
+  food: one(foods, { fields: [foodStatus.foodId], references: [foods.id] }),
 }));
 
 // Types
@@ -218,6 +240,9 @@ export type Notification = typeof notifications.$inferSelect;
 
 export type InsertUserSettings = typeof userSettings.$inferInsert;
 export type UserSettings = typeof userSettings.$inferSelect;
+
+export type InsertFoodStatus = typeof foodStatus.$inferInsert;
+export type FoodStatus = typeof foodStatus.$inferSelect;
 
 // Zod schemas
 export const insertBabySchema = createInsertSchema(babies);
