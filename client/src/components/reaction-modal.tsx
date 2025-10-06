@@ -260,7 +260,7 @@ export default function ReactionModal({
           <div className="space-y-4">
             <div>
               <Label htmlFor="startedAt" className="block text-sm font-medium text-foreground mb-2">
-                Started At *
+                Started on *
               </Label>
               <Input
                 id="startedAt"
@@ -274,7 +274,7 @@ export default function ReactionModal({
             
             <div>
               <Label className="block text-sm font-medium text-foreground mb-2">
-                Resolved At (Optional)
+                Ends on (Optional)
               </Label>
               <div className="space-y-2">
                 <Popover>
