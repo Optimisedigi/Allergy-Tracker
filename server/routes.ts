@@ -38,7 +38,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/babies', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const babyData = req.body;
+      const babyData = {
+        ...req.body,
+        dateOfBirth: new Date(req.body.dateOfBirth),
+      };
       
       const baby = await storage.createBaby(babyData);
       await storage.addUserToBaby(userId, baby.id);

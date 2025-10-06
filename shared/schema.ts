@@ -129,7 +129,7 @@ export const notifications = pgTable("notifications", {
 // User settings table
 export const userSettings = pgTable("user_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
   defaultObservationPeriod: integer("default_observation_period").default(3),
   emailNotifications: boolean("email_notifications").default(true),
   pushNotifications: boolean("push_notifications").default(false),
