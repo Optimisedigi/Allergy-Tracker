@@ -181,6 +181,14 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
         category: "other",
       });
       foodToUse = newFood;
+    } else if (selectedFood && !selectedFood.id) {
+      // Selected food doesn't have an ID yet, create it
+      const newFood = await createFoodMutation.mutateAsync({
+        name: selectedFood.name,
+        emoji: selectedFood.emoji || "🍼",
+        category: selectedFood.category || "other",
+      });
+      foodToUse = newFood;
     } else if (!selectedFood && searchTerm.trim()) {
       // Create food from search term
       const matchingCommonFood = COMMON_FOODS.find(f => 
@@ -195,7 +203,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       foodToUse = newFood;
     }
 
-    if (!foodToUse) {
+    if (!foodToUse || !foodToUse.id) {
       toast({
         title: "Error",
         description: "Please select or enter a food name",
