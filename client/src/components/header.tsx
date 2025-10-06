@@ -18,7 +18,7 @@ export default function Header({ babyName, user, title }: HeaderProps) {
             </div>
             <div>
               <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-name">
-                {title || "AllergyTrack"}
+                {title || "AllergyTrack Bubs"}
               </h1>
               <p className="text-xs text-muted-foreground" data-testid="text-baby-name">
                 For {babyName}

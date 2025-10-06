@@ -271,8 +271,8 @@ export default function Dashboard() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground">{activity.description}</p>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-sm font-medium text-foreground">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
                             {formatAustralianDate(new Date(activity.timestamp))}
                           </p>
                         </div>

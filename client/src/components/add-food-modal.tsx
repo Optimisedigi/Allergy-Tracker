@@ -110,7 +110,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       });
       handleClose();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       if (isUnauthorizedError(error as Error)) {
         toast({
           title: "Unauthorized",
@@ -122,9 +122,27 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
         }, 500);
         return;
       }
+      
+      // Parse error message (format: "statusCode: {message: '...', details: '...'}")
+      let errorMessage = "Failed to start food trial";
+      try {
+        const errorStr = error.message || "";
+        const jsonMatch = errorStr.match(/\d+:\s*({.*})/);
+        if (jsonMatch) {
+          const errorData = JSON.parse(jsonMatch[1]);
+          if (errorData.details) {
+            errorMessage = errorData.details;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        }
+      } catch (e) {
+        // Use default message
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to start food trial",
+        title: "Cannot Start Trial",
+        description: errorMessage,
         variant: "destructive",
       });
     },

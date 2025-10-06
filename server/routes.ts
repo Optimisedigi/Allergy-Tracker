@@ -125,6 +125,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const validatedData = createTrialSchema.parse(req.body);
       
+      // Check active trials limit (max 3)
+      const activeTrials = await storage.getTrialsByBaby(validatedData.babyId);
+      const currentActiveTrials = activeTrials.filter(t => t.status === 'observing');
+      
+      if (currentActiveTrials.length >= 3) {
+        return res.status(400).json({ 
+          message: "Maximum 3 active observations allowed",
+          details: "Testing multiple foods simultaneously can make it difficult to identify which food caused a reaction. Please complete or log reactions for current observations before starting a new one."
+        });
+      }
+      
       // Calculate observation end date
       const trialDate = validatedData.trialDate; // Already a Date after schema transformation
       const observationEndsAt = new Date(trialDate);

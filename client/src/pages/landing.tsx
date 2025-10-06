@@ -14,9 +14,13 @@ export default function Landing() {
             </div>
           </div>
           
-          <h1 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
-            AllergyTrack
+          <h1 className="mb-3 text-4xl font-bold text-foreground sm:text-5xl">
+            AllergyTrack Bubs
           </h1>
+          
+          <p className="mb-4 text-lg font-medium text-foreground">
+            Food allergies affect 1 in 13 kids. We're here to help families feel in control.
+          </p>
           
           <p className="mb-6 text-xl text-muted-foreground">
             Track your baby's food journey with confidence. Monitor allergic reactions and build trust in safe foods, one trial at a time.
@@ -74,7 +78,7 @@ export default function Landing() {
             Ready to start tracking safely?
           </h2>
           <p className="mb-6 text-lg text-muted-foreground">
-            Join parents who trust AllergyTrack to help navigate their baby's food journey with confidence and peace of mind.
+            Join parents who trust AllergyTrack Bubs to help navigate their baby's food journey with confidence and peace of mind.
           </p>
           <Button 
             size="lg" 
