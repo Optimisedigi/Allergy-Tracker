@@ -82,7 +82,7 @@ export interface IStorage {
     }>;
     foodProgress: Array<{
       food: Food;
-      bricks: BrickLog[];
+      bricks: Array<{ type: string; date: string }>;
       passCount: number;
       reactionCount: number;
       lastTrial: Date | null;
@@ -307,7 +307,15 @@ export class DatabaseStorage implements IStorage {
     const foodProgressResult = await db
       .select({
         food: foods,
-        bricks: sql<BrickLog[]>`array_agg(${brickLogs}) filter (where ${brickLogs.id} is not null)`,
+        bricks: sql<Array<{type: string, date: string}>>`
+          COALESCE(
+            json_agg(
+              json_build_object('type', ${brickLogs.type}, 'date', ${brickLogs.date})
+              ORDER BY ${brickLogs.date}
+            ) FILTER (WHERE ${brickLogs.id} IS NOT NULL),
+            '[]'::json
+          )
+        `,
         passCount: sql<number>`count(case when ${brickLogs.type} = 'safe' then 1 end)`,
         reactionCount: sql<number>`count(case when ${brickLogs.type} = 'reaction' then 1 end)`,
         lastTrial: sql<Date>`max(${trials.trialDate})`,
@@ -321,7 +329,7 @@ export class DatabaseStorage implements IStorage {
 
     const foodProgress = foodProgressResult.map(r => ({
       food: r.food,
-      bricks: r.bricks || [],
+      bricks: Array.isArray(r.bricks) ? r.bricks : [],
       passCount: r.passCount || 0,
       reactionCount: r.reactionCount || 0,
       lastTrial: r.lastTrial,
