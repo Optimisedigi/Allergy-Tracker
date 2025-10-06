@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { foods } from "@shared/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
 const COMMON_FOODS = [
   // Iron-rich foods - Proteins (meats & fish)
@@ -109,15 +109,21 @@ async function seed() {
   try {
     console.log("📦 Checking for existing foods...");
     const existingFoods = await db.select().from(foods);
+    const existingFoodNames = new Set(existingFoods.map(f => f.name.toLowerCase()));
 
-    if (existingFoods.length === 0) {
-      console.log("🍼 Inserting common foods...");
-      await db.insert(foods).values(COMMON_FOODS);
-      console.log(`✅ Inserted ${COMMON_FOODS.length} common foods`);
+    const newFoods = COMMON_FOODS.filter(
+      food => !existingFoodNames.has(food.name.toLowerCase())
+    );
+
+    if (newFoods.length > 0) {
+      console.log(`🍼 Inserting ${newFoods.length} new foods...`);
+      await db.insert(foods).values(newFoods);
+      console.log(`✅ Successfully inserted ${newFoods.length} new foods`);
     } else {
-      console.log(`ℹ️  Database already contains ${existingFoods.length} foods, skipping seed`);
+      console.log(`ℹ️  All foods already exist in the database`);
     }
 
+    console.log(`📊 Total foods in database: ${existingFoods.length + newFoods.length}`);
     console.log("✨ Seed completed successfully!");
   } catch (error) {
     console.error("❌ Error seeding database:", error);
