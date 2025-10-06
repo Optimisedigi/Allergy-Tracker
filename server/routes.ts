@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = createTrialSchema.parse(req.body);
       
       // Calculate observation end date
-      const trialDate = new Date(validatedData.trialDate);
+      const trialDate = validatedData.trialDate; // Already a Date after schema transformation
       const observationEndsAt = new Date(trialDate);
       observationEndsAt.setDate(observationEndsAt.getDate() + validatedData.observationPeriodDays);
       

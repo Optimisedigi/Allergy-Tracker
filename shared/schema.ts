@@ -230,9 +230,11 @@ export const createTrialSchema = insertTrialSchema.omit({
   id: true, 
   createdAt: true, 
   updatedAt: true,
-  observationEndsAt: true 
+  observationEndsAt: true,
+  userId: true
 }).extend({
   observationPeriodDays: z.number().min(1).max(14).default(3),
+  trialDate: z.string().transform((val) => new Date(val)),
 });
 
 export const createReactionSchema = insertReactionSchema.omit({ 
