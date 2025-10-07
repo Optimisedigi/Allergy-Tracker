@@ -87,6 +87,22 @@ export default function Dashboard() {
     retry: false,
   });
 
+  // Get active steroid cream status
+  const { data: activeCream } = useQuery<{
+    id: string;
+    startedAt: string;
+    durationDays: number;
+  } | null>({
+    queryKey: ["/api/babies", selectedBaby, "steroid-cream", "active"],
+    queryFn: async () => {
+      const response = await fetch(`/api/babies/${selectedBaby}/steroid-cream/active`);
+      if (!response.ok) throw new Error("Failed to fetch steroid cream status");
+      return response.json();
+    },
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
   const queryClient = useQueryClient();
 
   // Complete trial mutation
@@ -200,6 +216,31 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
+
+        {/* Steroid Cream Alert */}
+        {activeCream && (
+          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex items-start gap-3" data-testid="alert-steroid-cream">
+            <Droplet className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
+              <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                Treatment started {formatAustralianDate(new Date(activeCream.startedAt), "relative")} ({activeCream.durationDays} day treatment)
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                ⚠️ Wait 2 weeks after treatment ends before introducing new foods for accurate allergy testing
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsSteroidCreamOpen(true)}
+              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900"
+              data-testid="button-manage-cream"
+            >
+              Manage
+            </Button>
+          </div>
+        )}
 
         {/* Active Trials Alert */}
         {dashboardData?.activeTrials && dashboardData.activeTrials.length > 0 && (
