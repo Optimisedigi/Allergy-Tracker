@@ -222,6 +222,21 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     enabled: isOpen && !!babyId,
   });
 
+  // Fetch active steroid cream status
+  const { data: activeCream } = useQuery<{
+    id: string;
+    startedAt: string;
+    durationDays: number;
+  } | null>({
+    queryKey: ["/api/babies", babyId, "steroid-cream", "active"],
+    queryFn: async () => {
+      const response = await fetch(`/api/babies/${babyId}/steroid-cream/active`);
+      if (!response.ok) throw new Error("Failed to fetch steroid cream status");
+      return response.json();
+    },
+    enabled: isOpen && !!babyId,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -241,6 +256,17 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
         variant: "destructive",
       });
       return;
+    }
+
+    // Check if steroid cream is active
+    if (activeCream) {
+      const confirmed = window.confirm(
+        `⚠️ STEROID CREAM WARNING:\n\nSteroid cream is currently active and can suppress allergic reactions, making allergy testing unreliable.\n\n` +
+        `It is recommended to wait 2 weeks after stopping steroid cream before introducing new foods.\n\nAre you sure you want to proceed with this food trial?`
+      );
+      if (!confirmed) {
+        return;
+      }
     }
 
     // Check if food has existing reactions

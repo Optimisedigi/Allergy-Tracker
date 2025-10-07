@@ -51,8 +51,8 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/babies", babyId, "steroid-cream"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/babies", babyId, "steroid-cream", "active"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard", babyId] });
       toast({
         title: "Steroid Cream Started",
         description: "Cream tracking has been started successfully",
@@ -87,8 +87,8 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/babies", babyId, "steroid-cream"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/babies", babyId, "steroid-cream", "active"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard", babyId] });
       toast({
         title: "Steroid Cream Ended",
         description: "Cream tracking has been stopped",
