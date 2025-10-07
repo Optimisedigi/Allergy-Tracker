@@ -9,9 +9,11 @@ import MobileNav from "@/components/mobile-nav";
 import FoodCard from "@/components/food-card";
 import AddFoodModal from "@/components/add-food-modal";
 import ReactionModal from "@/components/reaction-modal";
+import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Clock, Check, AlertTriangle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Clock, Check, AlertTriangle, Droplet } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface DashboardData {
@@ -41,6 +43,7 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
+  const [isSteroidCreamOpen, setIsSteroidCreamOpen] = useState(false);
   const [reactionModalData, setReactionModalData] = useState<{
     isOpen: boolean;
     trialId: string;
@@ -311,14 +314,27 @@ export default function Dashboard() {
         </section>
       </main>
 
-      {/* Floating Action Button */}
-      <button 
-        className="fab" 
-        onClick={() => setIsAddFoodOpen(true)}
-        data-testid="button-add-food"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Floating Action Button with Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button 
+            className="fab" 
+            data-testid="button-add-menu"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+          <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Food Trial
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
+            <Droplet className="w-4 h-4 mr-2" />
+            Track Steroid Cream
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Mobile Navigation */}
       <MobileNav activeTab="home" />
@@ -336,6 +352,13 @@ export default function Dashboard() {
         trialId={reactionModalData.trialId}
         foodName={reactionModalData.foodName}
         foodEmoji={reactionModalData.foodEmoji}
+        babyId={selectedBaby}
+      />
+
+      <SteroidCreamModal
+        isOpen={isSteroidCreamOpen}
+        onClose={() => setIsSteroidCreamOpen(false)}
+        babyId={selectedBaby}
       />
     </div>
   );
