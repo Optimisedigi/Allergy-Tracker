@@ -1,6 +1,6 @@
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoImage from "@assets/allergy-track-bubs-logo_1759837211449.png";
+import logoImage from "@assets/allergy-track-bubs-logo-transparent_1759840057297.png";
 
 interface HeaderProps {
   babyName: string;

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, TrendingUp } from "lucide-react";
-import logoImage from "@assets/allergy-track-bubs-logo_1759837211449.png";
+import logoImage from "@assets/allergy-track-bubs-logo-transparent_1759840057297.png";
 
 export default function Landing() {
   return (
@@ -22,12 +22,8 @@ export default function Landing() {
             AllergyTrack Bubs
           </h1>
           
-          <p className="mb-4 text-lg font-medium text-foreground">
-            Food allergies affect 1 in 13 kids. We're here to help families feel in control.
-          </p>
-          
           <p className="mb-6 text-xl text-muted-foreground">
-            Join parents to track your baby's food journey with confidence. Monitor allergic reactions and build trust in safe foods, one trial at a time.
+            1 in 13 kids live with food allergies. Our app helps parents log foods, record reactions, and build a clear allergy-tracking history so you can feel confident about what's safe to serve.
           </p>
           
           <Button 
@@ -42,7 +38,7 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <div className="px-4 py-12">
+      <div className="px-4 py-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 md:grid-cols-2">
             <Card data-testid="card-feature-tracking">
