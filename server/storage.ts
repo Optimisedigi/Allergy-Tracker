@@ -92,6 +92,12 @@ export interface IStorage {
       lastTrial: Date | null;
     }>;
   }>;
+  deleteFoodProgress(babyId: string, foodId: string): Promise<void>;
+  
+  // Steroid cream operations
+  createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream>;
+  getActiveSteroidCream(babyId: string): Promise<SteroidCream | undefined>;
+  endSteroidCream(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
