@@ -118,6 +118,38 @@ export default function Dashboard() {
     },
   });
 
+  // Delete food progress mutation
+  const deleteFoodProgressMutation = useMutation({
+    mutationFn: async ({ babyId, foodId }: { babyId: string; foodId: string }) => {
+      await apiRequest("DELETE", `/api/babies/${babyId}/foods/${foodId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      toast({
+        title: "Food Progress Deleted",
+        description: "All trials for this food have been removed",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete food progress",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (isLoading || isDashboardLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -226,6 +258,7 @@ export default function Dashboard() {
                 passCount={foodData.passCount}
                 reactionCount={foodData.reactionCount}
                 lastTrial={foodData.lastTrial ? new Date(foodData.lastTrial) : null}
+                onDelete={() => deleteFoodProgressMutation.mutate({ babyId: selectedBaby, foodId: foodData.food.id })}
                 data-testid={`card-food-${foodData.food.id}`}
               />
             ))}

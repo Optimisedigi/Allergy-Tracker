@@ -154,6 +154,20 @@ export const userSettings = pgTable("user_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Steroid cream tracking table
+export const steroidCream = pgTable("steroid_cream", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  babyId: varchar("baby_id").notNull().references(() => babies.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  startedAt: timestamp("started_at").notNull(),
+  endedAt: timestamp("ended_at"),
+  defaultDays: integer("default_days").default(3),
+  notes: text("notes"),
+  status: varchar("status").default("active"), // active, ended
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userBabies: many(userBabies),
@@ -244,11 +258,15 @@ export type UserSettings = typeof userSettings.$inferSelect;
 export type InsertFoodStatus = typeof foodStatus.$inferInsert;
 export type FoodStatus = typeof foodStatus.$inferSelect;
 
+export type InsertSteroidCream = typeof steroidCream.$inferInsert;
+export type SteroidCream = typeof steroidCream.$inferSelect;
+
 // Zod schemas
 export const insertBabySchema = createInsertSchema(babies);
 export const insertTrialSchema = createInsertSchema(trials);
 export const insertReactionSchema = createInsertSchema(reactions);
 export const insertUserSettingsSchema = createInsertSchema(userSettings);
+export const insertSteroidCreamSchema = createInsertSchema(steroidCream);
 
 // Extended schemas for API validation
 export const createTrialSchema = insertTrialSchema.omit({ 
@@ -273,4 +291,16 @@ export const createReactionSchema = insertReactionSchema.omit({
   severity: z.enum(["mild", "moderate", "severe"]),
   startedAt: z.string().transform((val) => new Date(val)),
   resolvedAt: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+});
+
+export const createSteroidCreamSchema = insertSteroidCreamSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  status: true,
+  endedAt: true
+}).extend({
+  startedAt: z.string().transform((val) => new Date(val)),
+  defaultDays: z.number().min(1).max(14).default(3),
 });

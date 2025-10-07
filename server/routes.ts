@@ -196,6 +196,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/trials/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      const trial = await storage.getTrial(id);
+      if (!trial) {
+        return res.status(404).json({ message: "Trial not found" });
+      }
+      
+      await storage.deleteTrial(id);
+      res.json({ message: "Trial deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting trial:", error);
+      res.status(500).json({ message: "Failed to delete trial" });
+    }
+  });
+
   // Reaction routes
   app.post('/api/trials/:trialId/reactions', isAuthenticated, async (req: any, res) => {
     try {
@@ -254,6 +271,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching brick logs:", error);
       res.status(500).json({ message: "Failed to fetch brick logs" });
+    }
+  });
+
+  app.delete('/api/babies/:babyId/foods/:foodId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, foodId } = req.params;
+      await storage.deleteFoodProgress(babyId, foodId);
+      res.json({ message: "Food progress deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting food progress:", error);
+      res.status(500).json({ message: "Failed to delete food progress" });
     }
   });
 

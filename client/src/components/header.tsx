@@ -1,5 +1,6 @@
-import { Bell, Shield } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoImage from "@assets/allergy-track-bubs-logo_1759837211449.png";
 
 interface HeaderProps {
   babyName: string;
@@ -13,9 +14,12 @@ export default function Header({ babyName, user, title }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Shield className="text-primary-foreground text-lg" />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="AllergyTrack Bubs Logo" 
+              className="w-10 h-10 object-contain"
+              data-testid="logo-image"
+            />
             <div>
               <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-name">
                 {title || "AllergyTrack Bubs"}

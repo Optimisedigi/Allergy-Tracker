@@ -116,6 +116,39 @@ export default function ReactionModal({
     },
   });
 
+  // Delete trial mutation
+  const deleteTrialMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/trials/${trialId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      toast({
+        title: "Trial Deleted",
+        description: "Food trial has been removed successfully",
+      });
+      handleClose();
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete trial",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleClose = () => {
     setSelectedTypes([]);
     setSeverity("mild");
@@ -379,6 +412,20 @@ export default function ReactionModal({
               data-testid="button-log-reaction"
             >
               {logReactionMutation.isPending ? "Logging..." : "Log Reaction"}
+            </Button>
+          </div>
+
+          {/* Delete Trial Button */}
+          <div className="pt-4 border-t border-border">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => deleteTrialMutation.mutate()}
+              className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={deleteTrialMutation.isPending}
+              data-testid="button-delete-trial"
+            >
+              {deleteTrialMutation.isPending ? "Deleting..." : "Delete Trial"}
             </Button>
           </div>
         </form>

@@ -199,6 +199,10 @@ export class DatabaseStorage implements IStorage {
     await db.update(trials).set({ status }).where(eq(trials.id, id));
   }
 
+  async deleteTrial(id: string): Promise<void> {
+    await db.delete(trials).where(eq(trials.id, id));
+  }
+
   // Reaction operations
   async createReaction(reaction: InsertReaction): Promise<Reaction> {
     const [newReaction] = await db.insert(reactions).values(reaction).returning();
@@ -221,6 +225,10 @@ export class DatabaseStorage implements IStorage {
       .from(brickLogs)
       .where(and(eq(brickLogs.babyId, babyId), eq(brickLogs.foodId, foodId)))
       .orderBy(brickLogs.date);
+  }
+
+  async deleteFoodProgress(babyId: string, foodId: string): Promise<void> {
+    await db.delete(trials).where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)));
   }
 
   // Notification operations
@@ -327,8 +335,8 @@ export class DatabaseStorage implements IStorage {
             '[]'::json
           )
         `,
-        passCount: sql<number>`count(case when ${brickLogs.type} = 'safe' then 1 end)`,
-        reactionCount: sql<number>`count(case when ${brickLogs.type} = 'reaction' then 1 end)`,
+        passCount: sql<number>`count(distinct case when ${brickLogs.type} = 'safe' then ${brickLogs.id} end)`,
+        reactionCount: sql<number>`count(distinct case when ${brickLogs.type} = 'reaction' then ${brickLogs.id} end)`,
         lastTrial: sql<Date>`max(${trials.trialDate})`,
       })
       .from(foods)

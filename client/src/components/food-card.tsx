@@ -1,6 +1,7 @@
 import BrickChart from "@/components/brick-chart";
-import { Check, CircleAlert, Clock } from "lucide-react";
+import { Check, CircleAlert, Clock, Trash2 } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
+import { Button } from "@/components/ui/button";
 
 interface FoodCardProps {
   food: {
@@ -15,9 +16,10 @@ interface FoodCardProps {
   passCount: number;
   reactionCount: number;
   lastTrial: Date | null;
+  onDelete?: () => void;
 }
 
-export default function FoodCard({ food, bricks, passCount, reactionCount, lastTrial }: FoodCardProps) {
+export default function FoodCard({ food, bricks, passCount, reactionCount, lastTrial, onDelete }: FoodCardProps) {
   const getStatusIcon = () => {
     if (reactionCount > 0) {
       return <CircleAlert className="w-4 h-4" />;
@@ -76,6 +78,20 @@ export default function FoodCard({ food, bricks, passCount, reactionCount, lastT
           {getStatusIcon()}
           <span data-testid={`food-status-${food.id}`}>{getStatusText()}</span>
         </span>
+        {onDelete && (
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+            data-testid={`button-delete-food-${food.id}`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
