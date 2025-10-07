@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { createTrialSchema, createReactionSchema, type InsertBaby } from "@shared/schema";
+import { createTrialSchema, createReactionSchema, createSteroidCreamSchema, type InsertBaby } from "@shared/schema";
 import { z } from "zod";
 import cron from "node-cron";
 import { reminderService } from "./services/reminder-service";
@@ -282,6 +282,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting food progress:", error);
       res.status(500).json({ message: "Failed to delete food progress" });
+    }
+  });
+
+  // Steroid cream routes
+  app.post('/api/babies/:babyId/steroid-cream', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId } = req.params;
+      const userId = req.user.claims.sub;
+      const validatedData = createSteroidCreamSchema.parse(req.body);
+      
+      const cream = await storage.createSteroidCream({
+        ...validatedData,
+        babyId,
+        userId,
+      });
+      
+      res.json(cream);
+    } catch (error) {
+      console.error("Error starting steroid cream:", error);
+      res.status(500).json({ message: "Failed to start steroid cream tracking" });
+    }
+  });
+
+  app.get('/api/babies/:babyId/steroid-cream/active', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId } = req.params;
+      const activeCream = await storage.getActiveSteroidCream(babyId);
+      res.json(activeCream || null);
+    } catch (error) {
+      console.error("Error fetching active steroid cream:", error);
+      res.status(500).json({ message: "Failed to fetch steroid cream status" });
+    }
+  });
+
+  app.patch('/api/steroid-cream/:id/end', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.endSteroidCream(id);
+      res.json({ message: "Steroid cream tracking ended successfully" });
+    } catch (error) {
+      console.error("Error ending steroid cream:", error);
+      res.status(500).json({ message: "Failed to end steroid cream tracking" });
     }
   });
 

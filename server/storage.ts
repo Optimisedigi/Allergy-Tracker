@@ -8,6 +8,7 @@ import {
   brickLogs,
   notifications,
   userSettings,
+  steroidCream,
   type User,
   type UpsertUser,
   type Baby,
@@ -24,6 +25,8 @@ import {
   type InsertNotification,
   type UserSettings,
   type InsertUserSettings,
+  type SteroidCream,
+  type InsertSteroidCream,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
@@ -229,6 +232,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFoodProgress(babyId: string, foodId: string): Promise<void> {
     await db.delete(trials).where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)));
+  }
+
+  // Steroid cream operations
+  async createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream> {
+    const [newCream] = await db.insert(steroidCream).values(cream).returning();
+    return newCream;
+  }
+
+  async getActiveSteroidCream(babyId: string): Promise<SteroidCream | undefined> {
+    const [activeCream] = await db
+      .select()
+      .from(steroidCream)
+      .where(and(eq(steroidCream.babyId, babyId), eq(steroidCream.status, "active")))
+      .orderBy(desc(steroidCream.createdAt))
+      .limit(1);
+    return activeCream;
+  }
+
+  async endSteroidCream(id: string): Promise<void> {
+    await db
+      .update(steroidCream)
+      .set({ status: "ended", endedAt: new Date() })
+      .where(eq(steroidCream.id, id));
   }
 
   // Notification operations

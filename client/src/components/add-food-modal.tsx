@@ -211,6 +211,17 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     }
   };
 
+  // Fetch dashboard data to check for existing reactions
+  const { data: dashboardData } = useQuery<{
+    foodProgress: Array<{
+      food: { id: string };
+      reactionCount: number;
+    }>;
+  }>({
+    queryKey: ["/api/dashboard", babyId],
+    enabled: isOpen && !!babyId,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -230,6 +241,17 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
         variant: "destructive",
       });
       return;
+    }
+
+    // Check if food has existing reactions
+    const foodProgress = dashboardData?.foodProgress.find(fp => fp.food.id === selectedFood.id);
+    if (foodProgress && foodProgress.reactionCount > 0) {
+      const confirmed = window.confirm(
+        `⚠️ WARNING: ${selectedFood.name} has caused ${foodProgress.reactionCount} reaction${foodProgress.reactionCount > 1 ? 's' : ''} before!\n\nAdding this food again may result in another allergic reaction. Please consult with your pediatrician before retrying this food.\n\nAre you absolutely sure you want to proceed?`
+      );
+      if (!confirmed) {
+        return;
+      }
     }
 
     // Create trial
