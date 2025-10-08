@@ -212,18 +212,7 @@ export default function ReactionModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-reaction">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            Log Reaction
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-              data-testid="button-close-reaction-modal"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
+          <DialogTitle>Log Reaction</DialogTitle>
         </DialogHeader>
 
         {/* Food Name Display */}

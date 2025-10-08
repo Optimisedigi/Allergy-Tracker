@@ -12,7 +12,7 @@ import ReactionModal from "@/components/reaction-modal";
 import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Clock, Check, AlertTriangle, Droplet } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
@@ -410,60 +410,6 @@ export default function Dashboard() {
             <Plus className="w-4 h-4 mr-2" />
             Add Food Trial
           </DropdownMenuItem>
-          
-          {/* Log Reaction - with submenu for multiple trials */}
-          {dashboardData?.activeTrials && dashboardData.activeTrials.length > 1 ? (
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger data-testid="menu-item-log-reaction">
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Log Reaction
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                {dashboardData.activeTrials.map((trial) => (
-                  <DropdownMenuItem
-                    key={trial.id}
-                    onClick={() => {
-                      setReactionModalData({
-                        isOpen: true,
-                        trialId: trial.id,
-                        foodName: trial.food.name,
-                        foodEmoji: trial.food.emoji,
-                      });
-                    }}
-                    data-testid={`menu-item-log-reaction-${trial.id}`}
-                  >
-                    <span className="mr-2">{trial.food.emoji}</span>
-                    {trial.food.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          ) : (
-            <DropdownMenuItem 
-              onClick={() => {
-                if (dashboardData?.activeTrials && dashboardData.activeTrials.length === 1) {
-                  const trial = dashboardData.activeTrials[0];
-                  setReactionModalData({
-                    isOpen: true,
-                    trialId: trial.id,
-                    foodName: trial.food.name,
-                    foodEmoji: trial.food.emoji,
-                  });
-                } else {
-                  toast({
-                    title: "No Active Trials",
-                    description: "You need an active food trial to log a reaction",
-                    variant: "destructive",
-                  });
-                }
-              }} 
-              data-testid="menu-item-log-reaction"
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              Log Reaction
-            </DropdownMenuItem>
-          )}
-          
           <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
             <Droplet className="w-4 h-4 mr-2" />
             Track Steroid Cream
