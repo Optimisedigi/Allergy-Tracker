@@ -31,6 +31,9 @@ export default function FoodCard({ food, bricks, passCount, reactionCount, lastT
   };
 
   const getStatusText = () => {
+    if (reactionCount > 0 && passCount > 0) {
+      return `${passCount} pass${passCount > 1 ? 'es' : ''}, ${reactionCount} reaction${reactionCount > 1 ? 's' : ''}`;
+    }
     if (reactionCount > 0) {
       return `${reactionCount} reaction${reactionCount > 1 ? 's' : ''}`;
     }

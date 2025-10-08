@@ -301,11 +301,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { babyId } = req.params;
       const userId = req.user.claims.sub;
-      const validatedData = createSteroidCreamSchema.parse(req.body);
+      
+      // Add babyId and startedAt to request body before validation
+      const dataToValidate = {
+        ...req.body,
+        babyId,
+        startedAt: new Date().toISOString(),
+      };
+      
+      const validatedData = createSteroidCreamSchema.parse(dataToValidate);
       
       const cream = await storage.createSteroidCream({
         ...validatedData,
-        babyId,
         userId,
       });
       
