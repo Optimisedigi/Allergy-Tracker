@@ -361,8 +361,7 @@ export class DatabaseStorage implements IStorage {
         bricks: sql<Array<{type: string, date: string}>>`
           COALESCE(
             json_agg(
-              json_build_object('type', ${brickLogs.type}, 'date', ${brickLogs.date})
-              ORDER BY ${brickLogs.date}
+              DISTINCT json_build_object('type', ${brickLogs.type}, 'date', ${brickLogs.date})
             ) FILTER (WHERE ${brickLogs.id} IS NOT NULL),
             '[]'::json
           )
