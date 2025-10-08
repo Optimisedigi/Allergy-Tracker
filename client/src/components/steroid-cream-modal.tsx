@@ -168,7 +168,9 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
                   </p>
                   <div className="text-xs text-amber-800 dark:text-amber-200 space-y-1">
                     <p>Started: {formatAustralianDateTime(new Date(activeCream.startedAt), "datetime")}</p>
-                    <p>Expected end: {formatAustralianDateTime(getExpectedEndDate()!, "datetime")}</p>
+                    {getExpectedEndDate() && (
+                      <p>Expected end: {formatAustralianDateTime(getExpectedEndDate()!, "datetime")}</p>
+                    )}
                     <p>Duration: {activeCream.durationDays} days</p>
                     {activeCream.notes && (
                       <p className="mt-2 pt-2 border-t border-amber-200 dark:border-amber-800">
