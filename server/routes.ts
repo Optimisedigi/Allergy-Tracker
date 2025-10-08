@@ -274,6 +274,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/babies/:babyId/foods/:foodId/latest-trial', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, foodId } = req.params;
+      await storage.deleteLatestTrial(babyId, foodId);
+      res.json({ message: "Latest trial deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting latest trial:", error);
+      res.status(500).json({ message: "Failed to delete latest trial" });
+    }
+  });
+
   app.delete('/api/babies/:babyId/foods/:foodId', isAuthenticated, async (req: any, res) => {
     try {
       const { babyId, foodId } = req.params;

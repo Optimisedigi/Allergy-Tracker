@@ -93,6 +93,7 @@ export interface IStorage {
     }>;
   }>;
   deleteFoodProgress(babyId: string, foodId: string): Promise<void>;
+  deleteLatestTrial(babyId: string, foodId: string): Promise<void>;
   
   // Steroid cream operations
   createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream>;
@@ -240,6 +241,29 @@ export class DatabaseStorage implements IStorage {
     await db.delete(trials).where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)));
   }
 
+  async deleteLatestTrial(babyId: string, foodId: string): Promise<void> {
+    // Get the latest trial for this food
+    const latestTrial = await db
+      .select()
+      .from(trials)
+      .where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)))
+      .orderBy(desc(trials.trialDate))
+      .limit(1);
+    
+    if (latestTrial.length > 0) {
+      const trialId = latestTrial[0].id;
+      
+      // Delete associated brick logs
+      await db.delete(brickLogs).where(eq(brickLogs.trialId, trialId));
+      
+      // Delete associated reactions
+      await db.delete(reactions).where(eq(reactions.trialId, trialId));
+      
+      // Delete the trial itself
+      await db.delete(trials).where(eq(trials.id, trialId));
+    }
+  }
+
   // Steroid cream operations
   async createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream> {
     const [newCream] = await db.insert(steroidCream).values(cream).returning();
@@ -354,28 +378,53 @@ export class DatabaseStorage implements IStorage {
       type: r.trial.status === "completed" ? "success" : r.trial.status === "reaction" ? "error" : "info",
     }));
 
-    // Get food progress with brick logs
+    // Get food progress with brick logs (using subquery to avoid cartesian product)
     const foodProgressResult = await db
       .select({
         food: foods,
         bricks: sql<Array<{type: string, date: string}>>`
           COALESCE(
-            json_agg(
-              DISTINCT json_build_object('type', ${brickLogs.type}, 'date', ${brickLogs.date})
-            ) FILTER (WHERE ${brickLogs.id} IS NOT NULL),
+            (
+              SELECT json_agg(json_build_object('type', type, 'date', date) ORDER BY date)
+              FROM (
+                SELECT DISTINCT ${brickLogs.type} as type, ${brickLogs.date} as date
+                FROM ${brickLogs}
+                WHERE ${brickLogs.foodId} = ${foods.id} 
+                  AND ${brickLogs.babyId} = ${babyId}
+              ) brick_data
+            ),
             '[]'::json
           )
         `,
-        passCount: sql<number>`count(distinct case when ${brickLogs.type} = 'safe' then ${brickLogs.id} end)`,
-        reactionCount: sql<number>`count(distinct case when ${brickLogs.type} = 'reaction' then ${brickLogs.id} end)`,
-        lastTrial: sql<Date>`max(${trials.trialDate})`,
+        passCount: sql<number>`(
+          SELECT count(DISTINCT ${brickLogs.id})
+          FROM ${brickLogs}
+          WHERE ${brickLogs.foodId} = ${foods.id}
+            AND ${brickLogs.babyId} = ${babyId}
+            AND ${brickLogs.type} = 'safe'
+        )`,
+        reactionCount: sql<number>`(
+          SELECT count(DISTINCT ${brickLogs.id})
+          FROM ${brickLogs}
+          WHERE ${brickLogs.foodId} = ${foods.id}
+            AND ${brickLogs.babyId} = ${babyId}
+            AND ${brickLogs.type} = 'reaction'
+        )`,
+        lastTrial: sql<Date>`(
+          SELECT max(${trials.trialDate})
+          FROM ${trials}
+          WHERE ${trials.foodId} = ${foods.id}
+            AND ${trials.babyId} = ${babyId}
+        )`,
       })
       .from(foods)
-      .leftJoin(trials, and(eq(foods.id, trials.foodId), eq(trials.babyId, babyId)))
-      .leftJoin(brickLogs, and(eq(foods.id, brickLogs.foodId), eq(brickLogs.babyId, babyId)))
       .where(sql`exists (select 1 from ${trials} where ${trials.foodId} = ${foods.id} and ${trials.babyId} = ${babyId})`)
-      .groupBy(foods.id)
-      .orderBy(desc(sql`max(${trials.trialDate})`));
+      .orderBy(desc(sql`(
+        SELECT max(${trials.trialDate})
+        FROM ${trials}
+        WHERE ${trials.foodId} = ${foods.id}
+          AND ${trials.babyId} = ${babyId}
+      )`));
 
     const foodProgress = foodProgressResult.map(r => ({
       food: r.food,

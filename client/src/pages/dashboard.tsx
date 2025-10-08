@@ -13,6 +13,7 @@ import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Clock, Check, AlertTriangle, Droplet } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
@@ -50,6 +51,11 @@ export default function Dashboard() {
     foodName: string;
     foodEmoji?: string;
   }>({ isOpen: false, trialId: "", foodName: "" });
+  const [deleteDialogData, setDeleteDialogData] = useState<{
+    isOpen: boolean;
+    foodId: string;
+    foodName: string;
+  }>({ isOpen: false, foodId: "", foodName: "" });
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -137,6 +143,39 @@ export default function Dashboard() {
     },
   });
 
+  // Delete single trial mutation
+  const deleteSingleTrialMutation = useMutation({
+    mutationFn: async ({ babyId, foodId }: { babyId: string; foodId: string }) => {
+      await apiRequest("DELETE", `/api/babies/${babyId}/foods/${foodId}/latest-trial`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      setDeleteDialogData({ isOpen: false, foodId: "", foodName: "" });
+      toast({
+        title: "Trial Deleted",
+        description: "The most recent trial has been removed",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete trial",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete food progress mutation
   const deleteFoodProgressMutation = useMutation({
     mutationFn: async ({ babyId, foodId }: { babyId: string; foodId: string }) => {
@@ -144,6 +183,7 @@ export default function Dashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      setDeleteDialogData({ isOpen: false, foodId: "", foodName: "" });
       toast({
         title: "Food Progress Deleted",
         description: "All trials for this food have been removed",
@@ -302,7 +342,7 @@ export default function Dashboard() {
                 passCount={foodData.passCount}
                 reactionCount={foodData.reactionCount}
                 lastTrial={foodData.lastTrial ? new Date(foodData.lastTrial) : null}
-                onDelete={() => deleteFoodProgressMutation.mutate({ babyId: selectedBaby, foodId: foodData.food.id })}
+                onDelete={() => setDeleteDialogData({ isOpen: true, foodId: foodData.food.id, foodName: foodData.food.name })}
                 data-testid={`card-food-${foodData.food.id}`}
               />
             ))}
@@ -401,6 +441,41 @@ export default function Dashboard() {
         onClose={() => setIsSteroidCreamOpen(false)}
         babyId={selectedBaby}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogData.isOpen} onOpenChange={(open) => !open && setDeleteDialogData({ isOpen: false, foodId: "", foodName: "" })}>
+        <AlertDialogContent data-testid="dialog-delete-confirmation">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deleteDialogData.foodName}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Choose what you'd like to delete:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              onClick={() => deleteSingleTrialMutation.mutate({ babyId: selectedBaby, foodId: deleteDialogData.foodId })}
+              disabled={deleteSingleTrialMutation.isPending}
+              data-testid="button-delete-single-trial"
+              className="justify-start"
+            >
+              Delete Latest Trial Only
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteFoodProgressMutation.mutate({ babyId: selectedBaby, foodId: deleteDialogData.foodId })}
+              disabled={deleteFoodProgressMutation.isPending}
+              data-testid="button-delete-all-progress"
+              className="justify-start"
+            >
+              Delete All Food Progress
+            </Button>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
