@@ -433,7 +433,6 @@ export default function Dashboard() {
         trialId={reactionModalData.trialId}
         foodName={reactionModalData.foodName}
         foodEmoji={reactionModalData.foodEmoji}
-        babyId={selectedBaby}
       />
 
       <SteroidCreamModal
