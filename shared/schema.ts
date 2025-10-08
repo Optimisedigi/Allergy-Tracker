@@ -161,7 +161,7 @@ export const steroidCream = pgTable("steroid_cream", {
   userId: varchar("user_id").notNull().references(() => users.id),
   startedAt: timestamp("started_at").notNull(),
   endedAt: timestamp("ended_at"),
-  defaultDays: integer("default_days").default(3),
+  durationDays: integer("default_days").default(3), // Maps to default_days column in DB
   notes: text("notes"),
   status: varchar("status").default("active"), // active, ended
   createdAt: timestamp("created_at").defaultNow(),
@@ -302,5 +302,5 @@ export const createSteroidCreamSchema = insertSteroidCreamSchema.omit({
   endedAt: true
 }).extend({
   startedAt: z.string().transform((val) => new Date(val)),
-  defaultDays: z.number().min(1).max(14).default(3),
+  durationDays: z.number().min(1).max(30).default(3),
 });
