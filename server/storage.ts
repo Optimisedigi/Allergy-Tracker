@@ -378,61 +378,70 @@ export class DatabaseStorage implements IStorage {
       type: r.trial.status === "completed" ? "success" : r.trial.status === "reaction" ? "error" : "info",
     }));
 
-    // Get food progress with brick logs (using subquery to avoid cartesian product)
-    const foodProgressResult = await db
-      .select({
-        food: foods,
-        bricks: sql<Array<{type: string, date: string}>>`
-          COALESCE(
-            (
-              SELECT json_agg(json_build_object('type', type, 'date', date) ORDER BY date)
-              FROM (
-                SELECT DISTINCT ${brickLogs.type} as type, ${brickLogs.date} as date
-                FROM ${brickLogs}
-                WHERE ${brickLogs.foodId} = ${foods.id} 
-                  AND ${brickLogs.babyId} = ${babyId}
-              ) brick_data
-            ),
-            '[]'::json
-          )
-        `,
-        passCount: sql<number>`(
-          SELECT count(DISTINCT ${brickLogs.id})
-          FROM ${brickLogs}
-          WHERE ${brickLogs.foodId} = ${foods.id}
-            AND ${brickLogs.babyId} = ${babyId}
-            AND ${brickLogs.type} = 'safe'
-        )`,
-        reactionCount: sql<number>`(
-          SELECT count(DISTINCT ${brickLogs.id})
-          FROM ${brickLogs}
-          WHERE ${brickLogs.foodId} = ${foods.id}
-            AND ${brickLogs.babyId} = ${babyId}
-            AND ${brickLogs.type} = 'reaction'
-        )`,
-        lastTrial: sql<Date>`(
-          SELECT max(${trials.trialDate})
-          FROM ${trials}
-          WHERE ${trials.foodId} = ${foods.id}
-            AND ${trials.babyId} = ${babyId}
-        )`,
-      })
-      .from(foods)
-      .where(sql`exists (select 1 from ${trials} where ${trials.foodId} = ${foods.id} and ${trials.babyId} = ${babyId})`)
-      .orderBy(desc(sql`(
-        SELECT max(${trials.trialDate})
-        FROM ${trials}
-        WHERE ${trials.foodId} = ${foods.id}
-          AND ${trials.babyId} = ${babyId}
-      )`));
+    // Get food progress with brick logs (using lateral join for proper parameter binding)
+    const foodProgressResult = await db.execute(sql`
+      SELECT 
+        f.*,
+        COALESCE(brick_data.bricks, '[]'::json) as bricks,
+        COALESCE(brick_data.pass_count, 0) as pass_count,
+        COALESCE(brick_data.reaction_count, 0) as reaction_count,
+        trial_data.last_trial
+      FROM ${foods} f
+      CROSS JOIN LATERAL (
+        SELECT 
+          json_agg(json_build_object('type', bl.type, 'date', bl.date) ORDER BY bl.date) as bricks,
+          COUNT(DISTINCT CASE WHEN bl.type = 'safe' THEN bl.id END) as pass_count,
+          COUNT(DISTINCT CASE WHEN bl.type = 'reaction' THEN bl.id END) as reaction_count
+        FROM ${brickLogs} bl
+        WHERE bl.food_id = f.id AND bl.baby_id = ${babyId}
+      ) brick_data
+      CROSS JOIN LATERAL (
+        SELECT MAX(t.trial_date) as last_trial
+        FROM ${trials} t
+        WHERE t.food_id = f.id AND t.baby_id = ${babyId}
+      ) trial_data
+      WHERE EXISTS (
+        SELECT 1 FROM ${trials} t2 
+        WHERE t2.food_id = f.id AND t2.baby_id = ${babyId}
+      )
+      ORDER BY trial_data.last_trial DESC NULLS LAST
+    `);
 
-    const foodProgress = foodProgressResult.map(r => ({
-      food: r.food,
-      bricks: Array.isArray(r.bricks) ? r.bricks : [],
-      passCount: r.passCount || 0,
-      reactionCount: r.reactionCount || 0,
-      lastTrial: r.lastTrial,
-    }));
+    const foodProgress = (foodProgressResult.rows as any[]).map((r: any) => {
+      let bricks: Array<{ type: string; date: string }> = [];
+      
+      // Parse bricks data (can be array or JSON string depending on Postgres driver)
+      if (r.bricks) {
+        if (Array.isArray(r.bricks)) {
+          bricks = r.bricks;
+        } else if (typeof r.bricks === 'string') {
+          try {
+            const parsed = JSON.parse(r.bricks);
+            bricks = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            console.error('Failed to parse bricks JSON:', e);
+          }
+        }
+      }
+      
+      // Reconstruct food object from query result
+      const food: Food = {
+        id: r.id,
+        name: r.name,
+        emoji: r.emoji,
+        category: r.category,
+        isCommon: r.is_common,
+        createdAt: r.created_at,
+      };
+      
+      return {
+        food,
+        bricks,
+        passCount: Number(r.pass_count) || 0,
+        reactionCount: Number(r.reaction_count) || 0,
+        lastTrial: r.last_trial,
+      };
+    });
 
     return {
       stats,
