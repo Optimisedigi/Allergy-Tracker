@@ -328,18 +328,37 @@ export class DatabaseStorage implements IStorage {
 
   // Dashboard data
   async getDashboardData(userId: string, babyId: string) {
-    // Get stats
-    const statsResult = await db
-      .select({
-        totalFoods: sql<number>`count(distinct ${trials.foodId})`,
-        safeFoods: sql<number>`count(case when ${brickLogs.type} = 'safe' then 1 end)`,
-        foodAllergies: sql<number>`count(case when ${brickLogs.type} = 'reaction' then 1 end)`,
-      })
-      .from(trials)
-      .leftJoin(brickLogs, eq(trials.id, brickLogs.trialId))
-      .where(eq(trials.babyId, babyId));
+    // Get stats with new logic:
+    // - Safe Foods: foods with 3+ safe bricks (warning bricks neutralize 1 safe brick each)
+    // - Food Allergies: foods with 2+ reaction bricks
+    const statsResult = await db.execute(sql`
+      SELECT 
+        COUNT(DISTINCT t.food_id) as total_foods,
+        COUNT(DISTINCT CASE 
+          WHEN safe_count - warning_count >= 3 THEN f.id 
+        END) as safe_foods,
+        COUNT(DISTINCT CASE 
+          WHEN reaction_count >= 2 THEN f.id 
+        END) as food_allergies
+      FROM ${trials} t
+      JOIN ${foods} f ON t.food_id = f.id
+      LEFT JOIN LATERAL (
+        SELECT 
+          COUNT(CASE WHEN bl.type = 'safe' THEN 1 END) as safe_count,
+          COUNT(CASE WHEN bl.type = 'warning' THEN 1 END) as warning_count,
+          COUNT(CASE WHEN bl.type = 'reaction' THEN 1 END) as reaction_count
+        FROM ${brickLogs} bl
+        WHERE bl.food_id = t.food_id AND bl.baby_id = ${babyId}
+      ) brick_counts ON true
+      WHERE t.baby_id = ${babyId}
+    `);
 
-    const stats = statsResult[0] || { totalFoods: 0, safeFoods: 0, foodAllergies: 0 };
+    const stats = statsResult.rows[0] || { total_foods: 0, safe_foods: 0, food_allergies: 0 };
+    const formattedStats = {
+      totalFoods: Number(stats.total_foods) || 0,
+      safeFoods: Number(stats.safe_foods) || 0,
+      foodAllergies: Number(stats.food_allergies) || 0,
+    };
 
     // Get active trials (currently observing)
     const activeTrials = await db
@@ -444,7 +463,7 @@ export class DatabaseStorage implements IStorage {
     });
 
     return {
-      stats,
+      stats: formattedStats,
       activeTrials: activeTrials.map(r => ({ ...r.trial, food: r.food })),
       recentActivity,
       foodProgress,
