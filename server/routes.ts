@@ -231,13 +231,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
       });
       
-      // Update trial status and create reaction brick log
+      // Update trial status
       await storage.updateTrialStatus(trialId, "reaction");
+      
+      // Check if food was previously safe (has safe bricks)
+      const previousBricks = await storage.getBrickLogsByFood(trial.babyId, trial.foodId);
+      const hasSafeBricks = previousBricks.some(brick => brick.type === "safe");
+      
+      // If food was previously safe, add warning brick; otherwise add reaction brick
       await storage.createBrickLog({
         babyId: trial.babyId,
         foodId: trial.foodId,
         trialId,
-        type: "reaction",
+        type: hasSafeBricks ? "warning" : "reaction",
         date: new Date(),
       });
       
