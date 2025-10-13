@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Clock, Check, AlertTriangle, Droplet } from "lucide-react";
+import { Plus, Clock, Check, AlertTriangle, Droplet, Utensils, CheckCircle, CircleAlert } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface DashboardData {
@@ -236,25 +236,42 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Stats Overview */}
-        <section className="grid grid-cols-3 gap-4 mb-6">
-          <div className="stat-card" data-testid="card-stats-foods">
-            <div className="text-sm opacity-90 mb-1">Foods Tracked</div>
-            <div className="text-3xl font-bold">
-              {dashboardData?.stats.totalFoods || 0}
-            </div>
-          </div>
-          <div className="stat-card" data-testid="card-stats-safe">
-            <div className="text-sm opacity-90 mb-1">Safe Foods</div>
-            <div className="text-3xl font-bold text-green-600">
-              {dashboardData?.stats.safeFoods || 0}
-            </div>
-          </div>
-          <div className="stat-card" data-testid="card-stats-allergies">
-            <div className="text-sm opacity-90 mb-1">Food Allergies</div>
-            <div className="text-3xl font-bold text-red-600">
-              {dashboardData?.stats.foodAllergies || 0}
-            </div>
-          </div>
+        <section className="grid grid-cols-3 gap-3 mb-6">
+          <Card data-testid="card-stats-foods">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Foods Tracked</p>
+                <Utensils className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-xl font-bold text-foreground">
+                {dashboardData?.stats.totalFoods || 0}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card data-testid="card-stats-safe">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Safe Foods</p>
+                <CheckCircle className="w-4 h-4 text-success" />
+              </div>
+              <p className="text-xl font-bold text-success">
+                {dashboardData?.stats.safeFoods || 0}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card data-testid="card-stats-allergies">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Food Allergies</p>
+                <CircleAlert className="w-4 h-4 text-destructive" />
+              </div>
+              <p className="text-xl font-bold text-destructive">
+                {dashboardData?.stats.foodAllergies || 0}
+              </p>
+            </CardContent>
+          </Card>
         </section>
 
         {/* Steroid Cream Alert */}
