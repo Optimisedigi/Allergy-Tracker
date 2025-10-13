@@ -12,6 +12,19 @@ AllergyTrack is a mobile-first web application designed to help parents track th
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+**October 13, 2025** - Reports Page Table Layout Redesign
+- Completely redesigned Reports tab from card-based to table-based layout
+- Table columns: Trial (food name), Result (Pass/Reaction), Visual (progressive bricks), Status
+- Food name with emoji appears only in first row of each food section
+- Implemented comprehensive 9-state status logic with priority-based evaluation
+- Status progression: "Passed once" → "Building confidence" → "Safe food" → "Caution" → "Likely allergy"
+- Visual brick representation: green (safe), orange (warning), red (reaction)
+- Fixed React Query caching issues by adding `staleTime: 0` and `refetchOnMount: true` for fresh data
+- Compact table spacing (py-2 px-3) for mobile-friendly display
+- Warning brick system: first reaction after safe foods creates warning (amber), subsequent reactions create red bricks
+
 ## System Architecture
 
 ### Frontend Architecture
