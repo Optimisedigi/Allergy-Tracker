@@ -20,17 +20,52 @@ interface FoodCardProps {
 }
 
 export default function FoodCard({ food, bricks, passCount, reactionCount, lastTrial, onDelete }: FoodCardProps) {
+  // Count brick types
+  const safeCount = bricks.filter(b => b.type === 'safe').length;
+  const warningCount = bricks.filter(b => b.type === 'warning').length;
+  const reactionBrickCount = bricks.filter(b => b.type === 'reaction').length;
+  
+  // Calculate effective safe count (warnings neutralize safe bricks)
+  const effectiveSafeCount = Math.max(0, safeCount - warningCount);
+
   const getStatusIcon = () => {
-    if (reactionCount > 0) {
+    // 2+ reactions = Likely Allergy
+    if (reactionBrickCount >= 2) {
       return <CircleAlert className="w-4 h-4" />;
     }
-    if (passCount > 0) {
+    // 2+ warnings = Caution
+    if (warningCount >= 2) {
+      return <CircleAlert className="w-4 h-4" />;
+    }
+    // 3+ effective safe = Safe
+    if (effectiveSafeCount >= 3) {
+      return <Check className="w-4 h-4" />;
+    }
+    // Any reaction or warning without meeting above criteria
+    if (reactionBrickCount > 0 || warningCount > 0) {
+      return <CircleAlert className="w-4 h-4" />;
+    }
+    // Any passes
+    if (safeCount > 0) {
       return <Check className="w-4 h-4" />;
     }
     return <Clock className="w-4 h-4" />;
   };
 
   const getStatusText = () => {
+    // 2+ reactions = Likely Allergy
+    if (reactionBrickCount >= 2) {
+      return "Likely Allergy";
+    }
+    // 2+ warnings without being likely allergy = Caution
+    if (warningCount >= 2) {
+      return "Caution";
+    }
+    // 3+ effective safe = Safe
+    if (effectiveSafeCount >= 3) {
+      return "Safe";
+    }
+    // Mixed results but not enough to be conclusive
     if (reactionCount > 0 && passCount > 0) {
       return `${passCount} pass${passCount > 1 ? 'es' : ''}, ${reactionCount} reaction${reactionCount > 1 ? 's' : ''}`;
     }
@@ -44,9 +79,23 @@ export default function FoodCard({ food, bricks, passCount, reactionCount, lastT
   };
 
   const getStatusColor = () => {
-    if (reactionCount > 0) {
+    // 2+ reactions = red
+    if (reactionBrickCount >= 2) {
       return "text-destructive";
     }
+    // 2+ warnings = amber/orange
+    if (warningCount >= 2) {
+      return "text-orange-500";
+    }
+    // 3+ effective safe = green
+    if (effectiveSafeCount >= 3) {
+      return "text-success";
+    }
+    // Any reaction or warning = orange
+    if (reactionCount > 0 || warningCount > 0) {
+      return "text-orange-500";
+    }
+    // Any passes = green
     if (passCount > 0) {
       return "text-success";
     }
