@@ -234,16 +234,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update trial status
       await storage.updateTrialStatus(trialId, "reaction");
       
-      // Check if food was previously safe (has safe bricks)
+      // Check brick history to determine what type of brick to add
       const previousBricks = await storage.getBrickLogsByFood(trial.babyId, trial.foodId);
       const hasSafeBricks = previousBricks.some(brick => brick.type === "safe");
+      const hasWarningBricks = previousBricks.some(brick => brick.type === "warning");
       
-      // If food was previously safe, add warning brick; otherwise add reaction brick
+      // Decision logic:
+      // 1. If food was previously safe but has no warning bricks yet: add warning brick (first reaction after safe)
+      // 2. If food has warning bricks already: add reaction brick (subsequent reactions)
+      // 3. If food was never safe: add reaction brick (standard first reaction)
+      let brickType: "warning" | "reaction";
+      if (hasSafeBricks && !hasWarningBricks) {
+        brickType = "warning";
+      } else {
+        brickType = "reaction";
+      }
+      
       await storage.createBrickLog({
         babyId: trial.babyId,
         foodId: trial.foodId,
         trialId,
-        type: hasSafeBricks ? "warning" : "reaction",
+        type: brickType,
         date: new Date(),
       });
       
