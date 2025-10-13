@@ -7,7 +7,7 @@ import MobileNav from "@/components/mobile-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Utensils, CheckCircle, CircleAlert } from "lucide-react";
+import { Download, Utensils, CheckCircle, CircleAlert, Check, AlertTriangle, X, Copy } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface ReportsData {
@@ -99,6 +99,40 @@ export default function Reports() {
     setDoctorEmail("");
   };
 
+  // Calculate status based on passes and reactions
+  const getStatus = (passes: number, reactions: number) => {
+    if (passes === 0 && reactions === 0) return "Not tried yet";
+    if (passes === 1 && reactions === 0) return "Passed once";
+    if (passes === 2 && reactions === 0) return "Building confidence";
+    if (passes >= 3 && reactions === 0) return "Safe food";
+    if (passes >= 3 && reactions === 1) return "Caution";
+    if (passes >= 3 && reactions >= 2) return "Likely allergy";
+    if (passes < 3 && reactions === 1) return "Possible sensitivity";
+    if (passes < 3 && reactions >= 2) return "Allergy suspected";
+    if (reactions >= 3) return "Confirmed allergy";
+    return "Testing";
+  };
+
+  // Get status icon and color
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "Safe food":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
+      case "Caution":
+      case "Possible sensitivity":
+        return { icon: <AlertTriangle className="w-4 h-4" />, color: "text-orange-500", bg: "bg-orange-500/10" };
+      case "Likely allergy":
+      case "Allergy suspected":
+      case "Confirmed allergy":
+        return { icon: <X className="w-4 h-4" />, color: "text-destructive", bg: "bg-destructive/10" };
+      case "Building confidence":
+      case "Passed once":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
+      default:
+        return { icon: null, color: "text-muted-foreground", bg: "bg-muted" };
+    }
+  };
+
   const reactionCount = reportsData?.foodProgress.reduce((sum, food) => sum + food.reactionCount, 0) || 0;
   const safeCount = reportsData?.foodProgress.filter(food => food.reactionCount === 0 && food.passCount > 0).length || 0;
 
@@ -161,79 +195,115 @@ export default function Reports() {
           </Card>
         </div>
 
-        {/* Detailed Food List */}
+        {/* Detailed Food Table */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <div className="p-4 border-b border-border bg-muted/30">
               <h3 className="font-semibold text-foreground">Detailed Food History</h3>
             </div>
             
-            <div className="divide-y divide-border">
-              {reportsData?.foodProgress.length === 0 ? (
-                <div className="p-6 text-center text-muted-foreground">
-                  No food trials recorded yet. Start tracking to see reports here!
-                </div>
-              ) : (
-                reportsData?.foodProgress.map((foodData) => (
-                  <div 
-                    key={foodData.food.id} 
-                    className="p-4 hover:bg-muted/30 transition-colors"
-                    data-testid={`food-report-${foodData.food.id}`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{foodData.food.emoji || "🍼"}</span>
-                        <div>
-                          <h4 className="font-semibold text-foreground">{foodData.food.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            First trial: {foodData.firstTrial ? formatAustralianDate(new Date(foodData.firstTrial)) : "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        foodData.reactionCount === 0 && foodData.passCount > 0
-                          ? "bg-success/10 text-success"
-                          : foodData.reactionCount > 0
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-muted text-muted-foreground"
-                      }`}>
-                        {foodData.reactionCount === 0 && foodData.passCount > 0
-                          ? "Safe"
-                          : foodData.reactionCount > 0
-                          ? "Reactions"
-                          : "Testing"}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground mb-1">Total Passes</p>
-                        <p className="font-semibold text-foreground">{foodData.passCount}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground mb-1">Reactions</p>
-                        <p className="font-semibold text-foreground">{foodData.reactionCount}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground mb-1">Last Trial</p>
-                        <p className="font-semibold text-foreground">
-                          {foodData.lastTrial ? formatAustralianDate(new Date(foodData.lastTrial)) : "N/A"}
-                        </p>
-                      </div>
-                    </div>
+            {reportsData?.foodProgress.length === 0 ? (
+              <div className="p-6 text-center text-muted-foreground">
+                No food trials recorded yet. Start tracking to see reports here!
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                {reportsData?.foodProgress.map((foodData) => {
+                  // Calculate cumulative passes and reactions for each brick
+                  const trialRows = foodData.bricks.map((brick, index) => {
+                    const bricksUpToNow = foodData.bricks.slice(0, index + 1);
+                    const passesUpToNow = bricksUpToNow.filter(b => b.type === 'safe').length;
+                    const reactionsUpToNow = bricksUpToNow.filter(b => b.type === 'reaction' || b.type === 'warning').length;
+                    const status = getStatus(passesUpToNow, reactionsUpToNow);
+                    const statusDisplay = getStatusDisplay(status);
 
-                    {foodData.reactionCount > 0 && (
-                      <div className="mt-3 bg-destructive/5 border border-destructive/20 rounded-lg p-3">
-                        <p className="text-xs font-medium text-destructive mb-2">Reaction History:</p>
-                        <p className="text-xs text-destructive-foreground">
-                          This food has shown {foodData.reactionCount} reaction(s). Consult with your pediatrician before continuing trials.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
+                    return {
+                      trialNumber: index + 1,
+                      result: brick.type === 'safe' ? 'Pass' : 'Reaction',
+                      bricks: bricksUpToNow,
+                      status,
+                      statusDisplay,
+                      showStatus: index === foodData.bricks.length - 1 || 
+                                  status === 'Safe food' || 
+                                  status === 'Caution' || 
+                                  status.includes('allergy')
+                    };
+                  });
+
+                  return (
+                    <div key={foodData.food.id} className="border-b border-border last:border-b-0">
+                      <table className="w-full">
+                        <thead className="bg-muted/20">
+                          <tr className="border-b border-border">
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Trial</th>
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[100px]">Result</th>
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
+                            <th className="w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {trialRows.map((row, idx) => (
+                            <tr key={idx} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
+                              <td className="py-2 px-3">
+                                {idx === 0 && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xl">{foodData.food.emoji || "🍼"}</span>
+                                    <span className="font-medium text-sm">{foodData.food.name}</span>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-2 px-3">
+                                <span className="text-sm">{row.result}</span>
+                              </td>
+                              <td className="py-2 px-3">
+                                <div className="flex gap-0.5">
+                                  {row.bricks.map((brick, brickIdx) => (
+                                    <div
+                                      key={brickIdx}
+                                      className={`w-6 h-5 rounded ${
+                                        brick.type === 'safe' 
+                                          ? 'bg-success' 
+                                          : brick.type === 'warning'
+                                          ? 'bg-orange-500'
+                                          : 'bg-destructive'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-2 px-3">
+                                {row.showStatus && (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={row.statusDisplay.color}>{row.statusDisplay.icon}</span>
+                                    <span className="text-sm">{row.status}</span>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-2 px-3">
+                                {idx === 0 && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 w-7 p-0"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(foodData.food.name);
+                                      toast({ description: "Food name copied to clipboard" });
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
