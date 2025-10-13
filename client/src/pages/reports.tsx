@@ -101,15 +101,27 @@ export default function Reports() {
 
   // Calculate status based on passes and reactions
   const getStatus = (passes: number, reactions: number) => {
+    // Check for confirmed allergy first (highest priority)
+    if (reactions >= 3) return "Confirmed allergy";
+    
+    // No trials yet
     if (passes === 0 && reactions === 0) return "Not tried yet";
+    
+    // Early stage passes
     if (passes === 1 && reactions === 0) return "Passed once";
     if (passes === 2 && reactions === 0) return "Building confidence";
+    
+    // Safe food (3+ passes, no reactions)
     if (passes >= 3 && reactions === 0) return "Safe food";
+    
+    // 3+ passes with reactions
     if (passes >= 3 && reactions === 1) return "Caution";
     if (passes >= 3 && reactions >= 2) return "Likely allergy";
+    
+    // Less than 3 passes with reactions
     if (passes < 3 && reactions === 1) return "Possible sensitivity";
     if (passes < 3 && reactions >= 2) return "Allergy suspected";
-    if (reactions >= 3) return "Confirmed allergy";
+    
     return "Testing";
   };
 
