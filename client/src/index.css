@@ -110,6 +110,10 @@
     background: linear-gradient(135deg, hsl(0 70% 75%) 0%, hsl(0 70% 65%) 100%);
   }
   
+  .brick.warning {
+    background: linear-gradient(135deg, hsl(38 92% 65%) 0%, hsl(38 92% 55%) 100%);
+  }
+  
   .brick::after {
     content: '';
     position: absolute;
