@@ -109,7 +109,7 @@ export const brickLogs = pgTable("brick_logs", {
   babyId: varchar("baby_id").notNull().references(() => babies.id, { onDelete: "cascade" }),
   foodId: varchar("food_id").notNull().references(() => foods.id, { onDelete: "cascade" }),
   trialId: varchar("trial_id").notNull().references(() => trials.id, { onDelete: "cascade" }),
-  type: varchar("type").notNull(), // "safe" or "reaction"
+  type: varchar("type").notNull(), // "safe", "reaction", or "warning" (amber bar for reactions after food was safe)
   date: timestamp("date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
