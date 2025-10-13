@@ -62,6 +62,8 @@ export default function Reports() {
     queryKey: ["/api/dashboard", selectedBaby],
     enabled: isAuthenticated && !!selectedBaby,
     retry: false,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true,
   });
 
   if (isLoading || isReportsLoading) {
