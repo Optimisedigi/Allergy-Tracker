@@ -222,100 +222,76 @@ export default function Reports() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                {reportsData?.foodProgress.map((foodData) => {
-                  // Calculate cumulative passes and reactions for each brick
-                  const trialRows = foodData.bricks.map((brick, index) => {
-                    const bricksUpToNow = foodData.bricks.slice(0, index + 1);
-                    const passesUpToNow = bricksUpToNow.filter(b => b.type === 'safe').length;
-                    const reactionsUpToNow = bricksUpToNow.filter(b => b.type === 'reaction' || b.type === 'warning').length;
-                    const status = getStatus(passesUpToNow, reactionsUpToNow);
-                    const statusDisplay = getStatusDisplay(status);
+                <table className="w-full">
+                  <thead className="bg-muted/20">
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Trial</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reportsData?.foodProgress.map((foodData) => {
+                      // Calculate cumulative passes and reactions for each brick
+                      const trialRows = foodData.bricks.map((brick, index) => {
+                        const bricksUpToNow = foodData.bricks.slice(0, index + 1);
+                        const passesUpToNow = bricksUpToNow.filter(b => b.type === 'safe').length;
+                        const reactionsUpToNow = bricksUpToNow.filter(b => b.type === 'reaction' || b.type === 'warning').length;
+                        const status = getStatus(passesUpToNow, reactionsUpToNow);
+                        const statusDisplay = getStatusDisplay(status);
 
-                    return {
-                      trialNumber: index + 1,
-                      result: brick.type === 'safe' ? 'Pass' : 'Reaction',
-                      bricks: bricksUpToNow,
-                      status,
-                      statusDisplay,
-                      showStatus: index === foodData.bricks.length - 1 || 
-                                  status === 'Safe food' || 
-                                  status === 'Caution' || 
-                                  status.includes('allergy')
-                    };
-                  });
+                        return {
+                          trialNumber: index + 1,
+                          bricks: bricksUpToNow,
+                          status,
+                          statusDisplay,
+                          showStatus: index === foodData.bricks.length - 1 || 
+                                      status === 'Safe food' || 
+                                      status === 'Caution' || 
+                                      status.includes('allergy')
+                        };
+                      });
 
-                  return (
-                    <div key={foodData.food.id} className="border-b border-border last:border-b-0">
-                      <table className="w-full">
-                        <thead className="bg-muted/20">
-                          <tr className="border-b border-border">
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Trial</th>
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[100px]">Result</th>
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
-                            <th className="w-10"></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {trialRows.map((row, idx) => (
-                            <tr key={idx} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
-                              <td className="py-2 px-3">
-                                {idx === 0 && (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xl">{foodData.food.emoji || "🍼"}</span>
-                                    <span className="font-medium text-sm">{foodData.food.name}</span>
-                                  </div>
-                                )}
-                              </td>
-                              <td className="py-2 px-3">
-                                <span className="text-sm">{row.result}</span>
-                              </td>
-                              <td className="py-2 px-3">
-                                <div className="flex gap-0.5">
-                                  {row.bricks.map((brick, brickIdx) => (
-                                    <div
-                                      key={brickIdx}
-                                      className={`w-6 h-5 rounded ${
-                                        brick.type === 'safe' 
-                                          ? 'bg-success' 
-                                          : brick.type === 'warning'
-                                          ? 'bg-orange-500'
-                                          : 'bg-destructive'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              </td>
-                              <td className="py-2 px-3">
-                                {row.showStatus && (
-                                  <div className="flex items-center gap-1.5">
-                                    <span className={row.statusDisplay.color}>{row.statusDisplay.icon}</span>
-                                    <span className="text-sm">{row.status}</span>
-                                  </div>
-                                )}
-                              </td>
-                              <td className="py-2 px-3">
-                                {idx === 0 && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 w-7 p-0"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(foodData.food.name);
-                                      toast({ description: "Food name copied to clipboard" });
-                                    }}
-                                  >
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                })}
+                      return trialRows.map((row, idx) => (
+                        <tr key={`${foodData.food.id}-${idx}`} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
+                          <td className="py-2 px-3">
+                            {idx === 0 && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">{foodData.food.emoji || "🍼"}</span>
+                                <span className="font-medium text-sm">{foodData.food.name}</span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2 px-3">
+                            <div className="flex gap-0.5">
+                              {row.bricks.map((brick, brickIdx) => (
+                                <div
+                                  key={brickIdx}
+                                  className={`w-6 h-5 rounded`}
+                                  style={{
+                                    background: brick.type === 'safe' 
+                                      ? 'linear-gradient(135deg, hsl(142 52% 65%) 0%, hsl(142 52% 55%) 100%)'
+                                      : brick.type === 'warning'
+                                      ? 'linear-gradient(135deg, hsl(38 92% 65%) 0%, hsl(38 92% 55%) 100%)'
+                                      : 'linear-gradient(135deg, hsl(0 70% 75%) 0%, hsl(0 70% 65%) 100%)'
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </td>
+                          <td className="py-2 px-3">
+                            {row.showStatus && (
+                              <div className="flex items-center gap-1.5">
+                                <span className={row.statusDisplay.color}>{row.statusDisplay.icon}</span>
+                                <span className="text-sm">{row.status}</span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ));
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>

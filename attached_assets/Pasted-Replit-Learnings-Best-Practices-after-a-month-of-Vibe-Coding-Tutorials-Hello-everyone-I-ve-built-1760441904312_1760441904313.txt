@@ -1,0 +1,125 @@
+Replit Learnings & Best Practices after a month of Vibe Coding
+Tutorials
+Hello everyone,
+
+I’ve built three apps now on Replit, and it’s taken me a lot of trial and error to get them in a functioning state and to learn how to engage with the Agent & Assistant in the most effective manner.
+
+I found that when I would get seemingly halfway through a project, I would make some sort of change that would break seemingly separate functions across the application. Then I would have to go through each feature and painfully debug them one by one.
+
+I figured I would share what I’ve learned over the past month or so. Here is a list of best practices I’ve begun to implement on my projects, and I would like to learn from others what best practices you all are using.
+
+As far as my background, I’m not a software engineer, but I have a decade of enterprise software product management and architecture experience at a major tech firm. So, I have a solid grasp of technology architectures, UI and UX best practices, and the software development lifecycle, which has really aided me in my "vibe coding" journey.
+
+1. GitHub for Version Control, Environment Separation & Branch Management
+
+This is perhaps the most important requirement to implement at project setup: solid version and commit management using GitHub, which you can then use to run separate environments with separate Replit projects.
+
+1.1. Production vs. Development Environments Just because you feel you’ve gotten your app in a workable place with the minimum features needed, clicking the ‘deploy’ button does not mean that this should be your production environment. You do not want to be running the production version of your application with your development secrets or environment variables.
+
+1.2. Initial GitHub Setup It's important that when you start a new Replit project, you also initialize a new GitHub repo where you store all of the code for this project. This can be done from the ‘Git’ tab/feature within Replit itself.
+
+1.3. Feature Branching and Merging When you develop a new feature, you should develop it under a new branch. You can also do this under the ‘Git’ feature by creating a new branch. Once you’ve been able to successfully test the feature and validate that it hasn’t broken anything else in the ‘Preview’ window, you can commit and push this to GitHub.
+
+From GitHub, you can then create a pull request for this commit and then merge it into the main/master branch of your code. This should always represent a working version of your code. Do not commit broken code to your master branch.
+
+Once you’ve merged the code, go back to Replit and pull down/fetch the latest main/master branch so you’re working from the latest main version of code.
+
+Again, when you develop new features, do those in a separate branch which you then commit and merge into master. Rinse and repeat.
+
+1.4. Setting Up Production and Other Environments Once you have finished building your application, you need to host/deploy it onto production servers. I recommend creating a new, separate Replit project and then importing your app from GitHub – there’s an option for this when creating a new project.
+
+Once you’ve imported your code, you should proceed with setting up environment variables for your new environment. These should be different than the environment variables/secrets used in your lower-level environments.
+
+Then you’ll need to initialize and build your app. This can be done through scripts or workflows built by the Replit Agent (more on this later). One thing to keep in mind is that for Replit projects you’ve initiated by importing the code, you don’t have access to the Agent feature, for whatever reason.
+
+You also should never make code edits within the production version, or you will end up with version control issues down the road. If you identify a defect in the production version, remediate the issue in your development environment.
+
+You can also use this approach to set up staging or test environments that act as a testing intermediary between your development Replit and your production Replit.
+
+1.5. Security Considerations In my enterprise software development job, maintaining data security and privacy is absolutely the highest priority, but I don’t think this is something most "vibe coders" are aware of. At a bare minimum, use separate secrets and variables between environments and never commit code that hasn’t been through a security scan. Replit now offers a security scan under the ‘Deployments’ feature. Remediate all vulnerabilities before pushing the feature branch and merging it into your main branch. Replit also has a list of prompts you can use to implement security features here.
+
+2. Prompting the Agent Effectively
+
+Knowing how to efficiently and effectively interact with the Agent through prompt engineering is critical to your success. It helps avoid frustration if the Agent takes you through a recursive hell, breaking things without fixing any issues, and can save your money (at, for example, 25 cents per interaction).
+
+I feel that lots of guides suggest that you should be very explicit in your ask to the Agent/Assistant, which you should. But there are additional adders you should include in your prompt that allow your Agent to take a more iterative approach to implement new features or remediate bugs. These recommendations I have found significantly improve the accuracy of Agent actions.
+
+2.1. Defining Requirements with Given-When-Then From my days writing user stories as a business analyst, I also used the Given-When-Then format to define new features or how bugs manifest:
+
+(Given) some context
+
+(When) some action is carried out
+
+(Then) a particular set of observable consequences should obtain
+
+An example:
+
+Given my bank account is in credit, and I made no withdrawals recently,
+
+When I attempt to withdraw an amount less than my card’s limit,
+
+Then the withdrawal should be complete without errors or warnings.
+
+You may need to write several of these to define all of the business rules for how you expect the function to work.
+
+2.2. Enhancing Prompts for New Features Once you’ve defined the requirements using that format, I then add these steps, which I think is the biggest value-adder:
+
+Please assess the enhancement and determine what steps need to be taken to address the change.
+
+Describe your understanding of the requirements.
+
+Are there any key considerations you need to keep in mind when proceeding with this plan as to not disrupt any existing functionality?
+
+Propose best practice user experience for completing this.
+
+Assess any other best practices that may be relevant & keep in mind how the application is currently implemented.
+
+Generate a step-by-step plan to implement this enhancement.
+
+Do not make changes that will break other features within the application; keep the scope of your enhancements limited to just the feature request.
+
+Then, identify how the technical changes will be made and propose it in a skeleton framework.
+
+Do not proceed until I have confirmed your approach & understanding is sound.
+
+If you do this, your Agent is going to give you back a very detailed response regarding its understanding of your requirements, how it intends to alter the code, and the specific code changes it will make. Even better, I find that responses to this prompt structure are almost always free – it seems to only charge for the code edits themselves.
+
+Make sure to review its understanding of the functionality and any business requirements it will implement to make sure it aligns with your vision for how the feature should work.
+
+Once you give it the go-ahead to ‘Proceed,’ it will have a significantly higher chance of producing code that works correctly and meets your requirements, and now you don’t have to go back and forth with the Agent.
+
+Apply this one feature at a time to incrementally build your application.
+
+2.3. Bug Remediation Prompts Now, once a feature is built, I then go and test it.
+
+If I encounter a bug, I use the Given-When-Then format to document how I encountered the bug, then I state how I expect the feature to actually work. I add these prompt adders to have the Agent produce a plan to remediate the issue:
+
+What do you think is causing this? Review the code and identify why this might be the cause and possible remediations. Do not begin making fixes until I give you the go-ahead to proceed.
+
+Please review the code & come up with a step-by-step plan to implement your suggestions, and propose a technical framework to remediate the issue.
+
+Once I’ve gotten the issue working, I commit it to a new branch, and then through GitHub, I merge the code into the master. I use a new branch for each distinct feature to keep all changes compartmentalized.
+
+3. Scripts, Readmes, and Workflows
+
+3.1. Application Scripts Application scripts automate certain functions for your application, often used for actions like initializing and running the app, seeding the database, ‘killing’ the app (so that it’s not running), or building the UI. These scripts are executed through the ‘Shell’ feature command-line interface.
+
+You can ask the Agent to build these scripts for you, and those I just described it will typically develop without you asking as part of its initial build process.
+
+You can also use the Agent to develop scripts for more unique tasks, like onboarding Admin Users, generating BCRYPT hash passwords and revealing them during the response, running SQL commands to edit database values, or something unique to how your application functions.
+
+3.2. Readmes for Script Management Now, it’s very easy to have tens if not dozens of scripts defined for your application, and it’s tough to keep track of them all.
+
+Ask your Agent to create readmes that document all of the scripts it has produced: a readme for the scripts to launch the application into production, scripts for your admin user, or readmes for managing your environment variables.
+
+3.3. Workflows for Sequential Actions Initializing and building your application may require several scripts that need to be run sequentially. You can ask your Agent to create a ‘Workflow,’ which basically bundles up the scripts and puts them behind a single button exposed through the Replit Workflow feature. This way, you can easily and correctly execute certain actions.
+
+--------------------------------------------------------------------------------
+
+So, that’s all of the big takeaways I’ve had over the past month or so of using Replit. These steps have helped me become extremely effective when building apps.
+
+I’d love to hear everyone’s best practices they’ve implemented so we can all become a bit more effective.
+
+One area of trouble I have is implementing effective identity and access management (IAM) capabilities without breaking the app. I haven’t liked using Replit Auth and haven’t had much success with open source IAM systems, so I use something homegrown within Replit, but I know that’s not best practice.
+
+Thanks for reading & let me hear your feedback
