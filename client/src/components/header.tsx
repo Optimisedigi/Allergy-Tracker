@@ -17,7 +17,7 @@ export default function Header({ babyName, user, title }: HeaderProps) {
             <img 
               src={logoImage} 
               alt="AllergyTrack Bubs Logo" 
-              className="w-15 h-15 object-contain"
+              className="w-10 h-10 object-contain"
               data-testid="logo-image"
             />
             <div>
