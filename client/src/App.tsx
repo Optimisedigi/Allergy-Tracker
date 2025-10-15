@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Onboarding from "@/pages/onboarding";
 import Dashboard from "@/pages/dashboard";
 import Reports from "@/pages/reports";
+import HowItWorks from "@/pages/how-it-works";
 import Settings from "@/pages/settings";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/reports" component={Reports} />
+          <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/settings" component={Settings} />
         </>
       )}

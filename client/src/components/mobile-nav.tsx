@@ -1,9 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Home, BarChart3, Bell, Settings } from "lucide-react";
+import { Home, BarChart3, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MobileNavProps {
-  activeTab?: "home" | "reports" | "alerts" | "settings";
+  activeTab?: "home" | "reports" | "how-it-works" | "settings";
 }
 
 export default function MobileNav({ activeTab }: MobileNavProps) {
@@ -12,6 +12,7 @@ export default function MobileNav({ activeTab }: MobileNavProps) {
   const getActiveTab = () => {
     if (activeTab) return activeTab;
     if (location === "/reports") return "reports";
+    if (location === "/how-it-works") return "how-it-works";
     if (location === "/settings") return "settings";
     return "home";
   };
@@ -32,10 +33,12 @@ export default function MobileNav({ activeTab }: MobileNavProps) {
           <span>Reports</span>
         </a>
       </Link>
-      <a href="#" className={cn("nav-item", currentTab === "alerts" && "active")} data-testid="nav-alerts">
-        <Bell className="w-5 h-5" />
-        <span>Alerts</span>
-      </a>
+      <Link href="/how-it-works">
+        <a className={cn("nav-item", currentTab === "how-it-works" && "active")} data-testid="nav-how-it-works">
+          <HelpCircle className="w-5 h-5" />
+          <span>How it works</span>
+        </a>
+      </Link>
       <Link href="/settings">
         <a className={cn("nav-item", currentTab === "settings" && "active")} data-testid="nav-settings">
           <Settings className="w-5 h-5" />
