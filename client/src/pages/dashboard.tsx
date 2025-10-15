@@ -226,11 +226,43 @@ export default function Dashboard() {
 
   const selectedBabyData = babies.find((b) => b.id === selectedBaby);
 
+  // Calculate days without reaction
+  const calculateDaysWithoutReaction = (): number => {
+    if (!dashboardData?.foodProgress) return 0;
+    
+    const reactionDates: Date[] = [];
+    
+    // Find all reaction dates from all food bricks
+    dashboardData.foodProgress.forEach(food => {
+      food.bricks.forEach(brick => {
+        if (brick.type === 'reaction' || brick.type === 'warning') {
+          reactionDates.push(new Date(brick.date));
+        }
+      });
+    });
+    
+    // If no reactions found, return 0
+    if (reactionDates.length === 0) return 0;
+    
+    // Find the most recent reaction
+    const mostRecentReactionDate = new Date(Math.max(...reactionDates.map(d => d.getTime())));
+    
+    // Calculate days difference
+    const today = new Date();
+    const diffTime = today.getTime() - mostRecentReactionDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const daysWithoutReaction = calculateDaysWithoutReaction();
+
   return (
     <div className="min-h-screen pb-20 bg-background" data-testid="dashboard-container">
       <Header 
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
+        daysWithoutReaction={daysWithoutReaction}
         data-testid="dashboard-header"
       />
 

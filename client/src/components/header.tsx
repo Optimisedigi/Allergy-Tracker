@@ -1,14 +1,13 @@
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import logoImage from "@assets/allergy-track-bubs-logo-transparent_1759840057297.png";
 
 interface HeaderProps {
   babyName: string;
   user?: any;
   title?: string;
+  daysWithoutReaction?: number;
 }
 
-export default function Header({ babyName, user, title }: HeaderProps) {
+export default function Header({ babyName, user, title, daysWithoutReaction }: HeaderProps) {
   return (
     <header className="bg-card border-b border-border sticky top-0 z-40" data-testid="header-container">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -29,16 +28,10 @@ export default function Header({ babyName, user, title }: HeaderProps) {
               </p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="relative w-10 h-10 p-0"
-            data-testid="button-notifications"
-          >
-            <Bell className="h-5 w-5" />
-            {/* Notification indicator - would be conditional based on unread notifications */}
-            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
-          </Button>
+          <div className="text-right" data-testid="days-without-reaction">
+            <p className="text-xs text-muted-foreground">Days without reaction:</p>
+            <p className="text-lg font-bold text-foreground">{daysWithoutReaction ?? 0}</p>
+          </div>
         </div>
       </div>
     </header>
