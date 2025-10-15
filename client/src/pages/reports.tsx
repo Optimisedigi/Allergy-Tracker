@@ -232,39 +232,23 @@ export default function Reports() {
                   </thead>
                   <tbody>
                     {reportsData?.foodProgress.map((foodData) => {
-                      // Calculate cumulative passes and reactions for each brick
-                      const trialRows = foodData.bricks.map((brick, index) => {
-                        const bricksUpToNow = foodData.bricks.slice(0, index + 1);
-                        const passesUpToNow = bricksUpToNow.filter(b => b.type === 'safe').length;
-                        const reactionsUpToNow = bricksUpToNow.filter(b => b.type === 'reaction' || b.type === 'warning').length;
-                        const status = getStatus(passesUpToNow, reactionsUpToNow);
-                        const statusDisplay = getStatusDisplay(status);
+                      // Calculate total passes and reactions for final status
+                      const passes = foodData.bricks.filter(b => b.type === 'safe').length;
+                      const reactions = foodData.bricks.filter(b => b.type === 'reaction' || b.type === 'warning').length;
+                      const status = getStatus(passes, reactions);
+                      const statusDisplay = getStatusDisplay(status);
 
-                        return {
-                          trialNumber: index + 1,
-                          bricks: bricksUpToNow,
-                          status,
-                          statusDisplay,
-                          showStatus: index === foodData.bricks.length - 1 || 
-                                      status === 'Safe food' || 
-                                      status === 'Caution' || 
-                                      status.includes('allergy')
-                        };
-                      });
-
-                      return trialRows.map((row, idx) => (
-                        <tr key={`${foodData.food.id}-${idx}`} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
+                      return (
+                        <tr key={foodData.food.id} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
                           <td className="py-2 px-3">
-                            {idx === 0 && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl">{foodData.food.emoji || "🍼"}</span>
-                                <span className="font-medium text-sm">{foodData.food.name}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{foodData.food.emoji || "🍼"}</span>
+                              <span className="font-medium text-xs">{foodData.food.name}</span>
+                            </div>
                           </td>
                           <td className="py-2 px-3">
                             <div className="flex gap-0.5">
-                              {row.bricks.map((brick, brickIdx) => (
+                              {foodData.bricks.map((brick, brickIdx) => (
                                 <div
                                   key={brickIdx}
                                   className={`w-6 h-5 rounded`}
@@ -280,15 +264,13 @@ export default function Reports() {
                             </div>
                           </td>
                           <td className="py-2 px-3">
-                            {row.showStatus && (
-                              <div className="flex items-center gap-1.5">
-                                <span className={row.statusDisplay.color}>{row.statusDisplay.icon}</span>
-                                <span className="text-sm">{row.status}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              <span className={statusDisplay.color}>{statusDisplay.icon}</span>
+                              <span className="text-xs">{status}</span>
+                            </div>
                           </td>
                         </tr>
-                      ));
+                      );
                     })}
                   </tbody>
                 </table>
