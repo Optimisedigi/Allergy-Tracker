@@ -1,18 +1,83 @@
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle, CircleAlert, Circle, TrendingUp } from "lucide-react";
 
+interface DashboardData {
+  foodProgress: Array<{
+    food: { id: string; name: string; emoji?: string };
+    bricks: Array<{ type: string; date: string }>;
+  }>;
+}
+
 export default function HowItWorks() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const [selectedBaby, setSelectedBaby] = useState<string>("");
+
+  // Get user's babies
+  const { data: babies = [] } = useQuery<Array<{ id: string; name: string }>>({
+    queryKey: ["/api/babies"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  // Set first baby as selected by default
+  useEffect(() => {
+    if (babies.length > 0 && !selectedBaby) {
+      setSelectedBaby(babies[0].id);
+    }
+  }, [babies, selectedBaby]);
+
+  // Get dashboard data
+  const { data: dashboardData } = useQuery<DashboardData>({
+    queryKey: ["/api/dashboard", selectedBaby],
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
+  const selectedBabyData = babies.find((b) => b.id === selectedBaby);
+
+  // Calculate days without reaction
+  const calculateDaysWithoutReaction = (): number => {
+    if (!dashboardData?.foodProgress) return 0;
+    
+    const reactionDates: Date[] = [];
+    
+    // Find all reaction dates from all food bricks
+    dashboardData.foodProgress.forEach(food => {
+      food.bricks.forEach(brick => {
+        if (brick.type === 'reaction' || brick.type === 'warning') {
+          reactionDates.push(new Date(brick.date));
+        }
+      });
+    });
+    
+    // If no reactions found, return 0
+    if (reactionDates.length === 0) return 0;
+    
+    // Find the most recent reaction
+    const mostRecentReactionDate = new Date(Math.max(...reactionDates.map(d => d.getTime())));
+    
+    // Calculate days difference
+    const today = new Date();
+    const diffTime = today.getTime() - mostRecentReactionDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const daysWithoutReaction = calculateDaysWithoutReaction();
 
   return (
     <div className="min-h-screen pb-20 bg-background" data-testid="how-it-works-container">
       <Header 
-        babyName="Baby" 
+        babyName={selectedBabyData?.name || "Baby"} 
         user={user}
         title="How It Works"
+        daysWithoutReaction={daysWithoutReaction}
         data-testid="how-it-works-header"
       />
 
