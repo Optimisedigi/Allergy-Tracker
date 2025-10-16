@@ -223,7 +223,7 @@ export default function Reports() {
           <Card data-testid="card-summary-safe">
             <CardContent className="p-3">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-muted-foreground">Safe Foods</p>
+                <p className="text-xs text-muted-foreground">Food test passed</p>
                 <CheckCircle className="w-4 h-4 text-success" />
               </div>
               <p className="text-xl font-bold text-success">{safeCount}</p>
