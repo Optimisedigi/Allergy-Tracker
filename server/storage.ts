@@ -444,15 +444,40 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(trials.updatedAt))
       .limit(10);
 
-    const recentActivity = recentTrials.map(r => ({
-      id: r.trial.id,
-      description: r.trial.status === "completed" 
-        ? `${r.food.name} trial completed successfully`
-        : r.trial.status === "reaction"
-        ? `Reaction to ${r.food.name} logged`
-        : `Started ${r.food.name} trial observation`,
-      timestamp: r.trial.updatedAt!,
-      type: r.trial.status === "completed" ? "success" : r.trial.status === "reaction" ? "error" : "info",
+    // Build recent activity with enhanced descriptions
+    const recentActivity = await Promise.all(recentTrials.map(async r => {
+      let description = '';
+      let type = 'info';
+      
+      if (r.trial.status === "completed") {
+        description = `${r.food.name} trial completed successfully`;
+        type = 'success';
+      } else if (r.trial.status === "reaction") {
+        // Get food history to determine if it's a confirmed/likely allergy
+        const history = await this.getFoodHistory(babyId, r.food.id);
+        
+        // Check for confirmed or likely allergy
+        if (history.redBrickCount >= 3 || history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
+          if (history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
+            description = `Confirmed allergy to ${r.food.name}`;
+          } else {
+            description = `Likely allergy to ${r.food.name}`;
+          }
+        } else {
+          description = `Reaction to ${r.food.name} logged`;
+        }
+        type = 'error';
+      } else {
+        description = `Started ${r.food.name} trial observation`;
+        type = 'info';
+      }
+      
+      return {
+        id: r.trial.id,
+        description,
+        timestamp: r.trial.updatedAt!,
+        type,
+      };
     }));
 
     // Get food progress with brick logs (using lateral join for proper parameter binding)
