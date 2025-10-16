@@ -52,20 +52,21 @@ export default function ReactionModal({
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("mild");
   const [startedAt, setStartedAt] = useState(formatAustralianDateTime(new Date(), "datetime"));
-  const [resolvedDate, setResolvedDate] = useState<Date | undefined>(undefined);
-  const [resolvedHour, setResolvedHour] = useState<string>("");
-  const [resolvedMinute, setResolvedMinute] = useState<string>("");
+  const [resolvedDate, setResolvedDate] = useState<Date | undefined>(new Date());
+  const [resolvedHour, setResolvedHour] = useState<string>(new Date().getHours().toString().padStart(2, '0'));
+  const [resolvedMinute, setResolvedMinute] = useState<string>((Math.floor(new Date().getMinutes() / 5) * 5).toString().padStart(2, '0'));
   const [notes, setNotes] = useState("");
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
+      const now = new Date();
       setSelectedTypes([]);
       setSeverity("mild");
-      setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
-      setResolvedDate(undefined);
-      setResolvedHour("");
-      setResolvedMinute("");
+      setStartedAt(formatAustralianDateTime(now, "datetime"));
+      setResolvedDate(now);
+      setResolvedHour(now.getHours().toString().padStart(2, '0'));
+      setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
       setNotes("");
     }
   }, [isOpen]);
@@ -150,12 +151,13 @@ export default function ReactionModal({
   });
 
   const handleClose = () => {
+    const now = new Date();
     setSelectedTypes([]);
     setSeverity("mild");
-    setStartedAt(formatAustralianDateTime(new Date(), "datetime"));
-    setResolvedDate(undefined);
-    setResolvedHour("");
-    setResolvedMinute("");
+    setStartedAt(formatAustralianDateTime(now, "datetime"));
+    setResolvedDate(now);
+    setResolvedHour(now.getHours().toString().padStart(2, '0'));
+    setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
     setNotes("");
     onClose();
   };
@@ -296,7 +298,7 @@ export default function ReactionModal({
             
             <div>
               <Label className="block text-sm font-medium text-foreground mb-2">
-                Ends on (Optional)
+                Ends on
               </Label>
               <div className="space-y-2">
                 <Popover>
