@@ -374,7 +374,7 @@ export default function ReactionModal({
           <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
             <div className="flex gap-3">
               <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-destructive-foreground">
+              <div className="text-sm text-black dark:text-destructive-foreground">
                 <p className="font-semibold mb-1">Severe reactions require immediate medical attention</p>
                 <p>Call emergency services if your baby has difficulty breathing, severe swelling, or loss of consciousness.</p>
               </div>
