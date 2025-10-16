@@ -14,6 +14,28 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+**October 16, 2025** - UX Improvements and Enhanced Activity Feed
+- Fixed emergency notification visibility: changed text color from destructive-foreground to black in light mode for better readability
+- Enhanced "Ends on" field in reaction modal: now auto-populates with current date/time (rounded to nearest 5 minutes), removed "(Optional)" label for seamless UX
+- Improved recent activity feed with intelligent descriptions:
+  - Shows "Confirmed allergy to [food]" for reactions with moderate/severe severity OR 3+ red bricks
+  - Shows "Likely allergy to [food]" for reactions with 3+ red bricks (mild severity only)
+  - Regular reactions display "Reaction to [food] logged"
+  - Uses same `getFoodHistory` logic as notification system
+- Updated Food Trial Notification Logic documentation with refined Given-When-Then scenarios
+
+**October 16, 2025** - Food Trial Notification System
+- Implemented intelligent notification system when adding food trials
+- Scenario 1 (Recent Mild Reaction): Shows gentle warning for foods with 1+ reaction in last 3 trials, not confirmed allergy
+- Scenario 2 (Confirmed/Likely Allergy): Shows strong warning for foods with 3+ red bricks OR moderate/severe reactions
+- Created `/api/babies/:babyId/foods/:foodId/history` endpoint providing redBrickCount, reactionsInLastThreeTrials, highestSeverity
+- Frontend uses this data to display appropriate notification with dynamic severity text
+
+**October 16, 2025** - UI Text Updates
+- Changed "Days without reaction" header: now hidden on Settings page, visible on Home/Reports/How it works pages
+- Updated Reports page: "Safe Foods" → "Food test passed" in summary statistics
+- Updated Home page: "Safe Foods" → "Foods that are safe" in statistics box
+
 **October 13, 2025** - Reports Page Table Layout Redesign
 - Completely redesigned Reports tab from card-based to table-based layout
 - Table columns: Trial (food name), Result (Pass/Reaction), Visual (progressive bricks), Status
