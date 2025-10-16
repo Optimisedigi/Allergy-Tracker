@@ -284,7 +284,7 @@ export default function Dashboard() {
           <Card data-testid="card-stats-safe">
             <CardContent className="p-3">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-muted-foreground">Safe Foods</p>
+                <p className="text-xs text-muted-foreground">Foods that are safe</p>
                 <CheckCircle className="w-4 h-4 text-success" />
               </div>
               <p className="text-xl font-bold text-success">
