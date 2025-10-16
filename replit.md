@@ -157,3 +157,53 @@ Preferred communication style: Simple, everyday language.
 - Unauthorized errors trigger re-authentication flow
 - Toast notifications for user-facing errors
 - Server logs all API requests with timing and response data
+
+## Business Logic
+
+### Food Trial Notification Logic
+
+The system provides intelligent warnings when users attempt to start a new trial for foods with a reaction history. This helps parents make informed decisions about food reintroduction while maintaining safety.
+
+#### Scenario 1: Food with a Recent Mild Reaction
+
+**Given** the user is adding a new trial for a food  
+**And** that food has had at least one reaction within the past three trials  
+**And** the food does not have three red bricks (confirmed allergy)  
+**When** the user attempts to start a new trial  
+**Then** display the following notification:
+
+> ⚠️ **Note**: [Food] previously caused a mild reaction.
+> 
+> You can reintroduce this food, but keep an eye out for any symptoms.  
+> If you're unsure, check in with your paediatrician for guidance.
+> 
+> Are you happy to continue with this food?
+
+**And** allow the user to either:
+- **Proceed** (continue to trial creation), or
+- **Cancel** (return to the food list)
+
+#### Scenario 2: Food with a Confirmed or Likely Allergy (with Dynamic Severity)
+
+**Given** the user is adding a new trial for a food  
+**And** that food has accumulated three or more red bricks at any point in its history  
+**Or** the system has recorded a moderate or severe reaction for that food  
+**When** the user attempts to start a new trial  
+**Then** display the following notification:
+
+> 🚫 **Important**: [Food] has previously caused a [severity] allergic reaction.
+> 
+> Re-introducing this food could trigger another reaction. Please monitor your child carefully for any signs of allergy.  
+> If the past reaction was moderate or severe, consider reintroducing this food under the guidance or supervision of your paediatrician or allergist.
+> 
+> Do you still wish to continue?
+
+**Where**:
+- `[Food]` dynamically inserts the food name
+- `[severity]` dynamically inserts the highest recorded reaction severity (moderate or severe)
+
+**And** allow the user to either:
+- **Proceed with caution** (if they explicitly confirm), or
+- **Cancel** (recommended default)
+
+**Implementation Note**: The app should always use the highest recorded severity for that food when deciding which message to display.
