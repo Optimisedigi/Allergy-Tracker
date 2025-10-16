@@ -211,15 +211,19 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     }
   };
 
-  // Fetch dashboard data to check for existing reactions
-  const { data: dashboardData } = useQuery<{
-    foodProgress: Array<{
-      food: { id: string };
-      reactionCount: number;
-    }>;
+  // Fetch food history when a food is selected
+  const { data: foodHistory } = useQuery<{
+    redBrickCount: number;
+    reactionsInLastThreeTrials: number;
+    highestSeverity: 'mild' | 'moderate' | 'severe' | null;
   }>({
-    queryKey: ["/api/dashboard", babyId],
-    enabled: isOpen && !!babyId,
+    queryKey: ["/api/babies", babyId, "foods", selectedFood?.id, "history"],
+    queryFn: async () => {
+      const response = await fetch(`/api/babies/${babyId}/foods/${selectedFood?.id}/history`);
+      if (!response.ok) throw new Error("Failed to fetch food history");
+      return response.json();
+    },
+    enabled: isOpen && !!babyId && !!selectedFood,
   });
 
   // Fetch active steroid cream status
@@ -269,14 +273,34 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       }
     }
 
-    // Check if food has existing reactions
-    const foodProgress = dashboardData?.foodProgress.find(fp => fp.food.id === selectedFood.id);
-    if (foodProgress && foodProgress.reactionCount > 0) {
-      const confirmed = window.confirm(
-        `⚠️ WARNING: ${selectedFood.name} has caused ${foodProgress.reactionCount} reaction${foodProgress.reactionCount > 1 ? 's' : ''} before!\n\nAdding this food again may result in another allergic reaction. Please consult with your pediatrician before retrying this food.\n\nAre you absolutely sure you want to proceed?`
-      );
-      if (!confirmed) {
-        return;
+    // Check if food has existing reactions and show appropriate notification
+    if (foodHistory) {
+      const { redBrickCount, reactionsInLastThreeTrials, highestSeverity } = foodHistory;
+      
+      // Scenario 2: Confirmed or likely allergy (3+ red bricks OR moderate/severe reaction)
+      if (redBrickCount >= 3 || highestSeverity === 'moderate' || highestSeverity === 'severe') {
+        const severityText = highestSeverity === 'moderate' ? 'moderate' : highestSeverity === 'severe' ? 'severe' : 'mild';
+        const confirmed = window.confirm(
+          `🚫 Important: ${selectedFood.name} has previously caused a ${severityText} allergic reaction.\n\n` +
+          `Re-introducing this food could trigger another reaction. Please monitor your child carefully for any signs of allergy.\n` +
+          `If the past reaction was moderate or severe, consider reintroducing this food under the guidance or supervision of your paediatrician or allergist.\n\n` +
+          `Do you still wish to continue?`
+        );
+        if (!confirmed) {
+          return;
+        }
+      }
+      // Scenario 1: Recent mild reaction (1+ reaction in past 3 trials, not confirmed allergy)
+      else if (reactionsInLastThreeTrials > 0 && redBrickCount < 3) {
+        const confirmed = window.confirm(
+          `⚠️ Note: ${selectedFood.name} previously caused a mild reaction.\n\n` +
+          `You can reintroduce this food, but keep an eye out for any symptoms.\n` +
+          `If you're unsure, check in with your paediatrician for guidance.\n\n` +
+          `Are you happy to continue with this food?`
+        );
+        if (!confirmed) {
+          return;
+        }
       }
     }
 

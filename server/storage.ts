@@ -64,6 +64,11 @@ export interface IStorage {
   // Brick log operations
   createBrickLog(brickLog: InsertBrickLog): Promise<BrickLog>;
   getBrickLogsByFood(babyId: string, foodId: string): Promise<BrickLog[]>;
+  getFoodHistory(babyId: string, foodId: string): Promise<{
+    redBrickCount: number;
+    reactionsInLastThreeTrials: number;
+    highestSeverity: 'mild' | 'moderate' | 'severe' | null;
+  }>;
   
   // Notification operations
   createNotification(notification: InsertNotification): Promise<Notification>;
@@ -235,6 +240,59 @@ export class DatabaseStorage implements IStorage {
       .from(brickLogs)
       .where(and(eq(brickLogs.babyId, babyId), eq(brickLogs.foodId, foodId)))
       .orderBy(brickLogs.date);
+  }
+
+  async getFoodHistory(babyId: string, foodId: string): Promise<{
+    redBrickCount: number;
+    reactionsInLastThreeTrials: number;
+    highestSeverity: 'mild' | 'moderate' | 'severe' | null;
+  }> {
+    // Get all brick logs for this food
+    const bricks = await this.getBrickLogsByFood(babyId, foodId);
+    
+    // Count red bricks (type='reaction')
+    const redBrickCount = bricks.filter(b => b.type === 'reaction').length;
+    
+    // Get last 3 trials and count reactions in them
+    const last3Bricks = bricks.slice(-3);
+    const reactionsInLastThreeTrials = last3Bricks.filter(
+      b => b.type === 'reaction' || b.type === 'warning'
+    ).length;
+    
+    // Get all trials for this baby and food to fetch reaction severity
+    const trialsData = await db
+      .select()
+      .from(trials)
+      .where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)));
+    
+    // Get all reactions for these trials
+    const trialIds = trialsData.map(t => t.id);
+    let highestSeverity: 'mild' | 'moderate' | 'severe' | null = null;
+    
+    if (trialIds.length > 0) {
+      const allReactions = await db
+        .select()
+        .from(reactions)
+        .where(
+          trialIds.length === 1 
+            ? eq(reactions.trialId, trialIds[0])
+            : sql`${reactions.trialId} IN ${trialIds}`
+        );
+      
+      // Determine highest severity
+      const severityOrder = { severe: 3, moderate: 2, mild: 1 };
+      for (const reaction of allReactions) {
+        if (!highestSeverity || severityOrder[reaction.severity] > severityOrder[highestSeverity]) {
+          highestSeverity = reaction.severity;
+        }
+      }
+    }
+    
+    return {
+      redBrickCount,
+      reactionsInLastThreeTrials,
+      highestSeverity,
+    };
   }
 
   async deleteFoodProgress(babyId: string, foodId: string): Promise<void> {

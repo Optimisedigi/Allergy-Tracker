@@ -291,6 +291,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Food history route (for notification logic)
+  app.get('/api/babies/:babyId/foods/:foodId/history', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, foodId } = req.params;
+      const history = await storage.getFoodHistory(babyId, foodId);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching food history:", error);
+      res.status(500).json({ message: "Failed to fetch food history" });
+    }
+  });
+
   app.delete('/api/babies/:babyId/foods/:foodId/latest-trial', isAuthenticated, async (req: any, res) => {
     try {
       const { babyId, foodId } = req.params;
