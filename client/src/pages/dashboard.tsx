@@ -21,6 +21,7 @@ interface DashboardData {
   stats: { totalFoods: number; safeFoods: number; foodAllergies: number };
   activeTrials: Array<{
     id: string;
+    trialDate: string;
     observationEndsAt: string;
     food: { name: string; emoji?: string };
   }>;
@@ -50,6 +51,7 @@ export default function Dashboard() {
     trialId: string;
     foodName: string;
     foodEmoji?: string;
+    trialDate?: string;
   }>({ isOpen: false, trialId: "", foodName: "" });
   const [deleteDialogData, setDeleteDialogData] = useState<{
     isOpen: boolean;
@@ -360,6 +362,7 @@ export default function Dashboard() {
                         trialId: trial.id,
                         foodName: trial.food.name,
                         foodEmoji: trial.food.emoji,
+                        trialDate: trial.trialDate,
                       })}
                       data-testid={`button-reaction-${trial.id}`}
                     >
@@ -482,6 +485,7 @@ export default function Dashboard() {
         trialId={reactionModalData.trialId}
         foodName={reactionModalData.foodName}
         foodEmoji={reactionModalData.foodEmoji}
+        trialDate={reactionModalData.trialDate}
       />
 
       <SteroidCreamModal
