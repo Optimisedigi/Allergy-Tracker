@@ -81,6 +81,10 @@ export default function HowItWorks() {
       />
 
       <main className="max-w-4xl mx-auto px-4 py-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-6" data-testid="text-how-it-works-title">
+          How it works
+        </h2>
+
         {/* Introduction */}
         <Card className="mb-6">
           <CardHeader>
