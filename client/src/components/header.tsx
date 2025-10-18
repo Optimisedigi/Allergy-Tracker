@@ -11,8 +11,8 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
   return (
     <header className="bg-card border-b border-border sticky top-0 z-40" data-testid="header-container">
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
             <img 
               src={logoImage} 
               alt="AllergyTrack Bubs Logo" 
