@@ -70,27 +70,25 @@ export default function FoodDetailModal({
                 data-testid={`trial-${trial.id}`}
               >
                 {/* Trial Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1" data-testid={`trial-date-${trial.id}`}>
-                      {formatAustralianDate(new Date(trial.trialDate))}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {trial.status === "completed" ? (
-                        <Check className="w-4 h-4 text-success" />
-                      ) : trial.status === "reaction" ? (
-                        <X className="w-4 h-4 text-destructive" />
-                      ) : (
-                        <AlertTriangle className="w-4 h-4 text-orange-500" />
-                      )}
-                      <span className="text-sm text-muted-foreground">
-                        {trial.status === "completed"
-                          ? "Passed"
-                          : trial.status === "reaction"
-                          ? "Reaction"
-                          : "Observing"}
-                      </span>
-                    </div>
+                <div className="flex items-center gap-3 mb-3">
+                  <p className="text-base font-semibold text-foreground" data-testid={`trial-date-${trial.id}`}>
+                    {formatAustralianDate(new Date(trial.trialDate))}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {trial.status === "completed" ? (
+                      <Check className="w-5 h-5 text-success" />
+                    ) : trial.status === "reaction" ? (
+                      <X className="w-5 h-5 text-destructive" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5 text-orange-500" />
+                    )}
+                    <span className="text-base text-foreground">
+                      {trial.status === "completed"
+                        ? "Passed"
+                        : trial.status === "reaction"
+                        ? "Reaction"
+                        : "Observing"}
+                    </span>
                   </div>
                 </div>
 
@@ -107,7 +105,6 @@ export default function FoodDetailModal({
                 {/* Reactions */}
                 {trial.reactions.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-foreground">Reactions:</p>
                     {trial.reactions.map((reaction) => (
                       <div
                         key={reaction.id}

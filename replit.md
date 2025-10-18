@@ -14,11 +14,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-**October 18, 2025** - Food Detail Modal UX Improvements and Activity Feed Enhancement
-- Enhanced Food Detail Modal date display for better parent readability:
-  - Trial date now appears first (prominently at top) before trial status
+**October 18, 2025** - Food Detail Modal UX Improvements and Header Consistency
+- Enhanced Food Detail Modal layout for better readability:
+  - Date and status now appear on same line (date left, emoji + status right)
+  - Increased font size from text-sm to text-base for easier reading
+  - Removed "Reactions:" label for cleaner presentation
   - Simplified reaction dates to single submission date without "Started:" label
   - File: `client/src/components/food-detail-modal.tsx`
+- Made header consistent across all tabs:
+  - All pages now display "AllergyTrack Bubs For [Name]" with days without reaction
+  - Removed page-specific titles (was showing "Food Reports", "Settings", "How It Works")
+  - Added days without reaction to Settings page header
+  - Files: `client/src/pages/reports.tsx`, `client/src/pages/settings.tsx`, `client/src/pages/how-it-works.tsx`
 - Integrated steroid cream events into dashboard recent activity feed:
   - Shows "Steroid cream treatment started (X-day treatment)" and "ended" events
   - All activities (trials and steroid cream) sorted by timestamp

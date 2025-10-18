@@ -76,7 +76,6 @@ export default function HowItWorks() {
       <Header 
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
-        title="How It Works"
         daysWithoutReaction={daysWithoutReaction}
         data-testid="how-it-works-header"
       />

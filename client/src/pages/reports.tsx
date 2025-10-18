@@ -188,7 +188,6 @@ export default function Reports() {
       <Header 
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
-        title="Food Reports"
         daysWithoutReaction={daysWithoutReaction}
         data-testid="reports-header"
       />
