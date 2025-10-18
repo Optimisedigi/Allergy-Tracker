@@ -219,7 +219,7 @@ export default function ReactionModal({
         {/* Food Name Display */}
         <div className="p-1.5 bg-muted/50 rounded-lg mb-2" data-testid="reaction-food-info">
           <div className="flex items-center justify-center gap-2">
-            <span className="text-2xl">{foodEmoji || "🍼"}</span>
+            <span className="text-4xl">{foodEmoji || "🍼"}</span>
             <div>
               <p className="font-semibold text-base text-foreground">{foodName}</p>
             </div>
