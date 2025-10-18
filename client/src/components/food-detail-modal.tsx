@@ -10,11 +10,11 @@ interface Trial {
   notes: string | null;
   reactions: Array<{
     id: string;
-    type: string[];
+    types: string[] | null;
     severity: string;
-    description: string | null;
+    notes: string | null;
     startedAt: string;
-    endedAt: string | null;
+    resolvedAt: string | null;
   }>;
 }
 
@@ -117,7 +117,7 @@ export default function FoodDetailModal({
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-foreground">
-                              {reaction.type.join(", ")}
+                              {reaction.types?.join(", ") || "Unknown"}
                             </span>
                             <span
                               className={`text-xs px-2 py-0.5 rounded ${
@@ -132,15 +132,15 @@ export default function FoodDetailModal({
                             </span>
                           </div>
                         </div>
-                        {reaction.description && (
-                          <p className="text-sm text-foreground mb-2" data-testid={`reaction-description-${reaction.id}`}>
-                            {reaction.description}
+                        {reaction.notes && (
+                          <p className="text-sm text-foreground mb-2" data-testid={`reaction-notes-${reaction.id}`}>
+                            {reaction.notes}
                           </p>
                         )}
                         <div className="flex gap-4 text-xs text-muted-foreground">
                           <span>Started: {formatAustralianDate(new Date(reaction.startedAt))}</span>
-                          {reaction.endedAt && (
-                            <span>Ended: {formatAustralianDate(new Date(reaction.endedAt))}</span>
+                          {reaction.resolvedAt && (
+                            <span>Ended: {formatAustralianDate(new Date(reaction.resolvedAt))}</span>
                           )}
                         </div>
                       </div>
