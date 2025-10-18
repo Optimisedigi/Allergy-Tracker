@@ -14,6 +14,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+**October 18, 2025** - UI Refinements and Food Trial Notes Access
+- Removed gender field from Settings page UI (field still exists in database but not displayed)
+- Created Food Detail Modal showing complete trial history with notes and reactions
+  - Added new `/api/babies/:babyId/foods/:foodId/trials` endpoint to fetch trial data with reactions
+  - Modal displays trial date, status, notes, and detailed reaction information
+  - Accessible by clicking on any food row in the Reports table
+- Changed "Food Progress" header to "Recent Food Trials" on dashboard/home page
+- Implemented sentence case formatting for custom food names (e.g., "mandarin" becomes "Mandarin")
+
 **October 16, 2025** - UX Improvements and Enhanced Activity Feed
 - Fixed emergency notification visibility: changed text color from destructive-foreground to black in light mode for better readability
 - Enhanced "Ends on" field in reaction modal: now auto-populates with current date/time (rounded to nearest 5 minutes), removed "(Optional)" label for seamless UX
