@@ -213,16 +213,15 @@ export default function ReactionModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-4" data-testid="modal-reaction">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg">Log Reaction</DialogTitle>
+          <DialogTitle className="text-lg">Log Reaction to</DialogTitle>
         </DialogHeader>
 
         {/* Food Name Display */}
         <div className="p-1.5 bg-muted/50 rounded-lg mb-2" data-testid="reaction-food-info">
           <div className="flex items-center gap-2">
-            <span className="text-lg">{foodEmoji || "🍼"}</span>
+            <span className="text-xl">{foodEmoji || "🍼"}</span>
             <div>
-              <p className="text-xs text-muted-foreground">Reaction to</p>
-              <p className="font-semibold text-sm text-foreground">{foodName}</p>
+              <p className="font-semibold text-base text-foreground">{foodName}</p>
             </div>
           </div>
         </div>

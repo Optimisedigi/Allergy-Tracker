@@ -30,7 +30,7 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
           </div>
           {daysWithoutReaction !== undefined && (
             <div className="text-right" data-testid="days-without-reaction">
-              <p className="text-xs text-muted-foreground">Days without reaction:</p>
+              <p className="text-xs text-muted-foreground">Days without<br />reaction:</p>
               <p className="text-lg font-bold text-foreground">{daysWithoutReaction}</p>
             </div>
           )}
