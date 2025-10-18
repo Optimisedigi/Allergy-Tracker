@@ -168,6 +168,11 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     setSearchTerm("");
   };
 
+  const toSentenceCase = (text: string): string => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
   const handleAddCustomFood = async () => {
     if (!customFoodName.trim()) {
       toast({
@@ -179,8 +184,9 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     }
 
     try {
+      const formattedName = toSentenceCase(customFoodName.trim());
       const newFood = await createFoodMutation.mutateAsync({
-        name: customFoodName.trim(),
+        name: formattedName,
         emoji: "🍼",
         category: "other",
       });

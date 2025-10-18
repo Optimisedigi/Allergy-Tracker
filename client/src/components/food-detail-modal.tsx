@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatAustralianDate } from "@/lib/date-utils";
 import { Check, X, AlertTriangle } from "lucide-react";
 
@@ -48,6 +48,9 @@ export default function FoodDetailModal({
             <span className="text-2xl">{foodEmoji || "🍼"}</span>
             <span>{foodName} - Trial History</span>
           </DialogTitle>
+          <DialogDescription>
+            View all trials, notes, and reactions for this food
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
