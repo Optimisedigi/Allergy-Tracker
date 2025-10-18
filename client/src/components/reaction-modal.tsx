@@ -51,7 +51,9 @@ export default function ReactionModal({
   
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("mild");
-  const [startedAt, setStartedAt] = useState(formatAustralianDateTime(new Date(), "datetime"));
+  const [startedDate, setStartedDate] = useState<Date | undefined>(new Date());
+  const [startedHour, setStartedHour] = useState<string>(new Date().getHours().toString().padStart(2, '0'));
+  const [startedMinute, setStartedMinute] = useState<string>((Math.floor(new Date().getMinutes() / 5) * 5).toString().padStart(2, '0'));
   const [resolvedDate, setResolvedDate] = useState<Date | undefined>(new Date());
   const [resolvedHour, setResolvedHour] = useState<string>(new Date().getHours().toString().padStart(2, '0'));
   const [resolvedMinute, setResolvedMinute] = useState<string>((Math.floor(new Date().getMinutes() / 5) * 5).toString().padStart(2, '0'));
@@ -63,7 +65,9 @@ export default function ReactionModal({
       const now = new Date();
       setSelectedTypes([]);
       setSeverity("mild");
-      setStartedAt(formatAustralianDateTime(now, "datetime"));
+      setStartedDate(now);
+      setStartedHour(now.getHours().toString().padStart(2, '0'));
+      setStartedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
       setResolvedDate(now);
       setResolvedHour(now.getHours().toString().padStart(2, '0'));
       setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
@@ -154,7 +158,9 @@ export default function ReactionModal({
     const now = new Date();
     setSelectedTypes([]);
     setSeverity("mild");
-    setStartedAt(formatAustralianDateTime(now, "datetime"));
+    setStartedDate(now);
+    setStartedHour(now.getHours().toString().padStart(2, '0'));
+    setStartedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
     setResolvedDate(now);
     setResolvedHour(now.getHours().toString().padStart(2, '0'));
     setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
@@ -182,14 +188,19 @@ export default function ReactionModal({
       return;
     }
 
-    if (!startedAt) {
+    if (!startedDate) {
       toast({
-        title: "Start Time Required", 
+        title: "Start Date Required", 
         description: "Please specify when the reaction started",
         variant: "destructive",
       });
       return;
     }
+
+    // Combine started date and time
+    const started = new Date(startedDate);
+    started.setHours(parseInt(startedHour), parseInt(startedMinute), 0, 0);
+    const startedAtString = started.toISOString().slice(0, 16); // Format as YYYY-MM-DDTHH:mm
 
     // Combine resolved date and time if both are provided
     let resolvedAtString: string | undefined = undefined;
@@ -202,7 +213,7 @@ export default function ReactionModal({
     logReactionMutation.mutate({
       types: selectedTypes,
       severity,
-      startedAt,
+      startedAt: startedAtString,
       resolvedAt: resolvedAtString,
       notes: notes.trim() || undefined,
     });
@@ -283,17 +294,62 @@ export default function ReactionModal({
           {/* Timing */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="startedAt" className="block text-sm font-medium text-foreground mb-2">
+              <Label className="block text-sm font-medium text-foreground mb-2">
                 Started on *
               </Label>
-              <Input
-                id="startedAt"
-                type="datetime-local"
-                value={startedAt}
-                onChange={(e) => setStartedAt(e.target.value)}
-                required
-                data-testid="input-reaction-started"
-              />
+              <div className="space-y-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                      data-testid="button-started-date"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startedDate ? format(startedDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startedDate}
+                      onSelect={setStartedDate}
+                      initialFocus
+                      data-testid="calendar-started-date"
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                {startedDate && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Select value={startedHour} onValueChange={setStartedHour}>
+                      <SelectTrigger data-testid="select-started-hour">
+                        <SelectValue placeholder="Hour" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                            {i.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={startedMinute} onValueChange={setStartedMinute}>
+                      <SelectTrigger data-testid="select-started-minute">
+                        <SelectValue placeholder="Minute" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i * 5).map((min) => (
+                          <SelectItem key={min} value={min.toString().padStart(2, '0')}>
+                            {min.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div>
