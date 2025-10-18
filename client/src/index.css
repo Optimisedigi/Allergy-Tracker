@@ -235,3 +235,44 @@
   background: hsl(var(--card));
   border-top: 1px solid hsl(var(--border));
 }
+
+/* Print styles for PDF export */
+@media print {
+  /* Hide mobile nav and action buttons when printing */
+  .mobile-nav,
+  .fab,
+  button,
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure brick boxes are visible with proper colors */
+  .brick,
+  div[style*="background"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Make sure inline styles with gradients are preserved */
+  div[style*="linear-gradient"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure page breaks don't split content awkwardly */
+  .card,
+  table,
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and hover effects for cleaner print */
+  * {
+    box-shadow: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}
