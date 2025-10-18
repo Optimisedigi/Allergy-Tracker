@@ -14,6 +14,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+**October 18, 2025** - Food Detail Modal UX Improvements and Activity Feed Enhancement
+- Enhanced Food Detail Modal date display for better parent readability:
+  - Trial date now appears first (prominently at top) before trial status
+  - Simplified reaction dates to single submission date without "Started:" label
+  - File: `client/src/components/food-detail-modal.tsx`
+- Integrated steroid cream events into dashboard recent activity feed:
+  - Shows "Steroid cream treatment started (X-day treatment)" and "ended" events
+  - All activities (trials and steroid cream) sorted by timestamp
+  - File: `server/storage.ts` - enhanced `getDashboardData` function
+
 **October 18, 2025** - UI Refinements and Food Trial Notes Access
 - Removed gender field from Settings page UI (field still exists in database but not displayed)
 - Created Food Detail Modal showing complete trial history with notes and reactions
