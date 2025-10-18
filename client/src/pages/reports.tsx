@@ -17,6 +17,12 @@ import { formatAustralianDate } from "@/lib/date-utils";
 
 interface ReportsData {
   stats: { totalFoods: number; safePasses: number };
+  activeTrials: Array<{
+    id: string;
+    foodId: string;
+    status: string;
+    food: { id: string; name: string; emoji?: string };
+  }>;
   foodProgress: Array<{
     food: { id: string; name: string; emoji?: string };
     bricks: Array<{ type: string; date: string }>;
@@ -161,10 +167,39 @@ export default function Reports() {
     }
   };
 
-  // Calculate status based on passes and reactions
-  const getStatus = (passes: number, reactions: number) => {
-    // Check for confirmed allergy first (highest priority)
-    if (reactions >= 3) return "Confirmed allergy";
+  // Calculate status based on passes, reactions, bricks, and active trials
+  const getStatus = (passes: number, reactions: number, bricks: Array<{ type: string; date: string }>, foodId: string) => {
+    // Check if there's an active trial for this food
+    const hasActiveTrial = reportsData?.activeTrials?.some(trial => trial.foodId === foodId);
+    
+    // Check for 3 consecutive red bricks
+    let hasConsecutiveRedBricks = false;
+    let consecutiveReds = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'warning') {
+        consecutiveReds = 0; // Reset counter when we find amber
+      } else if (brick.type === 'reaction') {
+        consecutiveReds++;
+        if (consecutiveReds >= 3) {
+          hasConsecutiveRedBricks = true;
+          break;
+        }
+      } else {
+        // Safe brick resets everything
+        consecutiveReds = 0;
+      }
+    }
+    
+    // Check for confirmed allergy (3 consecutive red bricks)
+    if (hasConsecutiveRedBricks) {
+      return hasActiveTrial ? "Confirmed allergy but testing again" : "Confirmed allergy";
+    }
+    
+    // Safe food (3+ passes, no reactions)
+    if (passes >= 3 && reactions === 0) {
+      return hasActiveTrial ? "Food is safe but testing again" : "Safe food";
+    }
     
     // No trials yet
     if (passes === 0 && reactions === 0) return "Not tried yet";
@@ -172,9 +207,6 @@ export default function Reports() {
     // Early stage passes
     if (passes === 1 && reactions === 0) return "Passed once";
     if (passes === 2 && reactions === 0) return "Building confidence";
-    
-    // Safe food (3+ passes, no reactions)
-    if (passes >= 3 && reactions === 0) return "Safe food";
     
     // 3+ passes with reactions
     if (passes >= 3 && reactions === 1) return "Caution";
@@ -191,6 +223,7 @@ export default function Reports() {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "Safe food":
+      case "Food is safe but testing again":
         return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
       case "Caution":
       case "Possible sensitivity":
@@ -198,6 +231,7 @@ export default function Reports() {
       case "Likely allergy":
       case "Allergy suspected":
       case "Confirmed allergy":
+      case "Confirmed allergy but testing again":
         return { icon: <X className="w-4 h-4" />, color: "text-destructive", bg: "bg-destructive/10" };
       case "Building confidence":
       case "Passed once":
@@ -295,7 +329,7 @@ export default function Reports() {
                       // Calculate total passes and reactions for final status
                       const passes = foodData.bricks.filter(b => b.type === 'safe').length;
                       const reactions = foodData.bricks.filter(b => b.type === 'reaction' || b.type === 'warning').length;
-                      const status = getStatus(passes, reactions);
+                      const status = getStatus(passes, reactions, foodData.bricks, foodData.food.id);
                       const statusDisplay = getStatusDisplay(status);
 
                       return (

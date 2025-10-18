@@ -69,6 +69,7 @@ export interface IStorage {
     redBrickCount: number;
     reactionsInLastThreeTrials: number;
     highestSeverity: 'mild' | 'moderate' | 'severe' | null;
+    hasConsecutiveRedBricks: boolean;
   }>;
   
   // Notification operations
@@ -268,12 +269,36 @@ export class DatabaseStorage implements IStorage {
     redBrickCount: number;
     reactionsInLastThreeTrials: number;
     highestSeverity: 'mild' | 'moderate' | 'severe' | null;
+    hasConsecutiveRedBricks: boolean;
   }> {
     // Get all brick logs for this food
     const bricks = await this.getBrickLogsByFood(babyId, foodId);
     
     // Count red bricks (type='reaction')
     const redBrickCount = bricks.filter(b => b.type === 'reaction').length;
+    
+    // Check for 3 consecutive red bricks
+    // This counts either: (1) 3 consecutive reds OR (2) 1 amber + 3 consecutive reds
+    let hasConsecutiveRedBricks = false;
+    let consecutiveReds = 0;
+    let foundAmber = false;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'warning') {
+        foundAmber = true;
+        consecutiveReds = 0; // Reset red counter when we find amber
+      } else if (brick.type === 'reaction') {
+        consecutiveReds++;
+        if (consecutiveReds >= 3) {
+          hasConsecutiveRedBricks = true;
+          break;
+        }
+      } else {
+        // Safe brick resets everything
+        consecutiveReds = 0;
+        foundAmber = false;
+      }
+    }
     
     // Get last 3 trials and count reactions in them
     const last3Bricks = bricks.slice(-3);
@@ -314,6 +339,7 @@ export class DatabaseStorage implements IStorage {
       redBrickCount,
       reactionsInLastThreeTrials,
       highestSeverity,
+      hasConsecutiveRedBricks,
     };
   }
 
@@ -487,7 +513,7 @@ export class DatabaseStorage implements IStorage {
         const history = await this.getFoodHistory(babyId, r.food.id);
         
         // Check for confirmed or likely allergy
-        if (history.redBrickCount >= 3 || history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
+        if (history.hasConsecutiveRedBricks || history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
           if (history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
             description = `Confirmed allergy to ${r.food.name}`;
           } else {

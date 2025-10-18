@@ -222,6 +222,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     redBrickCount: number;
     reactionsInLastThreeTrials: number;
     highestSeverity: 'mild' | 'moderate' | 'severe' | null;
+    hasConsecutiveRedBricks: boolean;
   }>({
     queryKey: ["/api/babies", babyId, "foods", selectedFood?.id, "history"],
     queryFn: async () => {
@@ -281,10 +282,10 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
 
     // Check if food has existing reactions and show appropriate notification
     if (foodHistory) {
-      const { redBrickCount, reactionsInLastThreeTrials, highestSeverity } = foodHistory;
+      const { hasConsecutiveRedBricks, reactionsInLastThreeTrials, highestSeverity } = foodHistory;
       
-      // Scenario 2: Confirmed or likely allergy (3+ red bricks OR moderate/severe reaction)
-      if (redBrickCount >= 3 || highestSeverity === 'moderate' || highestSeverity === 'severe') {
+      // Scenario 2: Confirmed or likely allergy (3 consecutive red bricks OR moderate/severe reaction)
+      if (hasConsecutiveRedBricks || highestSeverity === 'moderate' || highestSeverity === 'severe') {
         const severityText = highestSeverity === 'moderate' ? 'moderate' : highestSeverity === 'severe' ? 'severe' : 'mild';
         const confirmed = window.confirm(
           `🚫 Important: ${selectedFood.name} has previously caused a ${severityText} allergic reaction.\n\n` +
@@ -297,7 +298,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
         }
       }
       // Scenario 1: Recent mild reaction (1+ reaction in past 3 trials, not confirmed allergy)
-      else if (reactionsInLastThreeTrials > 0 && redBrickCount < 3) {
+      else if (reactionsInLastThreeTrials > 0 && !hasConsecutiveRedBricks) {
         const confirmed = window.confirm(
           `⚠️ Note: ${selectedFood.name} previously caused a mild reaction.\n\n` +
           `You can reintroduce this food, but keep an eye out for any symptoms.\n` +
