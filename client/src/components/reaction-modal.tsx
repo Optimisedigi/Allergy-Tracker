@@ -212,7 +212,7 @@ export default function ReactionModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-4" data-testid="modal-reaction">
-        <DialogHeader className="pb-2">
+        <DialogHeader className="pb-1">
           <DialogTitle className="text-lg">Log Reaction to</DialogTitle>
         </DialogHeader>
 
