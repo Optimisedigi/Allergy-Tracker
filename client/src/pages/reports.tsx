@@ -6,10 +6,13 @@ import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
 import FoodDetailModal from "@/components/food-detail-modal";
+import AddFoodModal from "@/components/add-food-modal";
+import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Utensils, CheckCircle, CircleAlert, Check, AlertTriangle, X, Copy } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Download, Utensils, CheckCircle, CircleAlert, Check, AlertTriangle, X, Copy, Plus, Droplet } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface ReportsData {
@@ -30,6 +33,8 @@ export default function Reports() {
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [doctorEmail, setDoctorEmail] = useState("");
   const [selectedFood, setSelectedFood] = useState<{ id: string; name: string; emoji?: string } | null>(null);
+  const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
+  const [isSteroidCreamOpen, setIsSteroidCreamOpen] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -364,8 +369,43 @@ export default function Reports() {
         </Card>
       </main>
 
+      {/* Floating Action Button */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button 
+            className="fab" 
+            data-testid="button-add-menu"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+          <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Food Trial
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
+            <Droplet className="w-4 h-4 mr-2" />
+            Track Steroid Cream
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       {/* Mobile Navigation */}
       <MobileNav activeTab="reports" />
+
+      {/* Modals */}
+      <AddFoodModal
+        isOpen={isAddFoodOpen}
+        onClose={() => setIsAddFoodOpen(false)}
+        babyId={selectedBaby}
+      />
+
+      <SteroidCreamModal
+        isOpen={isSteroidCreamOpen}
+        onClose={() => setIsSteroidCreamOpen(false)}
+        babyId={selectedBaby}
+      />
 
       {/* Food Detail Modal */}
       {selectedFood && (

@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
+import AddFoodModal from "@/components/add-food-modal";
+import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertTriangle, CircleAlert, Circle, TrendingUp } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CheckCircle, AlertTriangle, CircleAlert, Circle, TrendingUp, Plus, Droplet } from "lucide-react";
 
 interface DashboardData {
   foodProgress: Array<{
@@ -16,6 +19,8 @@ interface DashboardData {
 export default function HowItWorks() {
   const { user, isAuthenticated } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
+  const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
+  const [isSteroidCreamOpen, setIsSteroidCreamOpen] = useState(false);
 
   // Get user's babies
   const { data: babies = [] } = useQuery<Array<{ id: string; name: string }>>({
@@ -271,7 +276,42 @@ export default function HowItWorks() {
         </Card>
       </main>
 
+      {/* Floating Action Button */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button 
+            className="fab" 
+            data-testid="button-add-menu"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+          <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Food Trial
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
+            <Droplet className="w-4 h-4 mr-2" />
+            Track Steroid Cream
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <MobileNav activeTab="how-it-works" />
+
+      {/* Modals */}
+      <AddFoodModal
+        isOpen={isAddFoodOpen}
+        onClose={() => setIsAddFoodOpen(false)}
+        babyId={selectedBaby}
+      />
+
+      <SteroidCreamModal
+        isOpen={isSteroidCreamOpen}
+        onClose={() => setIsSteroidCreamOpen(false)}
+        babyId={selectedBaby}
+      />
     </div>
   );
 }

@@ -12,7 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronRight, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UserSettings {
   defaultObservationPeriod: number;
@@ -22,11 +25,34 @@ interface UserSettings {
   timezone: string;
 }
 
+const TIMEZONES = [
+  { value: "Pacific/Auckland", label: "Auckland (GMT+12/+13)" },
+  { value: "Australia/Sydney", label: "Sydney (GMT+10/+11)" },
+  { value: "Australia/Melbourne", label: "Melbourne (GMT+10/+11)" },
+  { value: "Australia/Brisbane", label: "Brisbane (GMT+10)" },
+  { value: "Australia/Adelaide", label: "Adelaide (GMT+9:30/+10:30)" },
+  { value: "Australia/Perth", label: "Perth (GMT+8)" },
+  { value: "Asia/Tokyo", label: "Tokyo (GMT+9)" },
+  { value: "Asia/Hong_Kong", label: "Hong Kong (GMT+8)" },
+  { value: "Asia/Singapore", label: "Singapore (GMT+8)" },
+  { value: "Asia/Dubai", label: "Dubai (GMT+4)" },
+  { value: "Europe/London", label: "London (GMT+0/+1)" },
+  { value: "Europe/Paris", label: "Paris (GMT+1/+2)" },
+  { value: "Europe/Berlin", label: "Berlin (GMT+1/+2)" },
+  { value: "America/New_York", label: "New York (GMT-5/-4)" },
+  { value: "America/Chicago", label: "Chicago (GMT-6/-5)" },
+  { value: "America/Denver", label: "Denver (GMT-7/-6)" },
+  { value: "America/Los_Angeles", label: "Los Angeles (GMT-8/-7)" },
+  { value: "America/Toronto", label: "Toronto (GMT-5/-4)" },
+  { value: "America/Vancouver", label: "Vancouver (GMT-8/-7)" },
+];
+
 export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [babyName, setBabyName] = useState<string>("");
+  const [timezoneOpen, setTimezoneOpen] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -309,6 +335,58 @@ export default function Settings() {
                 <SelectItem value="7">7 days</SelectItem>
               </SelectContent>
             </Select>
+          </CardContent>
+        </Card>
+
+        {/* Timezone */}
+        <Card className="mb-4" data-testid="card-timezone">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-foreground mb-4">Timezone</h3>
+            <Popover open={timezoneOpen} onOpenChange={setTimezoneOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={timezoneOpen}
+                  className="w-full justify-between"
+                  data-testid="button-timezone-selector"
+                >
+                  {settings.timezone
+                    ? TIMEZONES.find((tz) => tz.value === settings.timezone)?.label
+                    : "Select timezone..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" data-testid="popover-timezone">
+                <Command>
+                  <CommandInput placeholder="Search timezone..." data-testid="input-timezone-search" />
+                  <CommandList>
+                    <CommandEmpty>No timezone found.</CommandEmpty>
+                    <CommandGroup>
+                      {TIMEZONES.map((tz) => (
+                        <CommandItem
+                          key={tz.value}
+                          value={tz.value}
+                          onSelect={(currentValue) => {
+                            handleSettingChange('timezone', currentValue);
+                            setTimezoneOpen(false);
+                          }}
+                          data-testid={`timezone-option-${tz.value}`}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              settings.timezone === tz.value ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {tz.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </CardContent>
         </Card>
 

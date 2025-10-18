@@ -211,26 +211,26 @@ export default function ReactionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-reaction">
-        <DialogHeader>
-          <DialogTitle>Log Reaction</DialogTitle>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-4" data-testid="modal-reaction">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">Log Reaction</DialogTitle>
         </DialogHeader>
 
         {/* Food Name Display */}
-        <div className="p-3 bg-muted/50 rounded-lg mb-4" data-testid="reaction-food-info">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{foodEmoji || "🍼"}</span>
+        <div className="p-1.5 bg-muted/50 rounded-lg mb-2" data-testid="reaction-food-info">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{foodEmoji || "🍼"}</span>
             <div>
-              <p className="text-sm text-muted-foreground">Reaction to</p>
-              <p className="font-semibold text-base text-foreground">{foodName}</p>
+              <p className="text-xs text-muted-foreground">Reaction to</p>
+              <p className="font-semibold text-sm text-foreground">{foodName}</p>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4" data-testid="form-log-reaction">
+        <form onSubmit={handleSubmit} className="space-y-3" data-testid="form-log-reaction">
           {/* Reaction Type */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-1.5">
+            <Label className="block text-sm font-medium text-foreground mb-1">
               Reaction Type *
             </Label>
             <div className="grid grid-cols-2 gap-2">
@@ -253,7 +253,7 @@ export default function ReactionModal({
 
           {/* Severity */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-1.5">
+            <Label className="block text-sm font-medium text-foreground mb-1">
               Severity *
             </Label>
             <div className="flex gap-2">
@@ -280,20 +280,20 @@ export default function ReactionModal({
           </div>
 
           {/* Timing */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {/* Food trial started on (read-only) */}
             <div>
-              <Label className="block text-sm font-medium text-foreground mb-1.5">
+              <Label className="block text-sm font-medium text-foreground mb-1">
                 Food trial started on
               </Label>
-              <div className="p-2.5 bg-muted/50 border border-border rounded-md text-sm text-foreground">
+              <div className="p-2 bg-muted/50 border border-border rounded-md text-sm text-foreground">
                 {trialDate ? format(new Date(trialDate), "PPP 'at' HH:mm") : "Not available"}
               </div>
             </div>
             
             {/* Time of reaction */}
             <div>
-              <Label className="block text-sm font-medium text-foreground mb-1.5">
+              <Label className="block text-sm font-medium text-foreground mb-1">
                 Time of reaction *
               </Label>
               <div className="space-y-2">
@@ -354,13 +354,13 @@ export default function ReactionModal({
 
           {/* Notes */}
           <div>
-            <Label htmlFor="reactionNotes" className="block text-sm font-medium text-foreground mb-1.5">
+            <Label htmlFor="reactionNotes" className="block text-sm font-medium text-foreground mb-1">
               Additional Notes
             </Label>
             <Textarea
               id="reactionNotes"
               rows={2}
-              placeholder="Describe the reaction in detail..."
+              placeholder="Describe the reaction..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="resize-none text-sm"
@@ -368,19 +368,8 @@ export default function ReactionModal({
             />
           </div>
 
-          {/* Emergency Notice */}
-          <div className="p-2.5 bg-destructive/10 border border-destructive/30 rounded-lg">
-            <div className="flex gap-2">
-              <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0 w-4 h-4" />
-              <div className="text-xs text-black dark:text-destructive-foreground">
-                <p className="font-semibold">Severe reactions require immediate medical attention</p>
-                <p className="mt-0.5">Call emergency services if your baby has difficulty breathing, severe swelling, or loss of consciousness.</p>
-              </div>
-            </div>
-          </div>
-
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-2">
             <Button 
               type="button" 
               variant="secondary" 
@@ -402,8 +391,19 @@ export default function ReactionModal({
             </Button>
           </div>
 
+          {/* Emergency Notice */}
+          <div className="p-2.5 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <div className="flex gap-2">
+              <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0 w-4 h-4" />
+              <div className="text-xs text-black dark:text-destructive-foreground">
+                <p className="font-semibold">Severe reactions require immediate medical attention</p>
+                <p className="mt-0.5">Call emergency services if your baby has difficulty breathing, severe swelling, or loss of consciousness.</p>
+              </div>
+            </div>
+          </div>
+
           {/* Delete Trial Button */}
-          <div className="pt-4 border-t border-border">
+          <div className="pt-3 border-t border-border">
             <Button 
               type="button" 
               variant="outline" 
