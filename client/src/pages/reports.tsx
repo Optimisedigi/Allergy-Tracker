@@ -321,7 +321,7 @@ export default function Reports() {
         {/* Email Report Section */}
         <Card className="mt-6">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Email Report to Doctor</h3>
+            <h3 className="font-semibold text-foreground mb-4">Email Food Report</h3>
             <div className="flex gap-3">
               <Input
                 type="email"

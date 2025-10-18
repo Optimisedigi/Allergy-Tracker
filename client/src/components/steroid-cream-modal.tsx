@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
 
@@ -184,7 +185,7 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
 
             <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <p className="text-sm text-blue-900 dark:text-blue-100">
-                ⚠️ <strong>Important:</strong> Wait 2 weeks after stopping steroid cream before introducing new foods to ensure accurate allergy testing.
+                ⚠️ <strong>Important:</strong> Wait 1 week after stopping steroid cream before introducing new foods to ensure accurate allergy testing.
               </p>
             </div>
 
@@ -202,19 +203,23 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
           <form onSubmit={handleStartCream} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="duration">Duration (days)</Label>
-              <Input
-                id="duration"
-                type="number"
-                min="1"
-                max="30"
+              <Select
                 value={durationDays}
-                onChange={(e) => setDurationDays(e.target.value)}
-                data-testid="input-cream-duration"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Typical treatment is 3-7 days
-              </p>
+                onValueChange={setDurationDays}
+              >
+                <SelectTrigger data-testid="select-cream-duration">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 day</SelectItem>
+                  <SelectItem value="2">2 days</SelectItem>
+                  <SelectItem value="3">3 days (recommended)</SelectItem>
+                  <SelectItem value="4">4 days</SelectItem>
+                  <SelectItem value="5">5 days</SelectItem>
+                  <SelectItem value="6">6 days</SelectItem>
+                  <SelectItem value="7">7 days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -231,7 +236,7 @@ export default function SteroidCreamModal({ isOpen, onClose, babyId }: SteroidCr
 
             <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
               <p className="text-sm text-amber-900 dark:text-amber-100">
-                ⚠️ <strong>Note:</strong> Steroid creams can suppress allergic reactions. Wait 2 weeks after treatment ends before introducing new foods.
+                ⚠️ <strong>Note:</strong> Steroid creams can suppress allergic reactions. Wait 1 week after treatment ends before introducing new foods.
               </p>
             </div>
 

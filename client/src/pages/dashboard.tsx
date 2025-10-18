@@ -313,10 +313,10 @@ export default function Dashboard() {
             <div className="flex-1">
               <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
               <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
-                Treatment started {formatAustralianDate(new Date(activeCream.startedAt), "relative")} ({activeCream.durationDays} day treatment)
+                {activeCream.durationDays}-day treatment in progress.
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-300">
-                ⚠️ Wait 2 weeks after treatment ends before introducing new foods for accurate allergy testing
+                ⚠️ For best results, wait 1 week post-treatment before adding new foods.
               </p>
             </div>
             <Button
