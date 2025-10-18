@@ -466,8 +466,16 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(trials.updatedAt))
       .limit(10);
 
+    // Get steroid cream activity
+    const steroidCreamRecords = await db
+      .select()
+      .from(steroidCream)
+      .where(eq(steroidCream.babyId, babyId))
+      .orderBy(desc(steroidCream.createdAt))
+      .limit(10);
+
     // Build recent activity with enhanced descriptions
-    const recentActivity = await Promise.all(recentTrials.map(async r => {
+    const trialActivity = await Promise.all(recentTrials.map(async r => {
       let description = '';
       let type = 'info';
       
@@ -501,6 +509,24 @@ export class DatabaseStorage implements IStorage {
         type,
       };
     }));
+
+    // Add steroid cream activity
+    const creamActivity = steroidCreamRecords.map(cream => {
+      const isEnded = cream.status === 'ended';
+      return {
+        id: `cream-${cream.id}`,
+        description: isEnded 
+          ? `Steroid cream treatment ended (${cream.durationDays}-day treatment)`
+          : `Steroid cream treatment started (${cream.durationDays}-day treatment)`,
+        timestamp: isEnded && cream.endedAt ? cream.endedAt : cream.createdAt!,
+        type: 'info',
+      };
+    });
+
+    // Combine and sort all activity by timestamp
+    const recentActivity = [...trialActivity, ...creamActivity]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10);
 
     // Get food progress with brick logs (using lateral join for proper parameter binding)
     const foodProgressResult = await db.execute(sql`

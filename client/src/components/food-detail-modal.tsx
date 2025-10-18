@@ -72,15 +72,18 @@ export default function FoodDetailModal({
                 {/* Trial Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <p className="text-sm font-semibold text-foreground mb-1" data-testid={`trial-date-${trial.id}`}>
+                      {formatAustralianDate(new Date(trial.trialDate))}
+                    </p>
+                    <div className="flex items-center gap-2">
                       {trial.status === "completed" ? (
-                        <Check className="w-5 h-5 text-success" />
+                        <Check className="w-4 h-4 text-success" />
                       ) : trial.status === "reaction" ? (
-                        <X className="w-5 h-5 text-destructive" />
+                        <X className="w-4 h-4 text-destructive" />
                       ) : (
-                        <AlertTriangle className="w-5 h-5 text-orange-500" />
+                        <AlertTriangle className="w-4 h-4 text-orange-500" />
                       )}
-                      <span className="font-semibold text-foreground">
+                      <span className="text-sm text-muted-foreground">
                         {trial.status === "completed"
                           ? "Passed"
                           : trial.status === "reaction"
@@ -88,9 +91,6 @@ export default function FoodDetailModal({
                           : "Observing"}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground" data-testid={`trial-date-${trial.id}`}>
-                      Trial started: {formatAustralianDate(new Date(trial.trialDate))}
-                    </p>
                   </div>
                 </div>
 
@@ -137,12 +137,9 @@ export default function FoodDetailModal({
                             {reaction.notes}
                           </p>
                         )}
-                        <div className="flex gap-4 text-xs text-muted-foreground">
-                          <span>Started: {formatAustralianDate(new Date(reaction.startedAt))}</span>
-                          {reaction.resolvedAt && (
-                            <span>Ended: {formatAustralianDate(new Date(reaction.resolvedAt))}</span>
-                          )}
-                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {formatAustralianDate(new Date(reaction.startedAt))}
+                        </p>
                       </div>
                     ))}
                   </div>
