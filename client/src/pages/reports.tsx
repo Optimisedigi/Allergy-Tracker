@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
 import FoodDetailModal from "@/components/food-detail-modal";
@@ -116,22 +117,43 @@ export default function Reports() {
 
   const daysWithoutReaction = calculateDaysWithoutReaction();
 
-  const handleSendReport = () => {
+  const handleSendReport = async () => {
     if (!doctorEmail) {
       toast({
         title: "Email Required",
-        description: "Please enter the doctor's email address",
+        description: "Please enter an email address",
         variant: "destructive",
       });
       return;
     }
 
-    // In a real implementation, this would send the email via API
-    toast({
-      title: "Report Sent",
-      description: `Report has been sent to ${doctorEmail}`,
-    });
-    setDoctorEmail("");
+    try {
+      const response = await apiRequest("POST", `/api/babies/${selectedBaby}/send-report`, {
+        email: doctorEmail,
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Report Sent",
+          description: `Food report has been sent to ${doctorEmail}`,
+        });
+        setDoctorEmail("");
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Failed to Send",
+          description: error.message || "Could not send report",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error sending report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send report. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Calculate status based on passes and reactions

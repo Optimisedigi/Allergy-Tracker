@@ -6,6 +6,7 @@ import { createTrialSchema, createReactionSchema, createSteroidCreamSchema, type
 import { z } from "zod";
 import cron from "node-cron";
 import { reminderService } from "./services/reminder-service";
+import { Resend } from "resend";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -276,6 +277,154 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
+  // Email food report route
+  app.post('/api/babies/:babyId/send-report', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { babyId } = req.params;
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email address is required" });
+      }
+
+      // Validate email format
+      const emailSchema = z.string().email();
+      try {
+        emailSchema.parse(email);
+      } catch {
+        return res.status(400).json({ message: "Invalid email address" });
+      }
+
+      // Get baby info
+      const babies = await storage.getBabiesByUser(userId);
+      const baby = babies.find(b => b.id === babyId);
+      if (!baby) {
+        return res.status(404).json({ message: "Baby not found" });
+      }
+
+      // Get dashboard data
+      const dashboardData = await storage.getDashboardData(userId, babyId);
+
+      // Initialize Resend
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      // Create HTML email content
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+            h1 { color: #5C9EAD; border-bottom: 3px solid #5C9EAD; padding-bottom: 10px; }
+            h2 { color: #5C9EAD; margin-top: 30px; }
+            .stats { display: flex; gap: 20px; margin: 20px 0; }
+            .stat-card { flex: 1; padding: 15px; background: #f5f5f5; border-radius: 8px; text-align: center; }
+            .stat-number { font-size: 24px; font-weight: bold; color: #5C9EAD; }
+            .stat-label { font-size: 14px; color: #666; margin-top: 5px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th { background: #5C9EAD; color: white; padding: 12px; text-align: left; }
+            td { padding: 12px; border-bottom: 1px solid #ddd; }
+            tr:hover { background: #f9f9f9; }
+            .brick { display: inline-block; width: 20px; height: 15px; border-radius: 3px; margin-right: 3px; }
+            .brick-safe { background: linear-gradient(135deg, #6FCF97 0%, #51B87E 100%); }
+            .brick-warning { background: linear-gradient(135deg, #F2C94C 0%, #E0A826 100%); }
+            .brick-reaction { background: linear-gradient(135deg, #EB5757 0%, #C94444 100%); }
+            .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <h1>AllergyTrack Food Report for ${baby.name}</h1>
+          
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number">${dashboardData.stats.totalFoods}</div>
+              <div class="stat-label">Total Foods Tested</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${dashboardData.stats.safeFoods}</div>
+              <div class="stat-label">Foods that are safe</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${dashboardData.stats.foodAllergies}</div>
+              <div class="stat-label">Reactions Logged</div>
+            </div>
+          </div>
+
+          <h2>Food Trial History</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Food</th>
+                <th>Trials</th>
+                <th>Visual Progress</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dashboardData.foodProgress.map(food => {
+                const safeBricks = food.bricks.filter(b => b.type === 'safe').length;
+                const warningBricks = food.bricks.filter(b => b.type === 'warning').length;
+                const reactionBricks = food.bricks.filter(b => b.type === 'reaction').length;
+                const effectiveSafeBricks = Math.max(0, safeBricks - warningBricks);
+                
+                let status = 'Testing';
+                if (reactionBricks >= 3) status = 'Confirmed allergy';
+                else if (effectiveSafeBricks >= 3 && reactionBricks === 0) status = 'Safe food';
+                else if (effectiveSafeBricks >= 3 && reactionBricks === 1) status = 'Caution';
+                else if (effectiveSafeBricks >= 3 && reactionBricks >= 2) status = 'Likely allergy';
+                else if (safeBricks === 1 && reactionBricks === 0) status = 'Passed once';
+                else if (safeBricks === 2 && reactionBricks === 0) status = 'Building confidence';
+                else if (safeBricks < 3 && reactionBricks === 1) status = 'Possible sensitivity';
+                else if (safeBricks < 3 && reactionBricks >= 2) status = 'Allergy suspected';
+                
+                return `
+                  <tr>
+                    <td>${food.food.emoji || '🍼'} ${food.food.name}</td>
+                    <td>${food.passCount + food.reactionCount} trials</td>
+                    <td>
+                      ${food.bricks.map(brick => 
+                        `<span class="brick brick-${brick.type}"></span>`
+                      ).join('')}
+                    </td>
+                    <td>${status}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>This report was generated by AllergyTrack on ${new Date().toLocaleDateString('en-AU', { 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}.</p>
+            <p><strong>Legend:</strong> 
+              <span class="brick brick-safe"></span> Safe (no reaction) | 
+              <span class="brick brick-warning"></span> Warning (first reaction after safe) | 
+              <span class="brick brick-reaction"></span> Reaction
+            </p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Send email
+      await resend.emails.send({
+        from: 'AllergyTrack <onboarding@resend.dev>',
+        to: email,
+        subject: `Food Allergy Report for ${baby.name}`,
+        html: htmlContent,
+      });
+
+      res.json({ message: "Report sent successfully" });
+    } catch (error) {
+      console.error("Error sending report:", error);
+      res.status(500).json({ message: "Failed to send report" });
     }
   });
 
