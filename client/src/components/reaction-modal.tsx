@@ -221,7 +221,7 @@ export default function ReactionModal({
           <div className="flex items-center justify-center gap-2">
             <span className="text-4xl">{foodEmoji || "🍼"}</span>
             <div>
-              <p className="font-semibold text-base text-foreground">{foodName}</p>
+              <p className="font-semibold text-xl text-foreground">{foodName}</p>
             </div>
           </div>
         </div>
