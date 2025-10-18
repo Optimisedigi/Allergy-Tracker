@@ -198,7 +198,7 @@ export default function Reports() {
             Food Reports
           </h2>
           <Button 
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 print:hidden"
             onClick={() => window.print()}
             data-testid="button-export-pdf"
           >
@@ -318,7 +318,7 @@ export default function Reports() {
         </Card>
 
         {/* Email Report Section */}
-        <Card className="mt-6">
+        <Card className="mt-6 print:hidden">
           <CardContent className="p-6">
             <h3 className="font-semibold text-foreground mb-4">Email Food Report</h3>
             <div className="flex gap-3">
