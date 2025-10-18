@@ -223,33 +223,18 @@ export default function Settings() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="birthDate" className="block text-sm font-medium text-foreground mb-2">
-                    Date of Birth
-                  </Label>
-                  <Input
-                    id="birthDate"
-                    type="text"
-                    value={selectedBabyData?.dateOfBirth ? new Date(selectedBabyData.dateOfBirth).toLocaleDateString() : ""}
-                    readOnly
-                    className="bg-muted"
-                    data-testid="input-birth-date"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="gender" className="block text-sm font-medium text-foreground mb-2">
-                    Gender
-                  </Label>
-                  <Input
-                    id="gender"
-                    type="text"
-                    value={selectedBabyData?.gender || ""}
-                    readOnly
-                    className="bg-muted"
-                    data-testid="input-gender"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="birthDate" className="block text-sm font-medium text-foreground mb-2">
+                  Date of Birth
+                </Label>
+                <Input
+                  id="birthDate"
+                  type="text"
+                  value={selectedBabyData?.dateOfBirth ? new Date(selectedBabyData.dateOfBirth).toLocaleDateString() : ""}
+                  readOnly
+                  className="bg-muted"
+                  data-testid="input-birth-date"
+                />
               </div>
             </div>
           </CardContent>
