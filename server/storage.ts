@@ -56,6 +56,7 @@ export interface IStorage {
   getTrialsByBaby(babyId: string): Promise<(Trial & { food: Food })[]>;
   getTrial(id: string): Promise<Trial | undefined>;
   updateTrialStatus(id: string, status: string): Promise<void>;
+  getTrialsByFood(babyId: string, foodId: string): Promise<Array<Trial & { reactions: Reaction[] }>>;
   
   // Reaction operations
   createReaction(reaction: InsertReaction): Promise<Reaction>;
@@ -216,6 +217,27 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTrial(id: string): Promise<void> {
     await db.delete(trials).where(eq(trials.id, id));
+  }
+
+  async getTrialsByFood(babyId: string, foodId: string): Promise<Array<Trial & { reactions: Reaction[] }>> {
+    const trialsData = await db
+      .select()
+      .from(trials)
+      .where(and(eq(trials.babyId, babyId), eq(trials.foodId, foodId)))
+      .orderBy(desc(trials.trialDate));
+    
+    // Get reactions for each trial
+    const trialsWithReactions = await Promise.all(
+      trialsData.map(async (trial) => {
+        const trialReactions = await this.getReactionsByTrial(trial.id);
+        return {
+          ...trial,
+          reactions: trialReactions,
+        };
+      })
+    );
+    
+    return trialsWithReactions;
   }
 
   // Reaction operations

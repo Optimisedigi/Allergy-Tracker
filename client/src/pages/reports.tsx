@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
+import FoodDetailModal from "@/components/food-detail-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export default function Reports() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [doctorEmail, setDoctorEmail] = useState("");
+  const [selectedFood, setSelectedFood] = useState<{ id: string; name: string; emoji?: string } | null>(null);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -271,7 +273,12 @@ export default function Reports() {
                       const statusDisplay = getStatusDisplay(status);
 
                       return (
-                        <tr key={foodData.food.id} className="border-b border-border/50 last:border-b-0 hover:bg-muted/20">
+                        <tr 
+                          key={foodData.food.id} 
+                          className="border-b border-border/50 last:border-b-0 hover:bg-muted/20 cursor-pointer"
+                          onClick={() => setSelectedFood({ id: foodData.food.id, name: foodData.food.name, emoji: foodData.food.emoji })}
+                          data-testid={`food-row-${foodData.food.id}`}
+                        >
                           <td className="py-2 px-3">
                             <div className="flex items-center gap-2">
                               <span className="text-lg">{foodData.food.emoji || "🍼"}</span>
@@ -338,6 +345,18 @@ export default function Reports() {
 
       {/* Mobile Navigation */}
       <MobileNav activeTab="reports" />
+
+      {/* Food Detail Modal */}
+      {selectedFood && (
+        <FoodDetailModal
+          isOpen={!!selectedFood}
+          onClose={() => setSelectedFood(null)}
+          babyId={selectedBaby}
+          foodId={selectedFood.id}
+          foodName={selectedFood.name}
+          foodEmoji={selectedFood.emoji}
+        />
+      )}
     </div>
   );
 }

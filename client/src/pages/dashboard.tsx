@@ -376,7 +376,7 @@ export default function Dashboard() {
         {/* Food Brick Chart Section */}
         <section className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-foreground">Food Progress</h3>
+            <h3 className="text-xl font-semibold text-foreground">Recent Food Trials</h3>
             <Button variant="ghost" size="sm" data-testid="button-view-all-foods">
               View All
             </Button>

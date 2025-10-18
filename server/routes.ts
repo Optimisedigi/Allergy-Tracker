@@ -303,6 +303,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all trials for a specific food (with reactions and notes)
+  app.get('/api/babies/:babyId/foods/:foodId/trials', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, foodId } = req.params;
+      const trials = await storage.getTrialsByFood(babyId, foodId);
+      res.json(trials);
+    } catch (error) {
+      console.error("Error fetching food trials:", error);
+      res.status(500).json({ message: "Failed to fetch food trials" });
+    }
+  });
+
   app.delete('/api/babies/:babyId/foods/:foodId/latest-trial', isAuthenticated, async (req: any, res) => {
     try {
       const { babyId, foodId } = req.params;
