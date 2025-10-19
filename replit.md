@@ -27,8 +27,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Model
 
-*   **Core Entities**: Users, Babies, Foods, Trials, Reactions, Brick Logs, Notifications, User Settings.
-*   **Relationships**: Many-to-many (Users ↔ Babies), One-to-many (Babies → Trials, Trials → Reactions).
+*   **Core Entities**: Users, Babies, Foods, Trials, Reactions, Brick Logs, Notifications, User Settings, Pending Invitations.
+*   **Relationships**: 
+    *   Many-to-many (Users ↔ Babies via user_babies table)
+    *   One-to-many (Babies → Trials, Trials → Reactions, Babies → Pending Invitations)
+    *   One-to-many (Users → Pending Invitations as inviter)
 
 ### Key Architectural Patterns
 
@@ -56,6 +59,12 @@ Preferred communication style: Simple, everyday language.
 *   **Notification System**: Provides warnings for reintroducing foods with mild reactions or confirmed/likely allergies.
 *   **Reporting**: Detailed reports with visual progression and status updates for each food.
 *   **Dashboard**: Overview of recent activity, summary statistics.
+*   **Multi-Caregiver Collaboration**:
+    *   **Email Invitations**: Parents can invite partners or other caregivers by email to share access to their baby's data.
+    *   **Immediate Access**: If invited user already has an account, they get immediate access to the baby.
+    *   **Pending Invitations**: If invited user doesn't exist yet, invitation is stored and auto-accepted when they sign up.
+    *   **Caregiver Management**: View all caregivers with access, remove caregivers (cannot remove yourself as sole caregiver).
+    *   **Settings UI**: "Manage Caregivers" section in Settings page with invite form, caregiver list, and pending invitations.
 
 ## External Dependencies
 
