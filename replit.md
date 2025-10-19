@@ -1,8 +1,8 @@
-# AllergyTrack - Food Allergy Tracking Application
+# Allergy Tracker for Bubs - Food Allergy Tracking Application
 
 ## Overview
 
-AllergyTrack is a mobile-first web application for parents to track potential food allergies in babies and toddlers. It helps log food trials, monitor reactions, and build confidence in safe foods through a visual "brick chart" system. The app aims to provide a calm, friendly, and trustworthy interface for systematic food introduction and reaction tracking.
+Allergy Tracker for Bubs is a mobile-first web application for parents to track potential food allergies in babies and toddlers. It helps log food trials, monitor reactions, and build confidence in safe foods through a visual "brick chart" system. The app aims to provide a calm, friendly, and trustworthy interface for systematic food introduction and reaction tracking.
 
 ## User Preferences
 
@@ -44,7 +44,7 @@ Preferred communication style: Simple, everyday language.
 *   **Notifications**: Intelligent warning system for food trials based on reaction history and severity.
 *   **Layouts**: Dashboard with recent activity, Reports page with a table-based layout showing food trials, results, visual bricks, and status.
 *   **Modals**: Food Detail Modal displaying complete trial history, notes, and reactions.
-*   **Consistency**: Consistent header "AllergyTrack Bubs For [Name]" with "Days without reaction" across relevant pages.
+*   **Consistency**: Consistent header "Allergy Tracker for Bubs For [Name]" with "Days without reaction" across relevant pages.
 
 ### Feature Specifications
 

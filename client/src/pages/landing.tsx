@@ -12,14 +12,14 @@ export default function Landing() {
           <div className="mb-6 flex justify-center">
             <img 
               src={logoImage} 
-              alt="AllergyTrack Bubs Logo" 
+              alt="Allergy Tracker for Bubs Logo" 
               className="h-24 w-auto object-contain"
               data-testid="landing-logo"
             />
           </div>
           
           <h1 className="mb-3 text-4xl font-bold text-foreground sm:text-5xl">
-            AllergyTrack Bubs
+            Allergy Tracker for Bubs
           </h1>
           
           <p className="mb-6 text-xl text-muted-foreground">
