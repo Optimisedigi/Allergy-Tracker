@@ -277,18 +277,10 @@ export default function Reports() {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h2 className="text-2xl font-semibold text-foreground" data-testid="text-reports-title">
             Food Reports
           </h2>
-          <Button 
-            className="flex items-center gap-2 print:hidden"
-            onClick={() => window.print()}
-            data-testid="button-export-pdf"
-          >
-            <Download className="w-4 h-4" />
-            <span className="text-sm font-medium">Export PDF</span>
-          </Button>
         </div>
 
         {/* Summary Cards */}
@@ -425,6 +417,18 @@ export default function Reports() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Export PDF Button */}
+        <div className="mt-6 print:hidden">
+          <Button 
+            className="flex items-center gap-2 w-full"
+            onClick={() => window.print()}
+            data-testid="button-export-pdf"
+          >
+            <Download className="w-4 h-4" />
+            <span className="text-sm font-medium">Export PDF</span>
+          </Button>
+        </div>
       </main>
 
       {/* Floating Action Button */}
