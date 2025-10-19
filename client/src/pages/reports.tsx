@@ -191,9 +191,31 @@ export default function Reports() {
       }
     }
     
+    // Check for 3 consecutive safe bricks
+    let hasConsecutiveSafeBricks = false;
+    let consecutiveSafes = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'safe') {
+        consecutiveSafes++;
+        if (consecutiveSafes >= 3) {
+          hasConsecutiveSafeBricks = true;
+          break;
+        }
+      } else {
+        // Any non-safe brick resets the counter
+        consecutiveSafes = 0;
+      }
+    }
+    
     // Check for confirmed allergy (3 consecutive red bricks)
     if (hasConsecutiveRedBricks) {
       return hasActiveTrial ? "Confirmed allergy but testing again" : "Confirmed allergy";
+    }
+    
+    // Check for safe food with past reactions (3 consecutive safe bricks but has reactions in history)
+    if (hasConsecutiveSafeBricks && reactions > 0) {
+      return "Safe food, but signs of sensitivity now";
     }
     
     // Safe food (3+ passes, no reactions)
@@ -225,6 +247,7 @@ export default function Reports() {
       case "Safe food":
       case "Food is safe but testing again":
         return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
+      case "Safe food, but signs of sensitivity now":
       case "Caution":
       case "Possible sensitivity":
         return { icon: <AlertTriangle className="w-4 h-4" />, color: "text-orange-500", bg: "bg-orange-500/10" };
