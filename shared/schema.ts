@@ -55,6 +55,18 @@ export const userBabies = pgTable("user_babies", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Pending invitations table (for sharing baby access)
+export const pendingInvitations = pgTable("pending_invitations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  babyId: varchar("baby_id").notNull().references(() => babies.id, { onDelete: "cascade" }),
+  invitedByUserId: varchar("invited_by_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  invitedEmail: varchar("invited_email").notNull(),
+  role: varchar("role").default("parent"),
+  status: varchar("status").default("pending"), // pending, accepted, declined
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
 // Foods table
 export const foods = pgTable("foods", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -190,6 +202,11 @@ export const userBabiesRelations = relations(userBabies, ({ one }) => ({
   baby: one(babies, { fields: [userBabies.babyId], references: [babies.id] }),
 }));
 
+export const pendingInvitationsRelations = relations(pendingInvitations, ({ one }) => ({
+  baby: one(babies, { fields: [pendingInvitations.babyId], references: [babies.id] }),
+  invitedByUser: one(users, { fields: [pendingInvitations.invitedByUserId], references: [users.id] }),
+}));
+
 export const foodsRelations = relations(foods, ({ many }) => ({
   trials: many(trials),
   brickLogs: many(brickLogs),
@@ -236,6 +253,9 @@ export type Baby = typeof babies.$inferSelect;
 
 export type InsertUserBaby = typeof userBabies.$inferInsert;
 export type UserBaby = typeof userBabies.$inferSelect;
+
+export type InsertPendingInvitation = typeof pendingInvitations.$inferInsert;
+export type PendingInvitation = typeof pendingInvitations.$inferSelect;
 
 export type InsertFood = typeof foods.$inferInsert;
 export type Food = typeof foods.$inferSelect;
