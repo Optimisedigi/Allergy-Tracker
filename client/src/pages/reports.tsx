@@ -342,7 +342,7 @@ export default function Reports() {
                 <table className="w-full">
                   <thead className="bg-muted/20">
                     <tr className="border-b border-border">
-                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Trial</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[120px]">Trial</th>
                       <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
                       <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
                     </tr>
