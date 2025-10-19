@@ -136,10 +136,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized access to this baby profile" });
       }
       
-      // Don't allow removing yourself if you're the only caregiver
+      // Get all caregivers sorted by when they were added
       const caregivers = await storage.getUsersByBaby(babyId);
+      
+      // Don't allow removing yourself if you're the only caregiver
       if (caregivers.length === 1 && caregiverId === userId) {
         return res.status(400).json({ message: "Cannot remove yourself as the only caregiver" });
+      }
+      
+      // Don't allow removing the original creator (first person added)
+      const creator = caregivers[0]; // First person added is the creator (ordered by createdAt)
+      if (creator && caregiverId === creator.id) {
+        return res.status(400).json({ message: "Cannot remove the original creator of this profile" });
       }
       
       await storage.removeUserFromBaby(caregiverId, babyId);

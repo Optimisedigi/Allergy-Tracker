@@ -418,17 +418,6 @@ export default function Reports() {
           </CardContent>
         </Card>
 
-        {/* Export PDF Button */}
-        <div className="mt-6 print:hidden">
-          <Button 
-            className="flex items-center gap-2 w-full"
-            onClick={() => window.print()}
-            data-testid="button-export-pdf"
-          >
-            <Download className="w-4 h-4" />
-            <span className="text-sm font-medium">Export PDF</span>
-          </Button>
-        </div>
       </main>
 
       {/* Floating Action Button */}

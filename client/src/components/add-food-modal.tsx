@@ -470,20 +470,36 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                           </h3>
                           <div className="grid grid-cols-3 gap-2">
                             {foods.map((food) => (
-                              <button
-                                key={food.id}
-                                type="button"
-                                onClick={() => handleFoodSelect(food)}
-                                className={`p-3 border rounded-lg transition-all text-center ${
-                                  selectedFood?.id === food.id
-                                    ? "bg-primary/10 border-primary"
-                                    : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
-                                }`}
-                                data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
-                                <span className="text-xs font-medium">{food.name}</span>
-                              </button>
+                              <div key={food.id} className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => handleFoodSelect(food)}
+                                  className={`w-full p-3 border rounded-lg transition-all text-center ${
+                                    selectedFood?.id === food.id
+                                      ? "bg-primary/10 border-primary"
+                                      : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
+                                  }`}
+                                  data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                >
+                                  <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
+                                  <span className="text-xs font-medium">{food.name}</span>
+                                </button>
+                                {food.category === 'other' && !food.isCommon && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (window.confirm(`Delete ${food.name}? This will only work if there are no trials for this food.`)) {
+                                        deleteFoodMutation.mutate(food.id);
+                                      }
+                                    }}
+                                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90 transition-colors"
+                                    data-testid={`button-delete-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
                             ))}
                           </div>
                         </div>

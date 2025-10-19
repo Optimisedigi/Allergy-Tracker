@@ -23,7 +23,7 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
               <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-name">
                 {title || "Allergy Tracker for Bubs"}
               </h1>
-              <p className="text-xs text-muted-foreground" data-testid="text-baby-name">
+              <p className="text-sm text-muted-foreground" data-testid="text-baby-name">
                 For {babyName}
               </p>
             </div>

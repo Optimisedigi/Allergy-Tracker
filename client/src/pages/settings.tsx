@@ -754,34 +754,40 @@ export default function Settings() {
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-foreground mb-3">Current Users ({caregivers.length})</h4>
                 <div className="space-y-2">
-                  {caregivers.map((caregiver) => (
-                    <div 
-                      key={caregiver.id} 
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                      data-testid={`caregiver-item-${caregiver.id}`}
-                    >
-                      <div className="flex-1">
-                        <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
-                          {caregiver.email}
-                        </p>
+                  {caregivers.map((caregiver, index) => {
+                    const isCreator = index === 0; // First user in the list is the creator
+                    const isCurrentUser = user && (user as any).claims?.sub === caregiver.id;
+                    const canRemove = !isCreator && !isCurrentUser;
+                    
+                    return (
+                      <div 
+                        key={caregiver.id} 
+                        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                        data-testid={`caregiver-item-${caregiver.id}`}
+                      >
+                        <div className="flex-1">
+                          <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
+                            {caregiver.email}
+                          </p>
+                        </div>
+                        {canRemove ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveCaregiver(caregiver.id)}
+                            disabled={removeCaregiverMutation.isPending}
+                            data-testid={`button-remove-caregiver-${caregiver.id}`}
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </Button>
+                        ) : isCurrentUser ? (
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
+                            You
+                          </span>
+                        ) : null}
                       </div>
-                      {user && (user as any).claims?.sub !== caregiver.id ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCaregiver(caregiver.id)}
-                          disabled={removeCaregiverMutation.isPending}
-                          data-testid={`button-remove-caregiver-${caregiver.id}`}
-                        >
-                          <X className="w-4 h-4 text-destructive" />
-                        </Button>
-                      ) : user && (user as any).claims?.sub === caregiver.id ? (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
-                          You
-                        </span>
-                      ) : null}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

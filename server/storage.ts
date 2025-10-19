@@ -48,7 +48,7 @@ export interface IStorage {
   
   // User-baby relationships
   addUserToBaby(userId: string, babyId: string, role?: string): Promise<void>;
-  getUsersByBaby(babyId: string): Promise<Array<User & { role: string }>>;
+  getUsersByBaby(babyId: string): Promise<Array<User & { role: string; addedAt: Date | null }>>;
   removeUserFromBaby(userId: string, babyId: string): Promise<void>;
   
   // Invitation operations
@@ -252,17 +252,19 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  async getUsersByBaby(babyId: string): Promise<Array<User & { role: string }>> {
+  async getUsersByBaby(babyId: string): Promise<Array<User & { role: string; addedAt: Date | null }>> {
     const result = await db
       .select({
         user: users,
         role: userBabies.role,
+        addedAt: userBabies.createdAt,
       })
       .from(users)
       .innerJoin(userBabies, eq(users.id, userBabies.userId))
-      .where(eq(userBabies.babyId, babyId));
+      .where(eq(userBabies.babyId, babyId))
+      .orderBy(userBabies.createdAt);
     
-    return result.map(r => ({ ...r.user, role: r.role || 'parent' }));
+    return result.map(r => ({ ...r.user, role: r.role || 'parent', addedAt: r.addedAt }));
   }
 
   async removeUserFromBaby(userId: string, babyId: string): Promise<void> {
