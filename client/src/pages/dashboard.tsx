@@ -309,6 +309,87 @@ export default function Dashboard() {
           </Card>
         </section>
 
+        {/* Introduction Sections */}
+        <section className="mb-6 space-y-4">
+          {/* What Allergy Tracker Does */}
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-2">What Allergy Tracker Does</h3>
+              <p className="text-sm text-muted-foreground">
+                Allergy Tracker helps you safely introduce foods and record any reactions. 
+                Each time your baby completes a trial with no reaction, they earn a 🟢 green brick. 
+                Bricks build a visual record of what's safe and what needs caution.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* The Brick System */}
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-3">The Brick System</h3>
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-5 rounded flex-shrink-0" style={{
+                    background: 'linear-gradient(135deg, hsl(142 52% 65%) 0%, hsl(142 52% 55%) 100%)'
+                  }} />
+                  <div>
+                    <p className="font-medium text-sm">Green = Safe</p>
+                    <p className="text-xs text-muted-foreground">Trial finished, no reaction.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-5 rounded flex-shrink-0" style={{
+                    background: 'linear-gradient(135deg, hsl(38 92% 65%) 0%, hsl(38 92% 55%) 100%)'
+                  }} />
+                  <div>
+                    <p className="font-medium text-sm">Amber = Warning</p>
+                    <p className="text-xs text-muted-foreground">A new reaction after previous safe trials.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-5 rounded flex-shrink-0" style={{
+                    background: 'linear-gradient(135deg, hsl(0 70% 75%) 0%, hsl(0 70% 65%) 100%)'
+                  }} />
+                  <div>
+                    <p className="font-medium text-sm">Red = Reaction</p>
+                    <p className="text-xs text-muted-foreground">Reacted the first time or again after a warning.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Food Status Levels */}
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-3">Food Status Levels</h3>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Safe food</p>
+                    <p className="text-xs text-muted-foreground">Three+ consecutive passes</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-orange-500 text-lg flex-shrink-0">🔶</span>
+                  <div>
+                    <p className="font-medium text-sm">Possible allergy</p>
+                    <p className="text-xs text-muted-foreground">Reacted first time</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CircleAlert className="w-4 h-4 text-destructive flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Confirmed allergy</p>
+                    <p className="text-xs text-muted-foreground">Three+ consecutive reactions</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Steroid Cream Alert */}
         {activeCream && (
           <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex items-start gap-3" data-testid="alert-steroid-cream">
