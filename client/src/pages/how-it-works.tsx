@@ -93,14 +93,14 @@ export default function HowItWorks() {
         {/* Introduction */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">What Allergy Tracker for Bubs Does</CardTitle>
+            <CardTitle className="text-xl">What This Allergy Tracker Does</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p>
               Allergy Tracker for Bubs helps you safely introduce foods and record any reactions.
             </p>
             <p>
-              Each time your baby completes a trial with no reaction, they earn a 🟢 green brick. 
+              Each time your baby completes a trial with no reaction, they earn a green brick. 
               Bricks build a visual record of what's safe and what needs caution.
             </p>
           </CardContent>
