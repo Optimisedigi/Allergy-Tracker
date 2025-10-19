@@ -188,7 +188,7 @@ export default function HowItWorks() {
                 <CheckCircle className="w-4 h-4 text-success" />
                 <div>
                   <p className="font-medium text-sm">Safe food</p>
-                  <p className="text-xs text-muted-foreground">Three+ passes, no reactions</p>
+                  <p className="text-xs text-muted-foreground">Three+ consecutive passes</p>
                 </div>
               </div>
 
@@ -212,7 +212,7 @@ export default function HowItWorks() {
                 <CircleAlert className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="font-medium text-sm">Confirmed allergy</p>
-                  <p className="text-xs text-muted-foreground">Strong evidence of allergy</p>
+                  <p className="text-xs text-muted-foreground">Three+ consecutive reactions</p>
                 </div>
               </div>
             </div>
