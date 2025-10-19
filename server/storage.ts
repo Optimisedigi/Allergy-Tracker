@@ -106,6 +106,9 @@ export interface IStorage {
   createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream>;
   getActiveSteroidCream(babyId: string): Promise<SteroidCream | undefined>;
   endSteroidCream(id: string): Promise<void>;
+  
+  // CSV Export operations
+  exportBabyDataToCSV(userId: string, babyId: string): Promise<string>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -625,6 +628,129 @@ export class DatabaseStorage implements IStorage {
       recentActivity,
       foodProgress,
     };
+  }
+
+  async exportBabyDataToCSV(userId: string, babyId: string): Promise<string> {
+    // Get baby details
+    const baby = await this.getBaby(babyId);
+    if (!baby) {
+      throw new Error("Baby not found");
+    }
+
+    // Fetch all data in a single query with joins
+    const dataResult = await db.execute(sql`
+      SELECT 
+        b.name AS baby_name,
+        b.date_of_birth AS baby_dob,
+        f.name AS food_name,
+        f.emoji AS food_emoji,
+        t.trial_date,
+        t.observation_ends_at,
+        t.status AS trial_status,
+        t.notes AS trial_notes,
+        bl.type AS brick_type,
+        bl.date AS brick_date,
+        r.types AS reaction_types,
+        r.severity AS reaction_severity,
+        r.started_at AS reaction_started,
+        r.resolved_at AS reaction_resolved,
+        r.notes AS reaction_notes,
+        sc.started_at AS steroid_started,
+        sc.ended_at AS steroid_ended,
+        sc.notes AS steroid_notes
+      FROM ${trials} t
+      JOIN ${babies} b ON t.baby_id = b.id
+      JOIN ${foods} f ON t.food_id = f.id
+      LEFT JOIN ${brickLogs} bl ON t.id = bl.trial_id
+      LEFT JOIN ${reactions} r ON t.id = r.trial_id
+      LEFT JOIN ${steroidCream} sc 
+        ON sc.baby_id = b.id 
+        AND t.trial_date BETWEEN sc.started_at AND COALESCE(sc.ended_at, NOW())
+      WHERE b.id = ${babyId}
+      ORDER BY t.trial_date ASC, bl.date ASC
+    `);
+
+    const rows = dataResult.rows as any[];
+
+    // Helper function to escape CSV values
+    const escapeCSV = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      const str = String(value);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Helper function to format dates
+    const formatDate = (date: any): string => {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toLocaleDateString('en-AU', { timeZone: 'Australia/Sydney' });
+    };
+
+    const formatDateTime = (date: any): string => {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });
+    };
+
+    // Create CSV header
+    const headers = [
+      'Baby Name',
+      'Baby Date of Birth',
+      'Food Name',
+      'Food Emoji',
+      'Trial Start Date',
+      'Trial End Date',
+      'Trial Status',
+      'Brick Type',
+      'Brick Date',
+      'Reaction Types',
+      'Reaction Severity',
+      'Reaction Started',
+      'Reaction Resolved',
+      'Reaction Notes',
+      'Trial Notes',
+      'Steroid Cream Started',
+      'Steroid Cream Ended',
+      'Steroid Cream Notes'
+    ];
+
+    const csvLines = [headers.join(',')];
+
+    // Add data rows
+    rows.forEach(row => {
+      const line = [
+        escapeCSV(row.baby_name),
+        escapeCSV(formatDate(row.baby_dob)),
+        escapeCSV(row.food_name),
+        escapeCSV(row.food_emoji),
+        escapeCSV(formatDate(row.trial_date)),
+        escapeCSV(formatDate(row.observation_ends_at)),
+        escapeCSV(row.trial_status),
+        escapeCSV(row.brick_type),
+        escapeCSV(formatDate(row.brick_date)),
+        escapeCSV(Array.isArray(row.reaction_types) ? row.reaction_types.join(', ') : row.reaction_types),
+        escapeCSV(row.reaction_severity),
+        escapeCSV(formatDateTime(row.reaction_started)),
+        escapeCSV(formatDateTime(row.reaction_resolved)),
+        escapeCSV(row.reaction_notes),
+        escapeCSV(row.trial_notes),
+        escapeCSV(formatDateTime(row.steroid_started)),
+        escapeCSV(formatDateTime(row.steroid_ended)),
+        escapeCSV(row.steroid_notes)
+      ];
+      csvLines.push(line.join(','));
+    });
+
+    // Add summary header at the top
+    const today = new Date();
+    const summary = `Allergy Tracker for Bubs - Export for ${baby.name} - Generated: ${formatDateTime(today)} - Total Records: ${rows.length}`;
+    csvLines.unshift('');
+    csvLines.unshift(summary);
+
+    return csvLines.join('\n');
   }
 }
 

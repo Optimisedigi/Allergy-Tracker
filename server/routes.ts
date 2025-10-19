@@ -589,6 +589,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // CSV Export route
+  app.get('/api/babies/:babyId/export-csv', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { babyId } = req.params;
+
+      // Verify baby belongs to user
+      const baby = await storage.getBaby(babyId);
+      if (!baby) {
+        res.status(404).json({ message: "Baby not found" });
+        return;
+      }
+
+      // Get all data
+      const csvData = await storage.exportBabyDataToCSV(userId, babyId);
+      
+      // Format filename
+      const fileName = `allergy-tracker-${baby.name.toLowerCase().replace(/\s+/g, '_')}-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      // Set headers for CSV download
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      
+      // Send CSV
+      res.send(csvData);
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
   // Setup cron job for reminders (runs every hour)
   cron.schedule('0 * * * *', () => {
     reminderService.processReminders().catch(console.error);

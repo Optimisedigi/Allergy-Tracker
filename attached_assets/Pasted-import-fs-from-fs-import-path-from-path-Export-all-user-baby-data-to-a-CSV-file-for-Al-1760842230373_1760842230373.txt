@@ -1,0 +1,135 @@
+import fs from "fs";
+import path from "path";
+
+/**
+ * Export all user/baby data to a CSV file for AllergyTrack.
+ * Generates a clean, parent-friendly CSV file that can be opened in Excel or Google Sheets.
+ */
+
+export async function exportUserDataToCSV(userId, babyId, db) {
+  try {
+    // 1️⃣ Fetch joined data from the database
+    const query = `
+      SELECT 
+        b.name AS baby_name,
+        f.name AS food_name,
+        t.start_date AS trial_start_date,
+        t.end_date AS trial_end_date,
+        CASE 
+          WHEN r.id IS NOT NULL THEN 'Reaction'
+          ELSE 'Pass'
+        END AS result,
+        COALESCE(r.severity, 'None') AS reaction_severity,
+        COALESCE(r.symptoms, '') AS symptoms,
+        COALESCE(r.duration, '') AS reaction_duration,
+        COALESCE(r.notes, '') AS parent_notes,
+        t.status AS food_status,
+        t.brick_color AS brick_colour,
+        t.passes AS total_passes,
+        t.reactions AS total_reactions,
+        t.updated_at AS last_updated,
+        CASE 
+          WHEN s.id IS NOT NULL THEN 'Yes'
+          ELSE 'No'
+        END AS steroid_cream_applied,
+        COALESCE(s.applied_at, NULL) AS steroid_application_datetime
+      FROM trials t
+      JOIN babies b ON t.baby_id = b.id
+      JOIN foods f ON t.food_id = f.id
+      LEFT JOIN reactions r ON r.trial_id = t.id
+      LEFT JOIN steroid_treatments s 
+        ON s.baby_id = b.id 
+        AND s.applied_at BETWEEN t.start_date AND t.end_date
+      WHERE b.user_id = $1 AND b.id = $2
+      ORDER BY t.start_date ASC;
+    `;
+
+    const result = await db.query(query, [userId, babyId]);
+    const rows = result.rows;
+
+    if (!rows.length) {
+      throw new Error("No data found for this user or baby profile.");
+    }
+
+    // 2️⃣ Create CSV header
+    const headers = [
+      "Baby Name",
+      "Food Name",
+      "Trial Start Date",
+      "Trial End Date",
+      "Result (Pass / Reaction)",
+      "Reaction Severity (Mild / Moderate / Severe / None)",
+      "Symptoms",
+      "Reaction Duration",
+      "Parent Notes",
+      "Food Status",
+      "Brick Colour",
+      "Total Passes",
+      "Total Reactions",
+      "Last Updated",
+      "Steroid Cream Applied (Yes / No)",
+      "Steroid Application Date & Time"
+    ];
+
+    // 3️⃣ Convert rows to CSV lines
+    const csvRows = [headers.join(",")];
+
+    rows.forEach(row => {
+      const line = [
+        row.baby_name || "—",
+        row.food_name || "—",
+        formatDate(row.trial_start_date),
+        formatDate(row.trial_end_date),
+        row.result || "—",
+        row.reaction_severity || "—",
+        `"${row.symptoms || ""}"`,
+        row.reaction_duration || "—",
+        `"${row.parent_notes || ""}"`,
+        row.food_status || "—",
+        row.brick_colour || "—",
+        row.total_passes || "0",
+        row.total_reactions || "0",
+        formatDate(row.last_updated),
+        row.steroid_cream_applied || "No",
+        row.steroid_application_datetime ? formatDateTime(row.steroid_application_datetime) : "—"
+      ];
+      csvRows.push(line.join(","));
+    });
+
+    // 4️⃣ Add summary header row at the top
+    const summary = `AllergyTrack Export | Generated: ${formatDateTime(new Date())} | Baby: ${rows[0].baby_name} | Total Foods: ${rows.length}`;
+    csvRows.unshift("");
+    csvRows.unshift(summary);
+
+    // 5️⃣ Save file to exports directory
+    const fileName = `allergytrack_export_${rows[0].baby_name.toLowerCase().replace(/\s+/g, "_")}_${getDateString()}.csv`;
+    const exportDir = path.join(process.cwd(), "exports");
+    if (!fs.existsSync(exportDir)) fs.mkdirSync(exportDir);
+    const filePath = path.join(exportDir, fileName);
+
+    fs.writeFileSync(filePath, csvRows.join("\n"), "utf8");
+
+    console.log(`✅ CSV export created: ${filePath}`);
+    return filePath;
+
+  } catch (error) {
+    console.error("❌ Error generating CSV export:", error);
+    throw error;
+  }
+}
+
+// Helper functions
+function formatDate(date) {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney" });
+}
+
+function formatDateTime(date) {
+  if (!date) return "—";
+  return new Date(date).toLocaleString("en-AU", { timeZone: "Australia/Sydney" });
+}
+
+function getDateString() {
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+}
