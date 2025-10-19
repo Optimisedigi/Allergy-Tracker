@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronRight, Check, ChevronsUpDown, Download } from "lucide-react";
+import { ChevronRight, Check, ChevronsUpDown, Download, UserPlus, X, Mail, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 
@@ -58,6 +58,8 @@ export default function Settings() {
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [removeCaregiverId, setRemoveCaregiverId] = useState<string | null>(null);
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -204,6 +206,110 @@ export default function Settings() {
     },
   });
 
+  // Get caregivers for selected baby
+  const { data: caregivers = [] } = useQuery<Array<{
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  }>>({
+    queryKey: ["/api/babies", selectedBaby, "caregivers"],
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
+  // Get pending invitations for selected baby
+  const { data: pendingInvitations = [] } = useQuery<Array<{
+    id: string;
+    invitedEmail: string;
+    role: string;
+    createdAt: string;
+    invitedByUser: {
+      name: string;
+      email: string;
+    };
+  }>>({
+    queryKey: ["/api/babies", selectedBaby, "invitations"],
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
+  // Invite caregiver mutation
+  const inviteCaregiverMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest("POST", `/api/babies/${selectedBaby}/invite`, { email, role: "parent" });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/babies", selectedBaby, "caregivers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/babies", selectedBaby, "invitations"] });
+      setInviteEmail("");
+      
+      if (data.userExists) {
+        toast({
+          title: "Caregiver Added",
+          description: "The user has been granted access immediately",
+        });
+      } else {
+        toast({
+          title: "Invitation Sent",
+          description: "An invitation will be available when they sign up",
+        });
+      }
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send invitation",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Remove caregiver mutation
+  const removeCaregiverMutation = useMutation({
+    mutationFn: async (caregiverId: string) => {
+      await apiRequest("DELETE", `/api/babies/${selectedBaby}/caregivers/${caregiverId}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/babies", selectedBaby, "caregivers"] });
+      setRemoveCaregiverId(null);
+      toast({
+        title: "Caregiver Removed",
+        description: "Access has been revoked successfully",
+      });
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove caregiver",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSettingChange = (key: keyof UserSettings, value: any) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
@@ -214,6 +320,23 @@ export default function Settings() {
     if (babyName.trim()) {
       updateBabyNameMutation.mutate(babyName.trim());
     }
+  };
+
+  const handleInviteCaregiver = () => {
+    if (!inviteEmail.trim() || !inviteEmail.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    inviteCaregiverMutation.mutate(inviteEmail.trim().toLowerCase());
+  };
+
+  const handleRemoveCaregiver = (caregiverId: string) => {
+    removeCaregiverMutation.mutate(caregiverId);
   };
 
   const handleDeleteAccount = async () => {
@@ -431,6 +554,123 @@ export default function Settings() {
                 />
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Manage Caregivers */}
+        <Card className="mb-4" data-testid="card-manage-caregivers">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-foreground mb-4">Manage Caregivers</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Share access with your partner or other caregivers so they can track trials and reactions together.
+            </p>
+            
+            {/* Invite Form */}
+            <div className="mb-6">
+              <Label htmlFor="inviteEmail" className="block text-sm font-medium text-foreground mb-2">
+                Invite by Email
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="inviteEmail"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="partner@example.com"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleInviteCaregiver();
+                    }
+                  }}
+                  data-testid="input-invite-email"
+                />
+                <Button 
+                  onClick={handleInviteCaregiver}
+                  disabled={inviteCaregiverMutation.isPending || !inviteEmail.trim()}
+                  data-testid="button-send-invite"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {inviteCaregiverMutation.isPending ? "Sending..." : "Invite"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Current Caregivers */}
+            {caregivers.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-foreground mb-3">Current Caregivers ({caregivers.length})</h4>
+                <div className="space-y-2">
+                  {caregivers.map((caregiver) => (
+                    <div 
+                      key={caregiver.id} 
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                      data-testid={`caregiver-item-${caregiver.id}`}
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground" data-testid={`text-caregiver-name-${caregiver.id}`}>
+                          {caregiver.name || "Unknown"}
+                        </p>
+                        <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
+                          {caregiver.email}
+                        </p>
+                      </div>
+                      {user && (user as any).claims?.sub !== caregiver.id ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveCaregiver(caregiver.id)}
+                          disabled={removeCaregiverMutation.isPending}
+                          data-testid={`button-remove-caregiver-${caregiver.id}`}
+                        >
+                          <X className="w-4 h-4 text-destructive" />
+                        </Button>
+                      ) : user && (user as any).claims?.sub === caregiver.id ? (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
+                          You
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pending Invitations */}
+            {pendingInvitations.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-3">Pending Invitations ({pendingInvitations.length})</h4>
+                <div className="space-y-2">
+                  {pendingInvitations.map((invitation) => (
+                    <div 
+                      key={invitation.id} 
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border-l-2 border-orange-500"
+                      data-testid={`pending-invitation-${invitation.id}`}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Mail className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-sm font-medium text-foreground" data-testid={`text-invitation-email-${invitation.id}`}>
+                            {invitation.invitedEmail}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">
+                            Waiting for sign up
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {caregivers.length === 0 && pendingInvitations.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-caregivers">
+                No caregivers yet. Invite someone to get started.
+              </p>
+            )}
           </CardContent>
         </Card>
 

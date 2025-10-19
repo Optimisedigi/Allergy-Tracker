@@ -83,13 +83,34 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
+  const userId = claims["sub"];
+  const userEmail = claims["email"]?.toLowerCase();
+  
   await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
+    id: userId,
+    email: userEmail,
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+
+  // Auto-accept any pending invitations for this email
+  if (userEmail) {
+    try {
+      const pendingInvitations = await storage.getPendingInvitationsByEmail(userEmail);
+      
+      for (const invitation of pendingInvitations) {
+        try {
+          await storage.acceptInvitation(invitation.id, userId);
+          console.log(`Auto-accepted invitation ${invitation.id} for baby ${invitation.babyId}`);
+        } catch (error) {
+          console.error(`Failed to auto-accept invitation ${invitation.id}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check for pending invitations:', error);
+    }
+  }
 }
 
 export async function setupAuth(app: Express) {
