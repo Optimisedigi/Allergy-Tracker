@@ -18,23 +18,23 @@ export default function Landing() {
             />
           </div>
           
-          <h1 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
-            ❤️ Allergy Tracker for Bubs
+          <h1 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
+            Allergy Tracker for Bubs
           </h1>
           
           <p className="mb-3 text-base text-muted-foreground leading-relaxed">
-            We know how hard it can be to figure out what's triggering your little one's reactions — whether it's a rash, irritation tummy upset, or eczema flare-up.
-            That's exactly why we built Allergy Tracker for Bubs — by parents who've been there too, trying to make sense of it all.
+            We know how hard it can be to figure out what food is triggering your little one's reactions — whether it's a rash, irritation tummy upset, or eczema flare-up.
+            That's exactly why we built Allergy Tracker for Bubs, by parents who've been there too, trying to make sense of it all.
           </p>
           
           <p className="mb-5 text-base text-muted-foreground leading-relaxed">
-            Our mission is simple: to help you feel calm and confident during food introductions. With straight forward digital tools to visually track foods and spot reactions.
+            Our mission is simple: to make it clear for parents to visually track foods and spot reactions.
           </p>
 
           {/* Brick System Section */}
           <div className="mb-5 rounded-lg bg-muted/30 px-4 py-4 text-left">
             <h2 className="mb-3 text-xl font-semibold text-foreground">
-              🌈 How It Works — The Brick System
+              How the Brick System Works
             </h2>
             
             <p className="mb-3 text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export default function Landing() {
             </div>
             
             <p className="mt-3 text-sm text-muted-foreground italic">
-              Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause for now. It's like building a wall of confidence, one safe food at a time.
+              Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause for now.
             </p>
           </div>
 
