@@ -350,8 +350,9 @@ export default function Reports() {
                               {[...foodData.bricks].reverse().slice(0, 6).map((brick, brickIdx) => (
                                 <div
                                   key={brickIdx}
-                                  className={`w-6 h-5 rounded`}
+                                  className={`h-5 rounded`}
                                   style={{
+                                    width: '16.8px',
                                     background: brick.type === 'safe' 
                                       ? 'linear-gradient(135deg, hsl(142 52% 65%) 0%, hsl(142 52% 55%) 100%)'
                                       : brick.type === 'warning'
