@@ -13,7 +13,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="Allergy Tracker for Bubs Logo" 
-              className="h-20 w-auto object-contain"
+              className="h-32 w-auto object-contain"
               data-testid="landing-logo"
             />
           </div>
@@ -59,9 +59,9 @@ export default function Landing() {
           </div>
 
           {/* Final CTA Section */}
-          <div className="text-center mt-8">
-            <h2 className="mb-3 text-xl font-semibold text-foreground mt-6">
-              👶 Ready to feel confident again?
+          <div className="text-center mt-12">
+            <h2 className="mb-3 text-xl font-semibold text-foreground mt-8">
+              Ready to feel confident again?
             </h2>
             <Button 
               size="lg" 
