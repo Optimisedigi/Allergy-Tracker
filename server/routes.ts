@@ -195,6 +195,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       });
       
+      // Send invitation email
+      try {
+        const baby = await storage.getBaby(babyId);
+        const inviter = await storage.getUser(userId);
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        const inviterName = inviter?.firstName && inviter?.lastName 
+          ? `${inviter.firstName} ${inviter.lastName}` 
+          : inviter?.email || 'A caregiver';
+        
+        const appUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'allergytrack.replit.app';
+        
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+              .container { background: #f9f9f9; border-radius: 10px; padding: 30px; }
+              h1 { color: #5C9EAD; margin-bottom: 20px; }
+              .message { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+              .button { display: inline-block; background: #5C9EAD; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>You're invited to AllergyTrack!</h1>
+              
+              <div class="message">
+                <p>Hi there,</p>
+                
+                <p><strong>${inviterName}</strong> has invited you to help track food allergies for <strong>${baby?.name || 'their baby'}</strong> using AllergyTrack for Bubs.</p>
+                
+                <p>AllergyTrack helps parents collaboratively track food trials, monitor reactions, and build confidence in safe foods through a simple visual system.</p>
+                
+                <p>To get started, simply create your account by clicking the button below:</p>
+                
+                <a href="https://${appUrl}/api/login" class="button">Create Account & Accept Invitation</a>
+                
+                <p>Once you sign up with this email address (<strong>${email.toLowerCase()}</strong>), you'll automatically get access to ${baby?.name || 'the baby'}'s food tracking data.</p>
+                
+                <p>This invitation expires in 7 days.</p>
+              </div>
+              
+              <div class="footer">
+                <p>This invitation was sent to ${email.toLowerCase()}. If you didn't expect this invitation, you can safely ignore this email.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        
+        await resend.emails.send({
+          from: 'AllergyTrack <onboarding@resend.dev>',
+          to: email.toLowerCase(),
+          subject: `${inviterName} invited you to track ${baby?.name || 'their baby'}'s food allergies`,
+          html: htmlContent,
+        });
+        
+        console.log(`Invitation email sent to ${email.toLowerCase()} for baby ${babyId}`);
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        // Don't fail the entire request if email fails
+      }
+      
       res.json({ message: "Invitation sent successfully", invitation, userExists: false });
     } catch (error) {
       console.error("Error creating invitation:", error);
