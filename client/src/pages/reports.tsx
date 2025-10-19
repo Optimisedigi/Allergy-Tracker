@@ -215,7 +215,7 @@ export default function Reports() {
     
     // Check for safe food with past reactions (3 consecutive safe bricks but has reactions in history)
     if (hasConsecutiveSafeBricks && reactions > 0) {
-      return "Safe food, but signs of sensitivity now";
+      return "Safe food, but signs of sensitivity";
     }
     
     // Safe food (3+ passes, no reactions)
@@ -247,7 +247,7 @@ export default function Reports() {
       case "Safe food":
       case "Food is safe but testing again":
         return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
-      case "Safe food, but signs of sensitivity now":
+      case "Safe food, but signs of sensitivity":
       case "Caution":
       case "Possible sensitivity":
         return { icon: <AlertTriangle className="w-4 h-4" />, color: "text-orange-500", bg: "bg-orange-500/10" };
