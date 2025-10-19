@@ -23,12 +23,12 @@ export default function Landing() {
           </h1>
           
           <p className="mb-3 text-base text-muted-foreground leading-relaxed">
-            We know how hard it can be to figure out what food is triggering your little one's reactions — whether it's a rash, irritation tummy upset, or eczema flare-up.
-            That's exactly why we built Allergy Tracker for Bubs, by parents who've been there too, trying to make sense of it all.
+            We know how hard it is to figure out what's triggering your little one's rashes or tummy troubles.
+            That's why we built Allergy Tracker for Bubs — by parents who've been there too.
           </p>
           
           <p className="mb-5 text-base text-muted-foreground leading-relaxed">
-            Our mission is simple: to make it clear for parents to visually track foods and spot reactions.
+            Our goal is simple: help you clearly track foods and spot reactions with confidence.
           </p>
 
           {/* Brick System Section */}
