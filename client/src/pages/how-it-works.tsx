@@ -263,14 +263,14 @@ export default function HowItWorks() {
         {/* Reminder */}
         <Card className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950">
           <CardHeader>
-            <CardTitle className="text-xl text-amber-900 dark:text-amber-100">Reminder</CardTitle>
+            <CardTitle className="text-xl text-amber-900 dark:text-amber-100">⚠️ Important Reminder</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-amber-900 dark:text-amber-100">
             <p>
-              <strong>Allergy Tracker for Bubs is a tracking tool, not medical advice.</strong>
+              Allergy Tracker for Bubs is a support and record-keeping tool, not a substitute for professional medical advice, diagnosis, or treatment.
             </p>
             <p>
-              Seek medical help immediately if your child shows serious allergy symptoms.
+              By using the app, you acknowledge it's a support tool only, and that medical decisions should always be made with a qualified health professional.
             </p>
           </CardContent>
         </Card>
