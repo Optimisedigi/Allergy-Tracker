@@ -16,6 +16,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronRight, Check, ChevronsUpDown, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 
 interface UserSettings {
   defaultObservationPeriod: number;
@@ -503,13 +504,15 @@ export default function Settings() {
           <CardContent className="p-6">
             <h3 className="font-semibold text-foreground mb-4">Privacy & Data</h3>
             <div className="space-y-3">
-              <button 
-                className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between"
-                data-testid="button-view-privacy-policy"
-              >
-                <span>View Privacy Policy</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <Link href="/privacy-policy">
+                <button 
+                  className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between"
+                  data-testid="button-view-privacy-policy"
+                >
+                  <span>View Privacy Policy</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </Link>
               <button 
                 onClick={handleExportData}
                 disabled={isExporting}

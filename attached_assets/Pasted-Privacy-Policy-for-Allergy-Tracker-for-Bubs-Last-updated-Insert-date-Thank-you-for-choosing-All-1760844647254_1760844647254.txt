@@ -1,0 +1,111 @@
+Privacy Policy for Allergy Tracker for Bubs
+
+Last updated: [Insert date]
+
+Thank you for choosing Allergy Tracker for Bubs. We’re committed to protecting your personal data and your baby’s food-trial information. This Privacy Policy explains how we collect, use, share and protect information when you use our app.
+
+1. What we collect
+
+When you use the app, we collect the following types of information:
+
+Account information
+
+Your email address, name (optional)
+
+Password (securely hashed)
+
+If you sign in with Google: your Google ID, name and email
+
+Baby trial data
+
+Baby profile(s) you create: name (optional), date of birth (optional)
+
+Foods introduced, trial dates, observations, reactions, notes
+
+Any steroid cream treatment date/time (if recorded)
+
+Pass/reaction counts and statuses
+
+Usage & device information
+
+Device type, operating system version
+
+App version, crash logs (anonymised)
+
+IP address and timezone (to record dates/times correctly)
+
+We do not collect or store:
+
+Payment or financial information
+
+Medical records beyond what you voluntarily enter
+
+Location tracking beyond timezone and device IP
+
+2. How we use your data
+
+We use your data to:
+
+Provide and maintain the app’s functionality (tracking trials, generating reports)
+
+Enable you to export data (PDF/CSV/JSON) and share it with healthcare providers
+
+Improve the app and fix bugs (using anonymised logs)
+
+Send you non-intrusive notifications or updates (you can opt out)
+
+We will not use your data for marketing, advertising, or selling to third parties.
+
+3. How we share your data
+
+We will never sell your personal or baby’s data. We may share data under limited circumstances:
+
+With service providers who assist us (e.g., data storage, email services), under strict confidentiality
+
+If required by law or to protect our rights
+
+Any sharing is strictly controlled and only involves the minimum data necessary.
+
+4. Your rights
+
+You have the right to:
+
+Access the data we hold for you (you can export it at any time)
+
+Correct or delete your account and all associated data
+
+Opt out of non-essential notifications
+
+Ask questions about how we process your data
+
+To exercise any right, please contact us at [Insert support email].
+
+5. Data security & retention
+
+We take data security seriously:
+
+Passwords are hashed and never stored in plain text
+
+Servers are secured and only authorised personnel have access
+
+Data is stored on secure infrastructure in line with industry best practices
+
+We keep your data for as long as you use the app. If you delete your account, we will remove your data unless we are required to keep it by law.
+
+6. Kids & parental controls
+
+This app is designed for parents and caregivers. If you are under 16, please use the app only with parental consent.
+Parents: you control the data entered for your baby and can manage, export or delete it at any time.
+
+7. Changes to this policy
+
+We may update this policy from time to time. We will show the “Last updated” date at the top and post the new version in the app. We recommend checking it occasionally.
+
+8. Contact us
+
+If you have questions or concerns, contact us at:
+[Insert email address]
+[Insert postal address or company name if applicable]
+
+Thank you for trusting us with your baby’s food-trial journey. We’re here to help you track safely and confidently.
+— The Allergy Tracker for Bubs Team

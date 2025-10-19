@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard";
 import Reports from "@/pages/reports";
 import HowItWorks from "@/pages/how-it-works";
 import Settings from "@/pages/settings";
+import PrivacyPolicy from "@/pages/privacy-policy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -35,6 +36,7 @@ function Router() {
           <Route path="/reports" component={Reports} />
           <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/settings" component={Settings} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
         </>
       )}
       <Route component={NotFound} />
