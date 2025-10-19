@@ -93,11 +93,11 @@ export default function HowItWorks() {
         {/* Introduction */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">What AllergyTrack Does</CardTitle>
+            <CardTitle className="text-xl">What Allergy Tracker for Bubs Does</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p>
-              AllergyTrack helps you safely introduce foods and record any reactions.
+              Allergy Tracker for Bubs helps you safely introduce foods and record any reactions.
             </p>
             <p>
               Each time your baby completes a trial with no reaction, they earn a 🟢 green brick. 
@@ -161,14 +161,6 @@ export default function HowItWorks() {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
-                <Circle className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">Not tested</p>
-                  <p className="text-xs text-muted-foreground">Haven't tried yet</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
                 <span className="text-success text-lg">✓</span>
                 <div>
                   <p className="font-medium text-sm">Passed once</p>
@@ -208,11 +200,19 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2">
+              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
                 <CircleAlert className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="font-medium text-sm">Confirmed allergy</p>
                   <p className="text-xs text-muted-foreground">Three+ consecutive reactions</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2">
+                <Circle className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium text-sm">Not tested</p>
+                  <p className="text-xs text-muted-foreground">Haven't tried yet</p>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function HowItWorks() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-amber-900 dark:text-amber-100">
             <p>
-              <strong>AllergyTrack is a tracking tool, not medical advice.</strong>
+              <strong>Allergy Tracker for Bubs is a tracking tool, not medical advice.</strong>
             </p>
             <p>
               Seek medical help immediately if your child shows serious allergy symptoms.
