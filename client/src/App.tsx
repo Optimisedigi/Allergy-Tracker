@@ -1,9 +1,10 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Onboarding from "@/pages/onboarding";
@@ -15,6 +16,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [location, setLocation] = useLocation();
 
   const { data: babies = [], isLoading: babiesLoading } = useQuery<Array<{ id: string }>>({
     queryKey: ["/api/babies"],
@@ -22,7 +24,23 @@ function Router() {
     retry: false,
   });
 
+  const firstBabyId = babies.length > 0 ? babies[0].id : null;
+
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery<{ foodProgress: any[] }>({
+    queryKey: ["/api/dashboard", firstBabyId],
+    enabled: isAuthenticated && !!firstBabyId,
+    retry: false,
+  });
+
   const needsOnboarding = isAuthenticated && !babiesLoading && babies.length === 0;
+  const hasNoTrials = dashboardData && dashboardData.foodProgress.length === 0;
+  const isFirstTimeUser = isAuthenticated && !babiesLoading && !dashboardLoading && babies.length > 0 && hasNoTrials;
+
+  useEffect(() => {
+    if (isFirstTimeUser && location === "/") {
+      setLocation("/how-it-works");
+    }
+  }, [isFirstTimeUser, location, setLocation]);
 
   return (
     <Switch>
