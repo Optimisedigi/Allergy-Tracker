@@ -389,18 +389,22 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {dashboardData?.foodProgress.map((foodData) => (
-              <FoodCard
-                key={foodData.food.id}
-                food={foodData.food}
-                bricks={foodData.bricks}
-                passCount={foodData.passCount}
-                reactionCount={foodData.reactionCount}
-                lastTrial={foodData.lastTrial ? new Date(foodData.lastTrial) : null}
-                onDelete={() => setDeleteDialogData({ isOpen: true, foodId: foodData.food.id, foodName: foodData.food.name })}
-                data-testid={`card-food-${foodData.food.id}`}
-              />
-            ))}
+            {dashboardData?.foodProgress.map((foodData) => {
+              const hasActiveTrial = dashboardData?.activeTrials?.some(trial => trial.food.name === foodData.food.name);
+              return (
+                <FoodCard
+                  key={foodData.food.id}
+                  food={foodData.food}
+                  bricks={foodData.bricks}
+                  passCount={foodData.passCount}
+                  reactionCount={foodData.reactionCount}
+                  lastTrial={foodData.lastTrial ? new Date(foodData.lastTrial) : null}
+                  hasActiveTrial={hasActiveTrial}
+                  onDelete={() => setDeleteDialogData({ isOpen: true, foodId: foodData.food.id, foodName: foodData.food.name })}
+                  data-testid={`card-food-${foodData.food.id}`}
+                />
+              );
+            })}
           </div>
         </section>
 

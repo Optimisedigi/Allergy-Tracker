@@ -1,5 +1,5 @@
 import BrickChart from "@/components/brick-chart";
-import { Check, CircleAlert, Clock, Trash2 } from "lucide-react";
+import { Check, CircleAlert, Clock, Trash2, AlertTriangle, X } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 
@@ -16,91 +16,105 @@ interface FoodCardProps {
   passCount: number;
   reactionCount: number;
   lastTrial: Date | null;
+  hasActiveTrial?: boolean;
   onDelete?: () => void;
 }
 
-export default function FoodCard({ food, bricks, passCount, reactionCount, lastTrial, onDelete }: FoodCardProps) {
-  // Count brick types
-  const safeCount = bricks.filter(b => b.type === 'safe').length;
-  const warningCount = bricks.filter(b => b.type === 'warning').length;
-  const reactionBrickCount = bricks.filter(b => b.type === 'reaction').length;
-  
-  // Calculate effective safe count (warnings neutralize safe bricks)
-  const effectiveSafeCount = Math.max(0, safeCount - warningCount);
-
-  const getStatusIcon = () => {
-    // 2+ reactions = Likely Allergy
-    if (reactionBrickCount >= 2) {
-      return <CircleAlert className="w-4 h-4" />;
+export default function FoodCard({ food, bricks, passCount, reactionCount, lastTrial, hasActiveTrial = false, onDelete }: FoodCardProps) {
+  // Calculate status based on passes, reactions, bricks, and active trials (matching Reports page logic)
+  const getStatus = (passes: number, reactions: number, bricks: Array<{ type: string; date: string }>) => {
+    // Check for 3 consecutive red bricks
+    let hasConsecutiveRedBricks = false;
+    let consecutiveReds = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'warning') {
+        consecutiveReds = 0; // Reset counter when we find amber
+      } else if (brick.type === 'reaction') {
+        consecutiveReds++;
+        if (consecutiveReds >= 3) {
+          hasConsecutiveRedBricks = true;
+          break;
+        }
+      } else {
+        // Safe brick resets everything
+        consecutiveReds = 0;
+      }
     }
-    // 2+ warnings = Caution
-    if (warningCount >= 2) {
-      return <CircleAlert className="w-4 h-4" />;
+    
+    // Check for 3 consecutive safe bricks
+    let hasConsecutiveSafeBricks = false;
+    let consecutiveSafes = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'safe') {
+        consecutiveSafes++;
+        if (consecutiveSafes >= 3) {
+          hasConsecutiveSafeBricks = true;
+          break;
+        }
+      } else {
+        // Any non-safe brick resets the counter
+        consecutiveSafes = 0;
+      }
     }
-    // 3+ effective safe = Safe
-    if (effectiveSafeCount >= 3) {
-      return <Check className="w-4 h-4" />;
+    
+    // Check for confirmed allergy (3 consecutive red bricks)
+    if (hasConsecutiveRedBricks) {
+      return hasActiveTrial ? "Confirmed allergy" : "Confirmed allergy";
     }
-    // Any reaction or warning without meeting above criteria
-    if (reactionBrickCount > 0 || warningCount > 0) {
-      return <CircleAlert className="w-4 h-4" />;
+    
+    // Check for safe food with past reactions (3 consecutive safe bricks but has reactions in history)
+    if (hasConsecutiveSafeBricks && reactions > 0) {
+      return "Safe, sensitive";
     }
-    // Any passes
-    if (safeCount > 0) {
-      return <Check className="w-4 h-4" />;
+    
+    // Safe food (3+ passes, no reactions)
+    if (passes >= 3 && reactions === 0) {
+      return "Safe food";
     }
-    return <Clock className="w-4 h-4" />;
+    
+    // No trials yet
+    if (passes === 0 && reactions === 0) return "Not tried";
+    
+    // Early stage passes
+    if (passes === 1 && reactions === 0) return "Passed once";
+    if (passes === 2 && reactions === 0) return "Building";
+    
+    // 3+ passes with reactions
+    if (passes >= 3 && reactions === 1) return "Caution";
+    if (passes >= 3 && reactions >= 2) return "Likely allergy";
+    
+    // Less than 3 passes with reactions
+    if (passes < 3 && reactions === 1) return "Possible";
+    if (passes < 3 && reactions >= 2) return "Suspected";
+    
+    return "Testing";
   };
 
-  const getStatusText = () => {
-    // 2+ reactions = Likely Allergy
-    if (reactionBrickCount >= 2) {
-      return "Likely Allergy";
+  const status = getStatus(passCount, reactionCount, bricks);
+
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "Safe food":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success" };
+      case "Safe, sensitive":
+      case "Caution":
+      case "Possible":
+        return { icon: <AlertTriangle className="w-4 h-4" />, color: "text-orange-500" };
+      case "Likely allergy":
+      case "Suspected":
+      case "Confirmed allergy":
+        return { icon: <X className="w-4 h-4" />, color: "text-destructive" };
+      case "Building":
+      case "Passed once":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success" };
+      default:
+        return { icon: <Clock className="w-4 h-4" />, color: "text-muted-foreground" };
     }
-    // 2+ warnings without being likely allergy = Caution
-    if (warningCount >= 2) {
-      return "Caution";
-    }
-    // 3+ effective safe = Safe
-    if (effectiveSafeCount >= 3) {
-      return "Safe";
-    }
-    // Mixed results but not enough to be conclusive
-    if (reactionCount > 0 && passCount > 0) {
-      return `${passCount} pass${passCount > 1 ? 'es' : ''}, ${reactionCount} reaction${reactionCount > 1 ? 's' : ''}`;
-    }
-    if (reactionCount > 0) {
-      return `${reactionCount} reaction${reactionCount > 1 ? 's' : ''}`;
-    }
-    if (passCount > 0) {
-      return `${passCount} pass${passCount > 1 ? 'es' : ''}`;
-    }
-    return "Observing";
   };
 
-  const getStatusColor = () => {
-    // 2+ reactions = red
-    if (reactionBrickCount >= 2) {
-      return "text-destructive";
-    }
-    // 2+ warnings = amber/orange
-    if (warningCount >= 2) {
-      return "text-orange-500";
-    }
-    // 3+ effective safe = green
-    if (effectiveSafeCount >= 3) {
-      return "text-success";
-    }
-    // Any reaction or warning = orange
-    if (reactionCount > 0 || warningCount > 0) {
-      return "text-orange-500";
-    }
-    // Any passes = green
-    if (passCount > 0) {
-      return "text-success";
-    }
-    return "text-muted-foreground";
-  };
+  const statusDisplay = getStatusDisplay(status);
 
   return (
     <div 
@@ -126,9 +140,9 @@ export default function FoodCard({ food, bricks, passCount, reactionCount, lastT
       </div>
       
       <div className="flex items-center justify-between">
-        <span className={`text-xs font-medium flex items-center gap-1 ${getStatusColor()}`}>
-          {getStatusIcon()}
-          <span data-testid={`food-status-${food.id}`}>{getStatusText()}</span>
+        <span className={`text-xs font-medium flex items-center gap-1 ${statusDisplay.color}`}>
+          {statusDisplay.icon}
+          <span data-testid={`food-status-${food.id}`}>{status}</span>
         </span>
         {onDelete && (
           <Button 
