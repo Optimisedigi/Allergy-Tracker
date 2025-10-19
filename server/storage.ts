@@ -2,6 +2,7 @@ import {
   users,
   babies,
   userBabies,
+  pendingInvitations,
   foods,
   trials,
   reactions,
@@ -27,6 +28,8 @@ import {
   type InsertUserSettings,
   type SteroidCream,
   type InsertSteroidCream,
+  type PendingInvitation,
+  type InsertPendingInvitation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
@@ -45,6 +48,16 @@ export interface IStorage {
   
   // User-baby relationships
   addUserToBaby(userId: string, babyId: string, role?: string): Promise<void>;
+  getUsersByBaby(babyId: string): Promise<Array<User & { role: string }>>;
+  removeUserFromBaby(userId: string, babyId: string): Promise<void>;
+  
+  // Invitation operations
+  createInvitation(invitation: InsertPendingInvitation): Promise<PendingInvitation>;
+  getPendingInvitationsByBaby(babyId: string): Promise<Array<PendingInvitation & { invitedByUser: User }>>;
+  getPendingInvitationsByEmail(email: string): Promise<Array<PendingInvitation & { baby: Baby; invitedByUser: User }>>;
+  acceptInvitation(invitationId: string, userId: string): Promise<void>;
+  declineInvitation(invitationId: string): Promise<void>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   
   // Food operations
   getFoods(): Promise<Food[]>;
@@ -236,6 +249,103 @@ export class DatabaseStorage implements IStorage {
       babyId,
       role,
     });
+  }
+
+  async getUsersByBaby(babyId: string): Promise<Array<User & { role: string }>> {
+    const result = await db
+      .select({
+        user: users,
+        role: userBabies.role,
+      })
+      .from(users)
+      .innerJoin(userBabies, eq(users.id, userBabies.userId))
+      .where(eq(userBabies.babyId, babyId));
+    
+    return result.map(r => ({ ...r.user, role: r.role || 'parent' }));
+  }
+
+  async removeUserFromBaby(userId: string, babyId: string): Promise<void> {
+    await db
+      .delete(userBabies)
+      .where(and(
+        eq(userBabies.userId, userId),
+        eq(userBabies.babyId, babyId)
+      ));
+  }
+
+  // Invitation operations
+  async createInvitation(invitation: InsertPendingInvitation): Promise<PendingInvitation> {
+    const [newInvitation] = await db
+      .insert(pendingInvitations)
+      .values(invitation)
+      .returning();
+    return newInvitation;
+  }
+
+  async getPendingInvitationsByBaby(babyId: string): Promise<Array<PendingInvitation & { invitedByUser: User }>> {
+    const result = await db
+      .select({
+        invitation: pendingInvitations,
+        invitedByUser: users,
+      })
+      .from(pendingInvitations)
+      .innerJoin(users, eq(pendingInvitations.invitedByUserId, users.id))
+      .where(and(
+        eq(pendingInvitations.babyId, babyId),
+        eq(pendingInvitations.status, 'pending')
+      ));
+    
+    return result.map(r => ({ ...r.invitation, invitedByUser: r.invitedByUser }));
+  }
+
+  async getPendingInvitationsByEmail(email: string): Promise<Array<PendingInvitation & { baby: Baby; invitedByUser: User }>> {
+    const result = await db
+      .select({
+        invitation: pendingInvitations,
+        baby: babies,
+        invitedByUser: users,
+      })
+      .from(pendingInvitations)
+      .innerJoin(babies, eq(pendingInvitations.babyId, babies.id))
+      .innerJoin(users, eq(pendingInvitations.invitedByUserId, users.id))
+      .where(and(
+        eq(pendingInvitations.invitedEmail, email),
+        eq(pendingInvitations.status, 'pending')
+      ));
+    
+    return result.map(r => ({ ...r.invitation, baby: r.baby, invitedByUser: r.invitedByUser }));
+  }
+
+  async acceptInvitation(invitationId: string, userId: string): Promise<void> {
+    const [invitation] = await db
+      .select()
+      .from(pendingInvitations)
+      .where(eq(pendingInvitations.id, invitationId));
+    
+    if (!invitation) {
+      throw new Error('Invitation not found');
+    }
+
+    // Add user to baby
+    await this.addUserToBaby(userId, invitation.babyId, invitation.role || 'parent');
+
+    // Mark invitation as accepted
+    await db
+      .update(pendingInvitations)
+      .set({ status: 'accepted' })
+      .where(eq(pendingInvitations.id, invitationId));
+  }
+
+  async declineInvitation(invitationId: string): Promise<void> {
+    await db
+      .update(pendingInvitations)
+      .set({ status: 'declined' })
+      .where(eq(pendingInvitations.id, invitationId));
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
   }
 
   // Food operations

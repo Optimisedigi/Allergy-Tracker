@@ -103,6 +103,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Caregiver management routes
+  app.get('/api/babies/:babyId/caregivers', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId } = req.params;
+      const userId = req.user.claims.sub;
+      
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === babyId);
+      if (!hasBaby) {
+        return res.status(403).json({ message: "Unauthorized access to this baby profile" });
+      }
+      
+      const caregivers = await storage.getUsersByBaby(babyId);
+      res.json(caregivers);
+    } catch (error) {
+      console.error("Error fetching caregivers:", error);
+      res.status(500).json({ message: "Failed to fetch caregivers" });
+    }
+  });
+
+  app.delete('/api/babies/:babyId/caregivers/:caregiverId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, caregiverId } = req.params;
+      const userId = req.user.claims.sub;
+      
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === babyId);
+      if (!hasBaby) {
+        return res.status(403).json({ message: "Unauthorized access to this baby profile" });
+      }
+      
+      // Don't allow removing yourself if you're the only caregiver
+      const caregivers = await storage.getUsersByBaby(babyId);
+      if (caregivers.length === 1 && caregiverId === userId) {
+        return res.status(400).json({ message: "Cannot remove yourself as the only caregiver" });
+      }
+      
+      await storage.removeUserFromBaby(caregiverId, babyId);
+      res.json({ message: "Caregiver removed successfully" });
+    } catch (error) {
+      console.error("Error removing caregiver:", error);
+      res.status(500).json({ message: "Failed to remove caregiver" });
+    }
+  });
+
+  // Invitation routes
+  app.post('/api/babies/:babyId/invite', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId } = req.params;
+      const { email, role = 'parent' } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Validate email
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email is required" });
+      }
+      
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === babyId);
+      if (!hasBaby) {
+        return res.status(403).json({ message: "Unauthorized access to this baby profile" });
+      }
+      
+      // Check if user already has access
+      const existingUser = await storage.getUserByEmail(email.toLowerCase());
+      if (existingUser) {
+        const caregivers = await storage.getUsersByBaby(babyId);
+        const alreadyHasAccess = caregivers.some(c => c.id === existingUser.id);
+        if (alreadyHasAccess) {
+          return res.status(400).json({ message: "User already has access to this baby" });
+        }
+        
+        // User exists, add them directly
+        await storage.addUserToBaby(existingUser.id, babyId, role);
+        return res.json({ message: "User added successfully", userExists: true });
+      }
+      
+      // Create pending invitation
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
+      
+      const invitation = await storage.createInvitation({
+        babyId,
+        invitedByUserId: userId,
+        invitedEmail: email.toLowerCase(),
+        role,
+        expiresAt,
+      });
+      
+      res.json({ message: "Invitation sent successfully", invitation, userExists: false });
+    } catch (error) {
+      console.error("Error creating invitation:", error);
+      res.status(500).json({ message: "Failed to send invitation" });
+    }
+  });
+
+  app.get('/api/babies/:babyId/invitations', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId } = req.params;
+      const userId = req.user.claims.sub;
+      
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === babyId);
+      if (!hasBaby) {
+        return res.status(403).json({ message: "Unauthorized access to this baby profile" });
+      }
+      
+      const invitations = await storage.getPendingInvitationsByBaby(babyId);
+      res.json(invitations);
+    } catch (error) {
+      console.error("Error fetching invitations:", error);
+      res.status(500).json({ message: "Failed to fetch invitations" });
+    }
+  });
+
+  app.get('/api/invitations/pending', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user || !user.email) {
+        return res.json([]);
+      }
+      
+      const invitations = await storage.getPendingInvitationsByEmail(user.email);
+      res.json(invitations);
+    } catch (error) {
+      console.error("Error fetching pending invitations:", error);
+      res.status(500).json({ message: "Failed to fetch pending invitations" });
+    }
+  });
+
+  app.post('/api/invitations/:id/accept', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      
+      await storage.acceptInvitation(id, userId);
+      res.json({ message: "Invitation accepted successfully" });
+    } catch (error) {
+      console.error("Error accepting invitation:", error);
+      res.status(500).json({ message: "Failed to accept invitation" });
+    }
+  });
+
+  app.post('/api/invitations/:id/decline', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      await storage.declineInvitation(id);
+      res.json({ message: "Invitation declined" });
+    } catch (error) {
+      console.error("Error declining invitation:", error);
+      res.status(500).json({ message: "Failed to decline invitation" });
+    }
+  });
+
   // Food routes
   app.get('/api/foods', async (req, res) => {
     try {
