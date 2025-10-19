@@ -347,7 +347,7 @@ export default function Reports() {
                           </td>
                           <td className="py-2 px-3">
                             <div className="flex gap-0.5">
-                              {foodData.bricks.map((brick, brickIdx) => (
+                              {[...foodData.bricks].reverse().slice(0, 6).map((brick, brickIdx) => (
                                 <div
                                   key={brickIdx}
                                   className={`w-6 h-5 rounded`}

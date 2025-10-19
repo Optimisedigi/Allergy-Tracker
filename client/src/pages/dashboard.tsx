@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
 import FoodCard from "@/components/food-card";
@@ -380,9 +381,11 @@ export default function Dashboard() {
         <section className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-foreground">Recent Food Trials</h3>
-            <Button variant="ghost" size="sm" data-testid="button-view-all-foods">
-              View All
-            </Button>
+            <Link href="/reports">
+              <Button variant="ghost" size="sm" data-testid="button-view-all-foods">
+                View All
+              </Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
