@@ -1,0 +1,72 @@
+The Brick System
+The brick chart is the heart of AllergyTrack's visual tracking system. Each trial creates a brick that tells the story of your child's food journey.
+
+Three Brick Types
+🟢 Green Brick (Safe)
+Given: A food trial is being logged
+When: The trial completes successfully with no reaction recorded
+Then: Create a green brick
+Meaning: This specific trial passed safely
+Visual: Green gradient background
+🟠 Amber/Orange Brick (Warning)
+Given: A food has previously passed safely (has green bricks)
+When: A reaction occurs for the first time after previous safe trials
+Then: Create an amber/orange brick
+Meaning: Warning - this is the first reaction after the food was previously safe
+Visual: Amber/orange gradient background
+Important: Amber bricks reset the consecutive red brick counter
+🔴 Red Brick (Reaction)
+Given: A food trial is being logged
+When: A reaction is recorded during the trial
+Then: Create a red brick
+Meaning: A reaction occurred during this trial
+Visual: Red gradient background
+Important: Red bricks count towards consecutive reactions for allergy determination
+Status Logic (Based on Brick Patterns)
+Confirmed Allergy
+Given: A food has a trial history
+When: 3 consecutive red bricks occur (amber or green bricks reset the counter) OR any moderate/severe reaction occurs
+Then: Status = "Confirmed allergy"
+If retesting: Status = "Confirmed allergy but testing again"
+Safe Food
+Given: A food has been tested multiple times
+When: 3+ consecutive green bricks with NO reactions in entire history
+Then: Status = "Safe food"
+If retesting: Status = "Food is safe but testing again"
+Safe Food, But Signs of Sensitivity
+Given: A food has both passes and reactions in history
+When: 3+ consecutive green bricks AND reactions exist somewhere in the food's history
+Then: Status = "Safe food, but signs of sensitivity"
+Visual: Orange warning icon (AlertTriangle)
+Meaning: Currently passing safely, but has shown sensitivity in the past
+Building Confidence
+Given: A food is in early testing stages
+When: Exactly 2 green bricks with no reactions
+Then: Status = "Building confidence"
+Passed Once
+Given: A food is just starting to be tested
+When: Exactly 1 green brick with no reactions
+Then: Status = "Passed once"
+Likely Allergy
+Given: A food has multiple trials with reactions
+When: 3+ passes with 2+ reactions (but not 3 consecutive red bricks)
+Then: Status = "Likely allergy"
+Caution
+Given: A food has been tested multiple times with minimal reactions
+When: 3+ passes with exactly 1 reaction
+Then: Status = "Caution"
+Allergy Suspected
+Given: A food is in early testing with concerning results
+When: Less than 3 passes with 2+ reactions
+Then: Status = "Allergy suspected"
+Possible Sensitivity
+Given: A food is in early testing with a single reaction
+When: Less than 3 passes with exactly 1 reaction
+Then: Status = "Possible sensitivity"
+Key Rules Summary
+Consecutive Red Bricks: Requires 3 in a row for "Confirmed allergy" - any amber or green brick resets the counter
+Consecutive Safe Bricks: Requires 3 in a row for "Safe food" status
+Amber Brick Creation: Only created when a reaction occurs AFTER previous safe trials
+First Brick: Always green (safe) or red (reaction) - never amber
+Brick Order: Displayed newest first (most recent trial appears first)
+Sensitivity History: System tracks past reactions even when food is currently passing

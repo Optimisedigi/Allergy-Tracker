@@ -210,7 +210,7 @@ export default function Reports() {
     
     // Check for confirmed allergy (3 consecutive red bricks)
     if (hasConsecutiveRedBricks) {
-      return hasActiveTrial ? "Confirmed allergy but testing again" : "Confirmed allergy";
+      return hasActiveTrial ? "Confirmed allergy but re-testing" : "Confirmed allergy";
     }
     
     // Check for safe food with past reactions (3 consecutive safe bricks but has reactions in history)
@@ -220,7 +220,7 @@ export default function Reports() {
     
     // Safe food (3+ passes, no reactions)
     if (passes >= 3 && reactions === 0) {
-      return hasActiveTrial ? "Food is safe but testing again" : "Safe food";
+      return hasActiveTrial ? "Food is safe but re-testing" : "Safe food";
     }
     
     // No trials yet
@@ -245,7 +245,7 @@ export default function Reports() {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "Safe food":
-      case "Food is safe but testing again":
+      case "Food is safe but re-testing":
         return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
       case "Safe food, but signs of sensitivity":
       case "Caution":
@@ -254,7 +254,7 @@ export default function Reports() {
       case "Likely allergy":
       case "Allergy suspected":
       case "Confirmed allergy":
-      case "Confirmed allergy but testing again":
+      case "Confirmed allergy but re-testing":
         return { icon: <X className="w-4 h-4" />, color: "text-destructive", bg: "bg-destructive/10" };
       case "Building confidence":
       case "Passed once":
