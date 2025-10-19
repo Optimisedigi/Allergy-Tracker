@@ -161,14 +161,6 @@ export default function HowItWorks() {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
-                <Circle className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">Not tested</p>
-                  <p className="text-xs text-muted-foreground">Haven't tried yet</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
                 <span className="text-success text-lg">✓</span>
                 <div>
                   <p className="font-medium text-sm">Passed once</p>
@@ -208,11 +200,19 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2">
+              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2 border-b border-border">
                 <CircleAlert className="w-4 h-4 text-destructive" />
                 <div>
                   <p className="font-medium text-sm">Confirmed allergy</p>
                   <p className="text-xs text-muted-foreground">Three+ consecutive reactions</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-[auto,1fr] gap-3 items-center py-2">
+                <Circle className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium text-sm">Not tested</p>
+                  <p className="text-xs text-muted-foreground">Haven't tried yet</p>
                 </div>
               </div>
             </div>
