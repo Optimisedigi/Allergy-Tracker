@@ -1,0 +1,178 @@
+: Add Secure Login, Signup & Data Privacy to AllergyTrack
+
+Goal:
+Add a secure login and signup system (email/password + Google) and make sure all user and baby data is private, encrypted, and safe.
+The system should follow best practices for authentication, data protection, and privacy compliance.
+
+1️⃣ Features to Build
+
+Signup with Email + Password
+
+Fields: name, email, password
+
+Hash passwords before saving (bcrypt, ≥10 salt rounds)
+
+Validate email format and password strength
+
+Auto-login the user after signup
+
+Login with Email + Password
+
+Check hashed password with bcrypt
+
+Return a session or JWT token
+
+Invalid credentials should show a friendly message (“Incorrect email or password”)
+
+Login with Google
+
+Use OAuth 2.0 via passport-google-oauth20
+
+If email exists, link to existing account
+
+If new, create an account with provider = google
+
+Never store Google access tokens — only google_id, email, and name
+
+Logout
+
+Clear session or invalidate JWT securely
+
+2️⃣ Backend Setup (Node.js / Express)
+
+Use:
+
+npm install passport passport-local passport-google-oauth20 bcrypt express-session connect-pg-simple jsonwebtoken
+
+
+Recommended structure:
+
+/auth
+  ├── routes.js
+  ├── localStrategy.js
+  ├── googleStrategy.js
+  ├── sessionStore.js
+
+
+Database table:
+
+users
+- id (UUID, primary key)
+- name
+- email (unique)
+- password_hash (nullable for Google)
+- provider (local | google)
+- google_id (nullable)
+- created_at
+- updated_at
+
+3️⃣ Security & Privacy Rules
+✅ Password & Session Security
+
+Hash all passwords with bcrypt before saving.
+
+Never log or return passwords in any response.
+
+Use HTTP-only secure cookies for sessions (or JWTs with short expiry).
+
+Tokens/sessions expire after 24 hours.
+
+✅ Data Privacy
+
+Each user can access only their own data (baby profiles, foods, reactions).
+
+Protect all API routes with an auth middleware.
+
+Store sensitive info (DB credentials, OAuth keys, JWT secrets) in .env files — never in code.
+
+Use HTTPS (Replit does this automatically).
+
+✅ Database Safety
+
+Use Drizzle ORM or parameterised queries to prevent SQL injection.
+
+Use UUIDs for all IDs (not sequential numbers).
+
+Sanitize and validate all inputs before saving to the database.
+
+✅ Frontend Protection
+
+Never show raw user IDs or tokens in URLs.
+
+Escape user input to prevent XSS.
+
+Validate email/password fields client-side before sending to the backend.
+
+4️⃣ Data Management & User Control
+
+Export Data:
+Allow users to export their data (PDF / CSV / JSON).
+Include trial history, reactions, and steroid treatment logs.
+
+Delete Account:
+Add a “Delete Account” option.
+When confirmed, delete all related baby, food, trial, and reaction data.
+Invalidate all sessions/tokens.
+
+Privacy Policy:
+Add a simple in-app page explaining:
+
+What data is collected (only necessary info)
+
+That it’s used solely for tracking food trials
+
+That it’s never sold, shared, or used for ads
+
+How to delete or export data
+
+5️⃣ Security Checklist for the AI Agent
+
+Before finishing, ensure:
+✅ Passwords are hashed
+✅ Inputs are validated and sanitised
+✅ Only authenticated users can access baby data
+✅ Tokens or sessions expire securely
+✅ API routes are protected
+✅ Sensitive keys are stored in .env
+✅ All logs exclude personal data
+✅ HTTPS enforced
+✅ npm audit fix is run to patch vulnerabilities
+✅ Replit’s security scan passes with no high-risk issues
+
+6️⃣ Example Routes
+Method	Route	Purpose
+POST	/api/signup	Register new user
+POST	/api/login	Login with email/password
+GET	/api/logout	Logout
+GET	/api/auth/google	Start Google login
+GET	/api/auth/google/callback	Handle Google login
+GET	/api/me	Return current user data
+DELETE	/api/delete-account	Permanently delete account and data
+7️⃣ Example Implementation Notes
+
+Use express-session with connect-pg-simple for storing sessions securely in PostgreSQL.
+
+For JWTs:
+
+Sign with a secret in .env (e.g. JWT_SECRET).
+
+Use short expiry (1d) and refresh tokens if needed.
+
+Use middleware like:
+
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.status(401).json({ error: "Not authorised" });
+}
+
+8️⃣ Final Step
+
+After implementation:
+
+Run npm audit fix
+
+Run Replit’s security scan
+
+Fix all high or critical vulnerabilities before deployment.
+
+Test all auth flows manually (signup, login, logout, Google login).
