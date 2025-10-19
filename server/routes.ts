@@ -595,7 +595,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const { babyId } = req.params;
 
-      // Verify baby belongs to user
+      // Check if user has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasBaby = babies.some(b => b.id === babyId);
+      if (!hasBaby) {
+        res.status(403).json({ message: "You do not have access to this baby" });
+        return;
+      }
+
+      // Get baby details
       const baby = await storage.getBaby(babyId);
       if (!baby) {
         res.status(404).json({ message: "Baby not found" });

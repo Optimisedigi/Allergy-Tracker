@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronRight, Check, ChevronsUpDown } from "lucide-react";
+import { ChevronRight, Check, ChevronsUpDown, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UserSettings {
@@ -53,6 +53,7 @@ export default function Settings() {
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [babyName, setBabyName] = useState<string>("");
   const [timezoneOpen, setTimezoneOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -208,6 +209,80 @@ export default function Settings() {
   const handleSaveBabyName = () => {
     if (babyName.trim()) {
       updateBabyNameMutation.mutate(babyName.trim());
+    }
+  };
+
+  const handleExportData = async () => {
+    if (!selectedBaby) {
+      toast({
+        title: "Error",
+        description: "Please select a baby to export data",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      // Fetch the CSV data with credentials
+      const response = await fetch(`/api/babies/${selectedBaby}/export-csv`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        // Check for unauthorized error
+        if (response.status === 401) {
+          toast({
+            title: "Unauthorized",
+            description: "You are logged out. Logging in again...",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.href = "/api/login";
+          }, 500);
+          return;
+        }
+
+        // Handle other errors
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw new Error(errorText || `Server returned ${response.status}`);
+      }
+
+      // Get the CSV data as a blob
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Generate filename with proper fallbacks
+      const babyNameForFile = selectedBabyData?.name || babyName || selectedBaby;
+      const sanitizedName = babyNameForFile.toLowerCase().replace(/\s+/g, '_');
+      link.download = `allergy-tracker-${sanitizedName}-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Complete",
+        description: "Your data has been exported successfully.",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: error instanceof Error ? error.message : "Failed to export data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -428,15 +503,38 @@ export default function Settings() {
           <CardContent className="p-6">
             <h3 className="font-semibold text-foreground mb-4">Privacy & Data</h3>
             <div className="space-y-3">
-              <button className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between">
+              <button 
+                className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between"
+                data-testid="button-view-privacy-policy"
+              >
                 <span>View Privacy Policy</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
-              <button className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between">
-                <span>Export All Data</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <button 
+                onClick={handleExportData}
+                disabled={isExporting}
+                className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                data-testid="button-export-data"
+              >
+                <span className="flex items-center gap-2">
+                  {isExporting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin"></div>
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      Export All Data
+                    </>
+                  )}
+                </span>
+                {!isExporting && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
               </button>
-              <button className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center justify-between">
+              <button 
+                className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center justify-between"
+                data-testid="button-delete-data"
+              >
                 <span>Delete All Data</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
