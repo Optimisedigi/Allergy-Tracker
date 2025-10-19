@@ -15,13 +15,13 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
           <div className="flex items-start gap-3">
             <img 
               src={logoImage} 
-              alt="Allergy Tracker for Bubs Logo" 
+              alt="AllergyTrack Bubs Logo" 
               className="w-10 h-10 object-contain"
               data-testid="logo-image"
             />
             <div>
               <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-name">
-                {title || "Allergy Tracker for Bubs"}
+                {title || "AllergyTrack Bubs"}
               </h1>
               <p className="text-xs text-muted-foreground" data-testid="text-baby-name">
                 For {babyName}

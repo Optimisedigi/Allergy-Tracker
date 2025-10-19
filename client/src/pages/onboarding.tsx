@@ -90,7 +90,7 @@ export default function Onboarding() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Shield className="h-8 w-8" />
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome to Allergy Tracker for Bubs</CardTitle>
+          <CardTitle className="text-2xl font-bold">Welcome to AllergyTrack Bubs</CardTitle>
           <p className="text-muted-foreground mt-2">
             Let's set up your baby's profile to start tracking their food journey
           </p>
