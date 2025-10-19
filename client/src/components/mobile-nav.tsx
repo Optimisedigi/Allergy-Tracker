@@ -21,29 +21,37 @@ export default function MobileNav({ activeTab }: MobileNavProps) {
 
   return (
     <nav className="mobile-nav" data-testid="mobile-nav">
-      <Link href="/">
-        <a className={cn("nav-item", currentTab === "home" && "active")} data-testid="nav-home">
-          <Home className="w-5 h-5" />
-          <span>Home</span>
-        </a>
+      <Link 
+        href="/" 
+        className={cn("nav-item", currentTab === "home" && "active")} 
+        data-testid="nav-home"
+      >
+        <Home className="w-5 h-5" />
+        <span>Home</span>
       </Link>
-      <Link href="/reports">
-        <a className={cn("nav-item", currentTab === "reports" && "active")} data-testid="nav-reports">
-          <BarChart3 className="w-5 h-5" />
-          <span>Reports</span>
-        </a>
+      <Link 
+        href="/reports" 
+        className={cn("nav-item", currentTab === "reports" && "active")} 
+        data-testid="nav-reports"
+      >
+        <BarChart3 className="w-5 h-5" />
+        <span>Reports</span>
       </Link>
-      <Link href="/how-it-works">
-        <a className={cn("nav-item", currentTab === "how-it-works" && "active")} data-testid="nav-how-it-works">
-          <HelpCircle className="w-5 h-5" />
-          <span>How it works</span>
-        </a>
+      <Link 
+        href="/how-it-works" 
+        className={cn("nav-item", currentTab === "how-it-works" && "active")} 
+        data-testid="nav-how-it-works"
+      >
+        <HelpCircle className="w-5 h-5" />
+        <span>How it works</span>
       </Link>
-      <Link href="/settings">
-        <a className={cn("nav-item", currentTab === "settings" && "active")} data-testid="nav-settings">
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
-        </a>
+      <Link 
+        href="/settings" 
+        className={cn("nav-item", currentTab === "settings" && "active")} 
+        data-testid="nav-settings"
+      >
+        <Settings className="w-5 h-5" />
+        <span>Settings</span>
       </Link>
     </nav>
   );
