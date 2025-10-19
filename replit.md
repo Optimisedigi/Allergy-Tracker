@@ -63,3 +63,76 @@ Preferred communication style: Simple, everyday language.
 *   **Authentication**: Replit OIDC (OpenID Connect).
 *   **Development Tools**: Drizzle Kit (database migrations).
 *   **Third-Party Libraries**: date-fns & date-fns-tz (date manipulation), zod (schema validation), memoizee (caching), nanoid (ID generation).
+
+## Security & Privacy
+
+### Authentication & Session Management
+
+*   **Replit Auth (OIDC)**: Secure authentication using OpenID Connect protocol
+*   **Passport.js**: Authentication middleware with Replit OIDC strategy
+*   **Session Management**: 
+    *   PostgreSQL-backed sessions via `connect-pg-simple`
+    *   Session TTL: 7 days
+    *   HTTP-only, secure cookies
+    *   Automatic token refresh using refresh tokens
+*   **Middleware Protection**: `isAuthenticated` middleware validates all protected routes
+*   **Session Security**: Sessions stored in PostgreSQL with automatic expiration
+
+### Authorization & Data Privacy
+
+*   **User Isolation**: Each user can only access their own data
+*   **Baby Ownership Verification**: All API routes verify user has access to requested baby data
+*   **Authorization Checks**: 
+    *   `getBabiesByUser(userId)` used to verify baby ownership
+    *   403 Forbidden responses for unauthorized access attempts
+    *   All baby-related operations require ownership verification
+*   **No Direct ID Access**: User IDs extracted from authenticated session claims
+
+### Input Validation & SQL Injection Prevention
+
+*   **Drizzle ORM**: Type-safe queries with automatic parameterization
+*   **Zod Schemas**: Runtime validation for all API inputs
+    *   Email format validation (`z.string().email()`)
+    *   Numeric constraints (`z.number().min().max()`)
+    *   Enum validation for severity levels
+    *   Date transformation and validation
+*   **Schema Validation Examples**:
+    *   `createTrialSchema`: Validates trial data before database insert
+    *   `createReactionSchema`: Validates reaction types, severity, dates
+    *   `createSteroidCreamSchema`: Validates steroid cream treatment data
+*   **No Raw SQL**: All queries use Drizzle's query builder with safe operators (`eq`, `and`, `inArray`, `sql`)
+
+### Data Protection
+
+*   **HTTPS Enforcement**: All traffic encrypted (Replit automatic)
+*   **Environment Secrets**: Sensitive credentials in `.env` files
+    *   `DATABASE_URL`: PostgreSQL connection string
+    *   `SESSION_SECRET`: Session encryption key
+    *   `REPL_ID`: Replit application identifier
+*   **No Password Storage**: Authentication managed by Replit OIDC (no passwords stored)
+*   **UUID-based IDs**: Non-sequential identifiers prevent enumeration attacks
+
+### User Data Management
+
+*   **Data Export**: Users can export all their data as CSV
+*   **Account Deletion**: Complete data removal functionality
+    *   Deletes all user data: babies, trials, reactions, brick logs, notifications, settings
+    *   Cascading deletes ensure no orphaned records
+    *   Session destruction upon account deletion
+    *   Confirmation required (type "DELETE")
+*   **Privacy Policy**: In-app privacy policy accessible from Settings
+
+### Security Best Practices Implemented
+
+*   ✅ All API routes protected with authentication middleware
+*   ✅ Authorization checks on all baby-related operations
+*   ✅ Input validation using Zod schemas
+*   ✅ SQL injection prevention via Drizzle ORM
+*   ✅ Secure session management with PostgreSQL storage
+*   ✅ HTTP-only, secure cookies
+*   ✅ Automatic token refresh
+*   ✅ HTTPS enforcement
+*   ✅ Environment variable secrets
+*   ✅ User data isolation
+*   ✅ Complete data deletion capability
+*   ✅ Privacy policy disclosure

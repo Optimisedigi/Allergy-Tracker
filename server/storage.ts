@@ -35,6 +35,7 @@ export interface IStorage {
   // User operations - mandatory for Replit Auth
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  deleteUser(userId: string): Promise<void>;
   
   // Baby operations
   createBaby(baby: InsertBaby): Promise<Baby>;
@@ -131,6 +132,72 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    // Get all babies associated with this user
+    const userBabiesResult = await db
+      .select({ babyId: userBabies.babyId })
+      .from(userBabies)
+      .where(eq(userBabies.userId, userId));
+    
+    const babyIds = userBabiesResult.map(r => r.babyId);
+
+    if (babyIds.length > 0) {
+      // For each baby, check if it's shared with other users
+      for (const babyId of babyIds) {
+        // Count how many users are linked to this baby
+        const otherUsersCount = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(userBabies)
+          .where(and(
+            eq(userBabies.babyId, babyId),
+            sql`${userBabies.userId} != ${userId}`
+          ));
+        
+        const hasOtherUsers = Number(otherUsersCount[0]?.count || 0) > 0;
+        
+        // Only delete baby data if no other users are linked to this baby
+        if (!hasOtherUsers) {
+          // Get all trials for this baby
+          const trialsResult = await db
+            .select({ id: trials.id })
+            .from(trials)
+            .where(eq(trials.babyId, babyId));
+          
+          const trialIds = trialsResult.map(t => t.id);
+
+          if (trialIds.length > 0) {
+            // Delete all reactions for these trials
+            await db.delete(reactions).where(inArray(reactions.trialId, trialIds));
+            
+            // Delete all brick logs for these trials
+            await db.delete(brickLogs).where(inArray(brickLogs.trialId, trialIds));
+            
+            // Delete all trials
+            await db.delete(trials).where(inArray(trials.id, trialIds));
+          }
+
+          // Delete steroid cream logs for this baby
+          await db.delete(steroidCream).where(eq(steroidCream.babyId, babyId));
+
+          // Delete the baby
+          await db.delete(babies).where(eq(babies.id, babyId));
+        }
+      }
+    }
+
+    // Delete user-baby relationships for this user
+    await db.delete(userBabies).where(eq(userBabies.userId, userId));
+    
+    // Delete notifications for this user
+    await db.delete(notifications).where(eq(notifications.userId, userId));
+    
+    // Delete user settings
+    await db.delete(userSettings).where(eq(userSettings.userId, userId));
+    
+    // Finally, delete the user
+    await db.delete(users).where(eq(users.id, userId));
   }
 
   // Baby operations

@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ChevronRight, Check, ChevronsUpDown, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -55,6 +56,8 @@ export default function Settings() {
   const [babyName, setBabyName] = useState<string>("");
   const [timezoneOpen, setTimezoneOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -210,6 +213,45 @@ export default function Settings() {
   const handleSaveBabyName = () => {
     if (babyName.trim()) {
       updateBabyNameMutation.mutate(babyName.trim());
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast({
+        title: "Invalid Confirmation",
+        description: 'Please type "DELETE" to confirm account deletion',
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/account/delete', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account and all data have been permanently deleted",
+      });
+
+      // Redirect to logout after short delay
+      setTimeout(() => {
+        window.location.href = "/api/logout";
+      }, 1500);
+    } catch (error) {
+      console.error('Delete account error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -535,10 +577,11 @@ export default function Settings() {
                 {!isExporting && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
               </button>
               <button 
+                onClick={() => setIsDeleteDialogOpen(true)}
                 className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center justify-between"
-                data-testid="button-delete-data"
+                data-testid="button-delete-account"
               >
-                <span>Delete All Data</span>
+                <span>Delete Account</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -563,6 +606,55 @@ export default function Settings() {
 
       {/* Mobile Navigation */}
       <MobileNav activeTab="settings" />
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent data-testid="dialog-delete-account">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">Delete Account Permanently?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Your account and profile</li>
+                <li>All baby profiles</li>
+                <li>All food trials and reactions</li>
+                <li>All steroid cream logs</li>
+                <li>All exported data and reports</li>
+              </ul>
+              <p className="mt-4 font-semibold text-foreground">
+                Type "DELETE" to confirm:
+              </p>
+              <Input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE"
+                className="mt-2"
+                data-testid="input-delete-confirm"
+              />
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setDeleteConfirmText("");
+                setIsDeleteDialogOpen(false);
+              }}
+              data-testid="button-cancel-delete-account"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmText !== "DELETE"}
+              data-testid="button-confirm-delete-account"
+            >
+              Delete Account
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
