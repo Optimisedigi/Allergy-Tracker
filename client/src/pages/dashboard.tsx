@@ -278,7 +278,7 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Foods Tracked</p>
                 <Utensils className="w-4 h-4 text-primary" />
               </div>
-              <p className="text-xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-foreground">
                 {dashboardData?.stats.totalFoods || 0}
               </p>
             </CardContent>
@@ -290,7 +290,7 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Foods that are safe</p>
                 <CheckCircle className="w-4 h-4 text-success" />
               </div>
-              <p className="text-xl font-bold text-success">
+              <p className="text-2xl font-bold text-success">
                 {dashboardData?.stats.safeFoods || 0}
               </p>
             </CardContent>
@@ -302,7 +302,7 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Food Allergies</p>
                 <CircleAlert className="w-4 h-4 text-destructive" />
               </div>
-              <p className="text-xl font-bold text-destructive">
+              <p className="text-2xl font-bold text-destructive">
                 {dashboardData?.stats.foodAllergies || 0}
               </p>
             </CardContent>
