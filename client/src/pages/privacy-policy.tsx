@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
@@ -9,6 +10,10 @@ import { useLocation } from "wouter";
 export default function PrivacyPolicy() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="min-h-screen pb-20 bg-background" data-testid="privacy-policy-container">
