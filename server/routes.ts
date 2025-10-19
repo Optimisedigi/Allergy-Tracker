@@ -367,6 +367,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/foods/:foodId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { foodId } = req.params;
+      await storage.deleteFood(foodId);
+      res.json({ message: "Food deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting food:", error);
+      if (error.message === "Cannot delete food with existing trials") {
+        return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: "Failed to delete food" });
+    }
+  });
+
   // Trial routes
   app.post('/api/trials', isAuthenticated, async (req: any, res) => {
     try {

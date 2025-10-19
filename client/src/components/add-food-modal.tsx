@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
 
 interface AddFoodModalProps {
@@ -81,6 +81,39 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       toast({
         title: "Error",
         description: "Failed to create food",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete food mutation
+  const deleteFoodMutation = useMutation({
+    mutationFn: async (foodId: string) => {
+      const response = await apiRequest("DELETE", `/api/foods/${foodId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/foods"] });
+      toast({
+        title: "Food Deleted",
+        description: "Custom food has been removed",
+      });
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Cannot Delete",
+        description: "This food has existing trials and cannot be deleted",
         variant: "destructive",
       });
     },

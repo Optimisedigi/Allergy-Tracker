@@ -64,6 +64,7 @@ export interface IStorage {
   getCommonFoods(): Promise<Food[]>;
   createFood(food: InsertFood): Promise<Food>;
   getFoodByName(name: string): Promise<Food | undefined>;
+  deleteFood(foodId: string): Promise<void>;
   
   // Trial operations
   createTrial(trial: InsertTrial): Promise<Trial>;
@@ -365,6 +366,17 @@ export class DatabaseStorage implements IStorage {
   async getFoodByName(name: string): Promise<Food | undefined> {
     const [food] = await db.select().from(foods).where(eq(foods.name, name));
     return food;
+  }
+
+  async deleteFood(foodId: string): Promise<void> {
+    // Check if there are any trials for this food
+    const existingTrials = await db.select().from(trials).where(eq(trials.foodId, foodId));
+    if (existingTrials.length > 0) {
+      throw new Error("Cannot delete food with existing trials");
+    }
+    
+    // Delete the food if no trials exist
+    await db.delete(foods).where(eq(foods.id, foodId));
   }
 
   // Trial operations
