@@ -695,12 +695,9 @@ export class DatabaseStorage implements IStorage {
       return d.toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });
     };
 
-    // Create CSV header
+    // Create CSV header (removed: Baby Name, Baby Date of Birth, Food Emoji)
     const headers = [
-      'Baby Name',
-      'Baby Date of Birth',
       'Food Name',
-      'Food Emoji',
       'Trial Start Date',
       'Trial End Date',
       'Trial Status',
@@ -721,15 +718,18 @@ export class DatabaseStorage implements IStorage {
 
     // Add data rows
     rows.forEach(row => {
+      // Transform trial status: 'completed' -> 'passed'
+      const trialStatus = row.trial_status === 'completed' ? 'passed' : row.trial_status;
+      
+      // Transform brick type: 'warning' -> 'reaction'
+      const brickType = row.brick_type === 'warning' ? 'reaction' : row.brick_type;
+      
       const line = [
-        escapeCSV(row.baby_name),
-        escapeCSV(formatDate(row.baby_dob)),
         escapeCSV(row.food_name),
-        escapeCSV(row.food_emoji),
         escapeCSV(formatDate(row.trial_date)),
         escapeCSV(formatDate(row.observation_ends_at)),
-        escapeCSV(row.trial_status),
-        escapeCSV(row.brick_type),
+        escapeCSV(trialStatus),
+        escapeCSV(brickType),
         escapeCSV(formatDate(row.brick_date)),
         escapeCSV(Array.isArray(row.reaction_types) ? row.reaction_types.join(', ') : row.reaction_types),
         escapeCSV(row.reaction_severity),
