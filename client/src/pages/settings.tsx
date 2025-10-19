@@ -557,123 +557,6 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Manage Caregivers */}
-        <Card className="mb-4" data-testid="card-manage-caregivers">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Manage Caregivers</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Share access with your partner or other caregivers so they can track trials and reactions together.
-            </p>
-            
-            {/* Invite Form */}
-            <div className="mb-6">
-              <Label htmlFor="inviteEmail" className="block text-sm font-medium text-foreground mb-2">
-                Invite by Email
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="inviteEmail"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="partner@example.com"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleInviteCaregiver();
-                    }
-                  }}
-                  data-testid="input-invite-email"
-                />
-                <Button 
-                  onClick={handleInviteCaregiver}
-                  disabled={inviteCaregiverMutation.isPending || !inviteEmail.trim()}
-                  data-testid="button-send-invite"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  {inviteCaregiverMutation.isPending ? "Sending..." : "Invite"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Current Caregivers */}
-            {caregivers.length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-foreground mb-3">Current Caregivers ({caregivers.length})</h4>
-                <div className="space-y-2">
-                  {caregivers.map((caregiver) => (
-                    <div 
-                      key={caregiver.id} 
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                      data-testid={`caregiver-item-${caregiver.id}`}
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground" data-testid={`text-caregiver-name-${caregiver.id}`}>
-                          {caregiver.name || "Unknown"}
-                        </p>
-                        <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
-                          {caregiver.email}
-                        </p>
-                      </div>
-                      {user && (user as any).claims?.sub !== caregiver.id ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCaregiver(caregiver.id)}
-                          disabled={removeCaregiverMutation.isPending}
-                          data-testid={`button-remove-caregiver-${caregiver.id}`}
-                        >
-                          <X className="w-4 h-4 text-destructive" />
-                        </Button>
-                      ) : user && (user as any).claims?.sub === caregiver.id ? (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
-                          You
-                        </span>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Pending Invitations */}
-            {pendingInvitations.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-3">Pending Invitations ({pendingInvitations.length})</h4>
-                <div className="space-y-2">
-                  {pendingInvitations.map((invitation) => (
-                    <div 
-                      key={invitation.id} 
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border-l-2 border-orange-500"
-                      data-testid={`pending-invitation-${invitation.id}`}
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Mail className="w-3 h-3 text-muted-foreground" />
-                          <p className="text-sm font-medium text-foreground" data-testid={`text-invitation-email-${invitation.id}`}>
-                            {invitation.invitedEmail}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-3 h-3 text-muted-foreground" />
-                          <p className="text-xs text-muted-foreground">
-                            Waiting for sign up
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {caregivers.length === 0 && pendingInvitations.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-caregivers">
-                No caregivers yet. Invite someone to get started.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Default Settings */}
         <Card className="mb-4" data-testid="card-default-settings">
           <CardContent className="p-6">
@@ -825,6 +708,120 @@ export default function Settings() {
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Manage Users */}
+        <Card className="mb-4" data-testid="card-manage-caregivers">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-foreground mb-4">Manage Users</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Share access with your partner or other caregivers so they can track trials and reactions together.
+            </p>
+            
+            {/* Invite Form */}
+            <div className="mb-6">
+              <Label htmlFor="inviteEmail" className="block text-sm font-medium text-foreground mb-2">
+                Invite by Email
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="inviteEmail"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="partner@example.com"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleInviteCaregiver();
+                    }
+                  }}
+                  data-testid="input-invite-email"
+                />
+                <Button 
+                  onClick={handleInviteCaregiver}
+                  disabled={inviteCaregiverMutation.isPending || !inviteEmail.trim()}
+                  data-testid="button-send-invite"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {inviteCaregiverMutation.isPending ? "Sending..." : "Invite"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Current Users */}
+            {caregivers.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-foreground mb-3">Current Users ({caregivers.length})</h4>
+                <div className="space-y-2">
+                  {caregivers.map((caregiver) => (
+                    <div 
+                      key={caregiver.id} 
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                      data-testid={`caregiver-item-${caregiver.id}`}
+                    >
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
+                          {caregiver.email}
+                        </p>
+                      </div>
+                      {user && (user as any).claims?.sub !== caregiver.id ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveCaregiver(caregiver.id)}
+                          disabled={removeCaregiverMutation.isPending}
+                          data-testid={`button-remove-caregiver-${caregiver.id}`}
+                        >
+                          <X className="w-4 h-4 text-destructive" />
+                        </Button>
+                      ) : user && (user as any).claims?.sub === caregiver.id ? (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
+                          You
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pending Invitations */}
+            {pendingInvitations.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-3">Pending Invitations ({pendingInvitations.length})</h4>
+                <div className="space-y-2">
+                  {pendingInvitations.map((invitation) => (
+                    <div 
+                      key={invitation.id} 
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border-l-2 border-orange-500"
+                      data-testid={`pending-invitation-${invitation.id}`}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Mail className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-sm font-medium text-foreground" data-testid={`text-invitation-email-${invitation.id}`}>
+                            {invitation.invitedEmail}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">
+                            Waiting for sign up
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {caregivers.length === 0 && pendingInvitations.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-caregivers">
+                No users yet. Invite someone to get started.
+              </p>
+            )}
           </CardContent>
         </Card>
 
