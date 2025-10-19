@@ -37,11 +37,11 @@ export default function Landing() {
               How the Brick System Works
             </h2>
             
-            <p className="mb-3 text-sm text-muted-foreground">
+            <p className="mb-3 text-base text-muted-foreground">
               Every food you try builds part of your baby's story:
             </p>
             
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base">
               <p className="text-foreground">
                 <span className="font-semibold">🟢 Green Bricks</span> — Safe foods
               </p>
@@ -53,7 +53,7 @@ export default function Landing() {
               </p>
             </div>
             
-            <p className="mt-3 text-sm text-muted-foreground italic">
+            <p className="mt-3 text-base text-muted-foreground italic">
               Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause for now.
             </p>
           </div>
