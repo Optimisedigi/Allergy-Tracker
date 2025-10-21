@@ -679,26 +679,28 @@ export default function Dashboard() {
       </main>
 
       {/* Floating Action Button with Dropdown */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button 
-            className="fab" 
-            data-testid="button-add-menu"
-          >
-            <Plus className="w-6 h-6" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
-          <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Food Trial
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
-            <Droplet className="w-4 h-4 mr-2" />
-            Track Steroid Cream
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {!reactionModalData.isOpen && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button 
+              className="fab" 
+              data-testid="button-add-menu"
+            >
+              <Plus className="w-6 h-6" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+            <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Food Trial
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsSteroidCreamOpen(true)} data-testid="menu-item-steroid-cream">
+              <Droplet className="w-4 h-4 mr-2" />
+              Track Steroid Cream
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Mobile Navigation */}
       <MobileNav activeTab="home" />
