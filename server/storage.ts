@@ -703,18 +703,28 @@ export class DatabaseStorage implements IStorage {
         description = `${r.food.name} trial completed successfully`;
         type = 'success';
       } else if (r.trial.status === "reaction") {
-        // Get food history to determine if it's a confirmed/likely allergy
+        // Get food history to determine if it's a confirmed allergy
         const history = await this.getFoodHistory(babyId, r.food.id);
         
-        // Check for confirmed allergy: 3+ consecutive red bricks OR moderate/severe reaction
-        if (history.hasConsecutiveRedBricks || history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
+        // Only 3+ consecutive red bricks confirms an allergy
+        if (history.hasConsecutiveRedBricks) {
           description = `Confirmed allergy to ${r.food.name}`;
-        } else if (history.redBrickCount >= 2) {
-          // Likely allergy: multiple reactions without meeting "confirmed" criteria
-          description = `Likely allergy to ${r.food.name}`;
         } else {
-          // Single reaction
-          description = `Reaction to ${r.food.name} logged`;
+          // Get the most recent reaction for this trial to show severity
+          const recentReactions = await db
+            .select()
+            .from(reactions)
+            .where(eq(reactions.trialId, r.trial.id))
+            .orderBy(desc(reactions.startedAt))
+            .limit(1);
+          
+          if (recentReactions.length > 0) {
+            const severity = recentReactions[0].severity;
+            const capitalizedSeverity = severity.charAt(0).toUpperCase() + severity.slice(1);
+            description = `${capitalizedSeverity} reaction to ${r.food.name}`;
+          } else {
+            description = `Reaction to ${r.food.name} logged`;
+          }
         }
         type = 'error';
       } else {

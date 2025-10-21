@@ -12,9 +12,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, AlertTriangle, CalendarIcon } from "lucide-react";
+import { X, AlertTriangle, CalendarIcon, Camera } from "lucide-react";
 import { formatAustralianDateTime } from "@/lib/date-utils";
 import { format } from "date-fns";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 interface ReactionModalProps {
   isOpen: boolean;
@@ -58,6 +60,7 @@ export default function ReactionModal({
   const [resolvedMinute, setResolvedMinute] = useState<string>((Math.floor(new Date().getMinutes() / 5) * 5).toString().padStart(2, '0'));
   const [notes, setNotes] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -70,6 +73,7 @@ export default function ReactionModal({
       setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
       setNotes("");
       setPhotoUrl("");
+      setIsUploadingPhoto(false);
     }
   }, [isOpen]);
 
@@ -154,6 +158,45 @@ export default function ReactionModal({
     },
   });
 
+  // Photo upload handlers
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest("POST", "/api/objects/upload", {});
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handlePhotoUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFileURL = result.successful[0].uploadURL;
+      
+      setIsUploadingPhoto(true);
+      try {
+        // Set ACL policy for the uploaded photo
+        const response = await apiRequest("PUT", "/api/reaction-photos", {
+          photoURL: uploadedFileURL,
+        });
+        const data = await response.json();
+        setPhotoUrl(data.objectPath);
+        toast({
+          title: "Photo Uploaded",
+          description: "Photo has been attached to the reaction",
+        });
+      } catch (error) {
+        console.error("Error setting photo ACL:", error);
+        toast({
+          title: "Error",
+          description: "Failed to attach photo",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploadingPhoto(false);
+      }
+    }
+  };
+
   const handleClose = () => {
     const now = new Date();
     setSelectedTypes([]);
@@ -163,6 +206,7 @@ export default function ReactionModal({
     setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
     setNotes("");
     setPhotoUrl("");
+    setIsUploadingPhoto(false);
     onClose();
   };
 
@@ -373,23 +417,45 @@ export default function ReactionModal({
             />
           </div>
 
-          {/* Photo URL */}
+          {/* Photo Upload */}
           <div>
-            <Label htmlFor="photoUrl" className="block text-sm font-medium text-foreground mb-1">
-              Photo URL (optional)
+            <Label className="block text-sm font-medium text-foreground mb-1">
+              Attach Photo (optional)
             </Label>
-            <Input
-              id="photoUrl"
-              type="url"
-              placeholder="https://example.com/photo.jpg"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              className="text-sm"
-              data-testid="input-photo-url"
-            />
+            <div className="flex items-center gap-2">
+              <ObjectUploader
+                maxNumberOfFiles={1}
+                maxFileSize={10485760}
+                onGetUploadParameters={handleGetUploadParameters}
+                onComplete={handlePhotoUploadComplete}
+                buttonClassName="w-full"
+              >
+                <div className="flex items-center gap-2">
+                  <Camera className="w-4 h-4" />
+                  <span>{photoUrl ? "Change Photo" : "Upload Photo"}</span>
+                </div>
+              </ObjectUploader>
+              {photoUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPhotoUrl("")}
+                  className="text-destructive hover:text-destructive"
+                  data-testid="button-remove-photo"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
             {photoUrl && (
+              <p className="text-xs text-success mt-1">
+                ✓ Photo attached
+              </p>
+            )}
+            {isUploadingPhoto && (
               <p className="text-xs text-muted-foreground mt-1">
-                Preview will be shown when viewing reaction details
+                Processing photo...
               </p>
             )}
           </div>
