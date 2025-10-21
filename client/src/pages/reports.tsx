@@ -224,7 +224,7 @@ export default function Reports() {
     }
     
     // No trials yet
-    if (passes === 0 && reactions === 0) return "Not tried yet";
+    if (passes === 0 && reactions === 0) return "Under observation";
     
     // Early stage passes
     if (passes === 1 && reactions === 0) return "Passed once";

@@ -358,7 +358,7 @@ export default function Dashboard() {
     }
     
     // No trials yet
-    if (passes === 0 && reactions === 0) return "Not tried yet";
+    if (passes === 0 && reactions === 0) return "Under observation";
     
     // Early stage passes
     if (passes === 1 && reactions === 0) return "Passed once";
@@ -523,32 +523,31 @@ export default function Dashboard() {
                 <h3 className="font-semibold text-foreground">Detailed Food History</h3>
               </div>
               
-              {dashboardData?.foodProgress.length === 0 ? (
-                <div className="p-6 text-center text-muted-foreground">
-                  No food trials recorded yet. Start tracking to see reports here!
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-muted/20">
-                      <tr className="border-b border-border">
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[120px]">Trial</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dashboardData?.foodProgress.map((foodData) => {
-                        // Calculate total passes and reactions for final status
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted/20">
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[120px]">Trial</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const foodProgress = dashboardData?.foodProgress || [];
+                      const rows = [];
+                      
+                      // Add actual food data rows
+                      foodProgress.forEach((foodData) => {
                         const passes = foodData.bricks.filter(b => b.type === 'safe').length;
                         const reactions = foodData.bricks.filter(b => b.type === 'reaction' || b.type === 'warning').length;
                         const status = getStatus(passes, reactions, foodData.bricks, foodData.food.id);
                         const statusDisplay = getStatusDisplay(status);
 
-                        return (
+                        rows.push(
                           <tr 
                             key={foodData.food.id} 
-                            className="border-b border-border/50 last:border-b-0 hover:bg-muted/20 cursor-pointer"
+                            className="border-b border-border/50 hover:bg-muted/20 cursor-pointer"
                             onClick={() => setSelectedFood({ id: foodData.food.id, name: foodData.food.name, emoji: foodData.food.emoji })}
                             data-testid={`food-row-${foodData.food.id}`}
                           >
@@ -584,11 +583,25 @@ export default function Dashboard() {
                             </td>
                           </tr>
                         );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      });
+                      
+                      // Add empty rows to make total 4 data rows
+                      const emptyRowsCount = Math.max(0, 4 - foodProgress.length);
+                      for (let i = 0; i < emptyRowsCount; i++) {
+                        rows.push(
+                          <tr key={`empty-${i}`} className="border-b border-border/50">
+                            <td className="py-2 px-3 h-[42px]">&nbsp;</td>
+                            <td className="py-2 px-3">&nbsp;</td>
+                            <td className="py-2 px-3">&nbsp;</td>
+                          </tr>
+                        );
+                      }
+                      
+                      return rows;
+                    })()}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </section>
