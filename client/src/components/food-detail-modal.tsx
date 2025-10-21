@@ -15,6 +15,7 @@ interface Trial {
     notes: string | null;
     startedAt: string;
     resolvedAt: string | null;
+    photoUrl: string | null;
   }>;
 }
 
@@ -133,6 +134,17 @@ export default function FoodDetailModal({
                           <p className="text-sm text-foreground mb-2" data-testid={`reaction-notes-${reaction.id}`}>
                             {reaction.notes}
                           </p>
+                        )}
+                        {reaction.photoUrl && (
+                          <div className="mb-2">
+                            <img
+                              src={reaction.photoUrl}
+                              alt="Reaction photo"
+                              className="w-24 h-24 object-cover rounded border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => window.open(reaction.photoUrl!, '_blank')}
+                              data-testid={`reaction-photo-${reaction.id}`}
+                            />
+                          </div>
                         )}
                         <p className="text-xs text-muted-foreground">
                           {formatAustralianDate(new Date(reaction.startedAt))}

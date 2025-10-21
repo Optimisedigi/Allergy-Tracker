@@ -1,16 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+interface SteroidCream {
+  id: string;
+  startedAt: string;
+  endedAt: string | null;
+  durationDays: number;
+}
+
+interface Reaction {
+  id: string;
+  startedAt: string;
+  severity: string;
+  foodName: string;
+  trialDate: string;
+}
+
+interface CalendarData {
+  steroidCreams: SteroidCream[];
+  reactions: Reaction[];
+}
 
 export default function Calendar() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -40,6 +64,106 @@ export default function Calendar() {
       setSelectedBaby(babies[0].id);
     }
   }, [babies, selectedBaby]);
+
+  // Fetch calendar data for current month
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1;
+  
+  const { data: calendarData } = useQuery<CalendarData>({
+    queryKey: ["/api/babies", selectedBaby, "calendar", year, month],
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
+  // Handle swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    const swipeDistance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0) {
+        // Swipe left - go to next month
+        goToNextMonth();
+      } else {
+        // Swipe right - go to previous month
+        goToPreviousMonth();
+      }
+    }
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  // Generate calendar grid
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const daysInMonth = lastDayOfMonth.getDate();
+    const startingDayOfWeek = firstDayOfMonth.getDay();
+
+    const days: Array<{ date: number | null; isCurrentMonth: boolean }> = [];
+
+    // Add empty cells for days before the month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push({ date: null, isCurrentMonth: false });
+    }
+
+    // Add all days in the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push({ date: day, isCurrentMonth: true });
+    }
+
+    return days;
+  };
+
+  // Check if a date has steroid cream treatment
+  const hasSteroidCream = (day: number): boolean => {
+    if (!calendarData?.steroidCreams) return false;
+    
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    
+    return calendarData.steroidCreams.some(cream => {
+      const startDate = new Date(cream.startedAt);
+      const endDate = cream.endedAt ? new Date(cream.endedAt) : new Date(startDate.getTime() + ((cream.durationDays || 3) - 1) * 24 * 60 * 60 * 1000);
+      
+      return targetDate >= new Date(startDate.setHours(0, 0, 0, 0)) && 
+             targetDate <= new Date(endDate.setHours(23, 59, 59, 999));
+    });
+  };
+
+  // Check if a date has a reaction
+  const hasReaction = (day: number): boolean => {
+    if (!calendarData?.reactions) return false;
+    
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    
+    return calendarData.reactions.some(reaction => {
+      const reactionDate = new Date(reaction.startedAt);
+      return reactionDate.getDate() === day &&
+             reactionDate.getMonth() === currentDate.getMonth() &&
+             reactionDate.getFullYear() === currentDate.getFullYear();
+    });
+  };
+
+  const calendarDays = generateCalendarDays();
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   if (isLoading) {
     return (
@@ -73,15 +197,122 @@ export default function Calendar() {
           </h2>
         </div>
 
-        {/* Placeholder Content */}
+        {/* Calendar Card */}
         <Card>
-          <CardContent className="p-12">
-            <div className="flex flex-col items-center justify-center text-center">
-              <CalendarIcon className="w-16 h-16 text-muted-foreground/50 mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">Calendar View Coming Soon</h3>
-              <p className="text-muted-foreground max-w-md">
-                We're working on a calendar view to help you visualize your baby's food trials and reactions over time.
-              </p>
+          <CardContent className="p-4">
+            {/* Month Navigation */}
+            <div className="flex items-center justify-between mb-6">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousMonth}
+                data-testid="button-previous-month"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              
+              <h3 className="text-xl font-semibold text-foreground" data-testid="text-current-month">
+                {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+              </h3>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextMonth}
+                data-testid="button-next-month"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Calendar Grid */}
+            <div 
+              className="touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              data-testid="calendar-grid-container"
+            >
+              {/* Day of week headers */}
+              <div className="grid grid-cols-7 gap-2 mb-2">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div
+                    key={day}
+                    className="text-center text-sm font-semibold text-muted-foreground py-2"
+                    data-testid={`header-${day}`}
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar days */}
+              <div className="grid grid-cols-7 gap-2">
+                {calendarDays.map((day, index) => {
+                  const isSteroidDay = day.date && hasSteroidCream(day.date);
+                  const isReactionDay = day.date && hasReaction(day.date);
+                  const isToday = day.date && 
+                    day.date === new Date().getDate() &&
+                    currentDate.getMonth() === new Date().getMonth() &&
+                    currentDate.getFullYear() === new Date().getFullYear();
+
+                  return (
+                    <div
+                      key={index}
+                      className={`
+                        relative aspect-square rounded-lg border
+                        ${!day.isCurrentMonth ? "bg-muted/20" : "bg-card"}
+                        ${isToday ? "border-primary border-2" : "border-border"}
+                        ${isSteroidDay && !isReactionDay ? "bg-amber-100 dark:bg-amber-900/30" : ""}
+                        ${isReactionDay ? "bg-red-100 dark:bg-red-900/30" : ""}
+                        flex flex-col items-center justify-center p-1
+                      `}
+                      data-testid={day.date ? `day-${day.date}` : `empty-${index}`}
+                    >
+                      {day.date && (
+                        <>
+                          <span className={`
+                            text-sm font-medium
+                            ${isToday ? "text-primary font-bold" : "text-foreground"}
+                          `}>
+                            {day.date}
+                          </span>
+                          {isSteroidDay && (
+                            <span className="text-lg mt-1" data-testid={`steroid-emoji-${day.date}`}>
+                              🧴
+                            </span>
+                          )}
+                          {isReactionDay && !isSteroidDay && (
+                            <div className="w-2 h-2 bg-red-500 rounded-full mt-1" data-testid={`reaction-dot-${day.date}`}></div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Legend</h4>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded border border-border bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-sm">
+                    🧴
+                  </div>
+                  <span className="text-sm text-muted-foreground">Steroid Cream Treatment</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded border border-border bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">Reaction Logged</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded border-2 border-primary bg-card"></div>
+                  <span className="text-sm text-muted-foreground">Today</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
