@@ -4,19 +4,15 @@ import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, lazy, Suspense } from "react";
-
-// Eager load critical pages
+import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
+import Onboarding from "@/pages/onboarding";
 import Dashboard from "@/pages/dashboard";
-
-// Lazy load non-critical pages
-const Onboarding = lazy(() => import("@/pages/onboarding"));
-const Calendar = lazy(() => import("@/pages/calendar"));
-const HowItWorks = lazy(() => import("@/pages/how-it-works"));
-const Settings = lazy(() => import("@/pages/settings"));
-const PrivacyPolicy = lazy(() => import("@/pages/privacy-policy"));
+import Calendar from "@/pages/calendar";
+import HowItWorks from "@/pages/how-it-works";
+import Settings from "@/pages/settings";
+import PrivacyPolicy from "@/pages/privacy-policy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -47,31 +43,22 @@ function Router() {
   }, [isFirstTimeUser, location, setLocation]);
 
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    }>
-      <Switch>
-        {isLoading || !isAuthenticated ? (
-          <Route path="/" component={Landing} />
-        ) : needsOnboarding ? (
-          <Route path="/" component={Onboarding} />
-        ) : (
-          <>
-            <Route path="/" component={Dashboard} />
-            <Route path="/calendar" component={Calendar} />
-            <Route path="/how-it-works" component={HowItWorks} />
-            <Route path="/settings" component={Settings} />
-            <Route path="/privacy-policy" component={PrivacyPolicy} />
-          </>
-        )}
-        <Route component={NotFound} />
-      </Switch>
-    </Suspense>
+    <Switch>
+      {isLoading || !isAuthenticated ? (
+        <Route path="/" component={Landing} />
+      ) : needsOnboarding ? (
+        <Route path="/" component={Onboarding} />
+      ) : (
+        <>
+          <Route path="/" component={Dashboard} />
+          <Route path="/calendar" component={Calendar} />
+          <Route path="/how-it-works" component={HowItWorks} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+        </>
+      )}
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
