@@ -263,15 +263,15 @@ export default function ReactionModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-4" data-testid="modal-reaction">
         <DialogHeader className="pb-1">
-          <DialogTitle className="text-lg">Log Reaction to</DialogTitle>
+          <DialogTitle className="text-base">Log Reaction to</DialogTitle>
         </DialogHeader>
 
         {/* Food Name Display */}
         <div className="p-1.5 bg-muted/50 rounded-lg mb-2" data-testid="reaction-food-info">
           <div className="flex items-center justify-center gap-2">
-            <span className="text-4xl">{foodEmoji || "🍼"}</span>
+            <span className="text-3xl">{foodEmoji || "🍼"}</span>
             <div>
-              <p className="font-semibold text-xl text-foreground">{foodName}</p>
+              <p className="font-semibold text-lg text-foreground">{foodName}</p>
             </div>
           </div>
         </div>
@@ -279,22 +279,22 @@ export default function ReactionModal({
         <form onSubmit={handleSubmit} className="space-y-3" data-testid="form-log-reaction">
           {/* Reaction Type */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-1">
+            <Label className="block text-xs font-medium text-foreground mb-1">
               Reaction Type *
             </Label>
             <div className="grid grid-cols-2 gap-2">
               {REACTION_TYPES.map((type) => (
                 <label 
                   key={type}
-                  className="relative flex items-center p-2 bg-muted border border-border rounded-lg cursor-pointer hover:bg-primary/5 hover:border-primary transition-all"
+                  className="relative flex items-center p-1.5 bg-muted border border-border rounded-lg cursor-pointer hover:bg-primary/5 hover:border-primary transition-all"
                 >
                   <Checkbox
                     checked={selectedTypes.includes(type)}
                     onCheckedChange={(checked) => handleTypeToggle(type, checked as boolean)}
-                    className="mr-2"
+                    className="mr-1.5"
                     data-testid={`checkbox-reaction-${type}`}
                   />
-                  <span className="text-sm capitalize">{type}</span>
+                  <span className="text-xs capitalize">{type}</span>
                 </label>
               ))}
             </div>
@@ -302,7 +302,7 @@ export default function ReactionModal({
 
           {/* Severity */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-1">
+            <Label className="block text-xs font-medium text-foreground mb-1">
               Severity *
             </Label>
             <div className="flex gap-2">
@@ -311,7 +311,7 @@ export default function ReactionModal({
                   key={level.value}
                   type="button"
                   onClick={() => setSeverity(level.value)}
-                  className={`flex-1 p-2 text-center border-2 rounded-lg cursor-pointer transition-all ${
+                  className={`flex-1 p-1.5 text-center border-2 rounded-lg cursor-pointer transition-all ${
                     severity === level.value 
                       ? level.value === "mild" 
                         ? "border-green-600 bg-green-50 dark:bg-green-950" 
@@ -322,7 +322,7 @@ export default function ReactionModal({
                   }`}
                   data-testid={`radio-severity-${level.value}`}
                 >
-                  <p className="font-medium text-sm">{level.label}</p>
+                  <p className="font-medium text-xs">{level.label}</p>
                 </button>
               ))}
             </div>
@@ -332,17 +332,17 @@ export default function ReactionModal({
           <div className="space-y-2">
             {/* Food trial started on (read-only) */}
             <div>
-              <Label className="block text-sm font-medium text-foreground mb-1">
+              <Label className="block text-xs font-medium text-foreground mb-1">
                 Food trial started on
               </Label>
-              <div className="p-2 bg-muted/50 border border-border rounded-md text-sm text-foreground">
+              <div className="p-1.5 bg-muted/50 border border-border rounded-md text-xs text-foreground">
                 {trialDate ? format(new Date(trialDate), "PPP 'at' HH:mm") : "Not available"}
               </div>
             </div>
             
             {/* Time of reaction */}
             <div>
-              <Label className="block text-sm font-medium text-foreground mb-1">
+              <Label className="block text-xs font-medium text-foreground mb-1">
                 Time of reaction *
               </Label>
               <div className="space-y-2">
@@ -350,10 +350,10 @@ export default function ReactionModal({
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-start text-left font-normal h-9"
+                      className="w-full justify-start text-left font-normal h-8 text-xs"
                       data-testid="button-resolved-date"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-3 w-3" />
                       {resolvedDate ? format(resolvedDate, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
@@ -371,7 +371,7 @@ export default function ReactionModal({
                 {resolvedDate && (
                   <div className="grid grid-cols-2 gap-2">
                     <Select value={resolvedHour} onValueChange={setResolvedHour}>
-                      <SelectTrigger className="h-9" data-testid="select-resolved-hour">
+                      <SelectTrigger className="h-8 text-xs" data-testid="select-resolved-hour">
                         <SelectValue placeholder="Hour" />
                       </SelectTrigger>
                       <SelectContent>
@@ -384,7 +384,7 @@ export default function ReactionModal({
                     </Select>
                     
                     <Select value={resolvedMinute} onValueChange={setResolvedMinute}>
-                      <SelectTrigger className="h-9" data-testid="select-resolved-minute">
+                      <SelectTrigger className="h-8 text-xs" data-testid="select-resolved-minute">
                         <SelectValue placeholder="Minute" />
                       </SelectTrigger>
                       <SelectContent>
@@ -403,7 +403,7 @@ export default function ReactionModal({
 
           {/* Notes */}
           <div>
-            <Label htmlFor="reactionNotes" className="block text-sm font-medium text-foreground mb-1">
+            <Label htmlFor="reactionNotes" className="block text-xs font-medium text-foreground mb-1">
               Additional Notes
             </Label>
             <Textarea
@@ -412,14 +412,14 @@ export default function ReactionModal({
               placeholder="Describe the reaction..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="resize-none text-sm"
+              className="resize-none text-xs"
               data-testid="textarea-reaction-notes"
             />
           </div>
 
           {/* Photo Upload */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-1">
+            <Label className="block text-xs font-medium text-foreground mb-1">
               Attach Photo (optional)
             </Label>
             <div className="flex items-center gap-2">
@@ -430,8 +430,8 @@ export default function ReactionModal({
                 onComplete={handlePhotoUploadComplete}
                 buttonClassName="w-full"
               >
-                <div className="flex items-center gap-2">
-                  <Camera className="w-4 h-4" />
+                <div className="flex items-center gap-2 text-xs">
+                  <Camera className="w-3 h-3" />
                   <span>{photoUrl ? "Change Photo" : "Upload Photo"}</span>
                 </div>
               </ObjectUploader>
@@ -466,7 +466,7 @@ export default function ReactionModal({
               type="button" 
               variant="secondary" 
               onClick={handleClose} 
-              className="flex-1 h-9"
+              className="flex-1 h-8 text-xs"
               disabled={logReactionMutation.isPending}
               data-testid="button-cancel-reaction"
             >
@@ -475,7 +475,7 @@ export default function ReactionModal({
             <Button 
               type="submit" 
               variant="destructive" 
-              className="flex-1 h-9"
+              className="flex-1 h-8 text-xs"
               disabled={logReactionMutation.isPending}
               data-testid="button-log-reaction"
             >
@@ -484,10 +484,10 @@ export default function ReactionModal({
           </div>
 
           {/* Emergency Notice */}
-          <div className="p-2.5 bg-destructive/10 border border-destructive/30 rounded-lg">
-            <div className="flex gap-2">
-              <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0 w-4 h-4" />
-              <div className="text-xs text-black dark:text-destructive-foreground">
+          <div className="p-2 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <div className="flex gap-1.5">
+              <AlertTriangle className="text-destructive mt-0.5 flex-shrink-0 w-3 h-3" />
+              <div className="text-[0.65rem] text-black dark:text-destructive-foreground leading-tight">
                 <p className="font-semibold">Severe reactions require immediate medical attention</p>
                 <p className="mt-0.5">Call emergency services if your baby has difficulty breathing, severe swelling, or loss of consciousness.</p>
               </div>
@@ -495,12 +495,12 @@ export default function ReactionModal({
           </div>
 
           {/* Delete Trial Button */}
-          <div className="pt-3 border-t border-border">
+          <div className="pt-2 border-t border-border">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => deleteTrialMutation.mutate()}
-              className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+              className="w-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive h-8"
               disabled={deleteTrialMutation.isPending}
               data-testid="button-delete-trial"
             >
