@@ -706,14 +706,14 @@ export class DatabaseStorage implements IStorage {
         // Get food history to determine if it's a confirmed/likely allergy
         const history = await this.getFoodHistory(babyId, r.food.id);
         
-        // Check for confirmed or likely allergy
+        // Check for confirmed allergy: 3+ consecutive red bricks OR moderate/severe reaction
         if (history.hasConsecutiveRedBricks || history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
-          if (history.highestSeverity === 'moderate' || history.highestSeverity === 'severe') {
-            description = `Confirmed allergy to ${r.food.name}`;
-          } else {
-            description = `Likely allergy to ${r.food.name}`;
-          }
+          description = `Confirmed allergy to ${r.food.name}`;
+        } else if (history.redBrickCount >= 2) {
+          // Likely allergy: multiple reactions without meeting "confirmed" criteria
+          description = `Likely allergy to ${r.food.name}`;
         } else {
+          // Single reaction
           description = `Reaction to ${r.food.name} logged`;
         }
         type = 'error';
