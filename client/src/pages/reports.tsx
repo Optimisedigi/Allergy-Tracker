@@ -443,7 +443,7 @@ export default function Reports() {
       </DropdownMenu>
 
       {/* Mobile Navigation */}
-      <MobileNav activeTab="reports" />
+      <MobileNav activeTab="home" />
 
       {/* Modals */}
       <AddFoodModal

@@ -9,7 +9,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Onboarding from "@/pages/onboarding";
 import Dashboard from "@/pages/dashboard";
-import Reports from "@/pages/reports";
+import Calendar from "@/pages/calendar";
 import HowItWorks from "@/pages/how-it-works";
 import Settings from "@/pages/settings";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -51,7 +51,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Dashboard} />
-          <Route path="/reports" component={Reports} />
+          <Route path="/calendar" component={Calendar} />
           <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/settings" component={Settings} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />

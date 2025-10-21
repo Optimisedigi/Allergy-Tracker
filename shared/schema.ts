@@ -111,6 +111,7 @@ export const reactions = pgTable("reactions", {
   startedAt: timestamp("started_at").notNull(),
   resolvedAt: timestamp("resolved_at"),
   notes: text("notes"),
+  photoUrl: varchar("photo_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

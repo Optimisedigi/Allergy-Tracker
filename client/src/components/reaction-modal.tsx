@@ -57,6 +57,7 @@ export default function ReactionModal({
   const [resolvedHour, setResolvedHour] = useState<string>(new Date().getHours().toString().padStart(2, '0'));
   const [resolvedMinute, setResolvedMinute] = useState<string>((Math.floor(new Date().getMinutes() / 5) * 5).toString().padStart(2, '0'));
   const [notes, setNotes] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
 
   // Reset form when modal opens
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function ReactionModal({
       setResolvedHour(now.getHours().toString().padStart(2, '0'));
       setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
       setNotes("");
+      setPhotoUrl("");
     }
   }, [isOpen]);
 
@@ -79,6 +81,7 @@ export default function ReactionModal({
       startedAt: string;
       resolvedAt?: string;
       notes?: string;
+      photoUrl?: string;
     }) => {
       const response = await apiRequest("POST", `/api/trials/${trialId}/reactions`, {
         types: reactionData.types,
@@ -86,6 +89,7 @@ export default function ReactionModal({
         startedAt: new Date(reactionData.startedAt).toISOString(),
         resolvedAt: reactionData.resolvedAt ? new Date(reactionData.resolvedAt).toISOString() : undefined,
         notes: reactionData.notes,
+        photoUrl: reactionData.photoUrl,
       });
       return response.json();
     },
@@ -158,6 +162,7 @@ export default function ReactionModal({
     setResolvedHour(now.getHours().toString().padStart(2, '0'));
     setResolvedMinute((Math.floor(now.getMinutes() / 5) * 5).toString().padStart(2, '0'));
     setNotes("");
+    setPhotoUrl("");
     onClose();
   };
 
@@ -204,6 +209,7 @@ export default function ReactionModal({
       startedAt: startedAtString,
       resolvedAt: resolvedAtString,
       notes: notes.trim() || undefined,
+      photoUrl: photoUrl.trim() || undefined,
     });
   };
 
@@ -365,6 +371,27 @@ export default function ReactionModal({
               className="resize-none text-sm"
               data-testid="textarea-reaction-notes"
             />
+          </div>
+
+          {/* Photo URL */}
+          <div>
+            <Label htmlFor="photoUrl" className="block text-sm font-medium text-foreground mb-1">
+              Photo URL (optional)
+            </Label>
+            <Input
+              id="photoUrl"
+              type="url"
+              placeholder="https://example.com/photo.jpg"
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              className="text-sm"
+              data-testid="input-photo-url"
+            />
+            {photoUrl && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Preview will be shown when viewing reaction details
+              </p>
+            )}
           </div>
 
           {/* Action Buttons */}

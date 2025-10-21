@@ -1,9 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Home, BarChart3, HelpCircle, Settings } from "lucide-react";
+import { Home, Calendar, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MobileNavProps {
-  activeTab?: "home" | "reports" | "how-it-works" | "settings";
+  activeTab?: "home" | "calendar" | "how-it-works" | "settings";
 }
 
 export default function MobileNav({ activeTab }: MobileNavProps) {
@@ -11,7 +11,7 @@ export default function MobileNav({ activeTab }: MobileNavProps) {
 
   const getActiveTab = () => {
     if (activeTab) return activeTab;
-    if (location === "/reports") return "reports";
+    if (location === "/calendar") return "calendar";
     if (location === "/how-it-works") return "how-it-works";
     if (location === "/settings") return "settings";
     return "home";
@@ -27,10 +27,10 @@ export default function MobileNav({ activeTab }: MobileNavProps) {
           <span>Home</span>
         </a>
       </Link>
-      <Link href="/reports">
-        <a className={cn("nav-item", currentTab === "reports" && "active")} data-testid="nav-reports">
-          <BarChart3 className="w-5 h-5" />
-          <span>Reports</span>
+      <Link href="/calendar">
+        <a className={cn("nav-item", currentTab === "calendar" && "active")} data-testid="nav-calendar">
+          <Calendar className="w-5 h-5" />
+          <span>Calendar</span>
         </a>
       </Link>
       <Link href="/how-it-works">

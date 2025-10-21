@@ -4,18 +4,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import { Link } from "wouter";
 import Header from "@/components/header";
 import MobileNav from "@/components/mobile-nav";
-import FoodCard from "@/components/food-card";
+import FoodDetailModal from "@/components/food-detail-modal";
 import AddFoodModal from "@/components/add-food-modal";
 import ReactionModal from "@/components/reaction-modal";
 import SteroidCreamModal from "@/components/steroid-cream-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Clock, Check, AlertTriangle, Droplet, Utensils, CheckCircle, CircleAlert } from "lucide-react";
+import { Plus, Clock, Check, AlertTriangle, Droplet, Utensils, CheckCircle, CircleAlert, X } from "lucide-react";
 import { formatAustralianDate } from "@/lib/date-utils";
 
 interface DashboardData {
@@ -47,6 +47,8 @@ export default function Dashboard() {
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
   const [isSteroidCreamOpen, setIsSteroidCreamOpen] = useState(false);
+  const [doctorEmail, setDoctorEmail] = useState("");
+  const [selectedFood, setSelectedFood] = useState<{ id: string; name: string; emoji?: string } | null>(null);
   const [reactionModalData, setReactionModalData] = useState<{
     isOpen: boolean;
     trialId: string;
@@ -260,6 +262,142 @@ export default function Dashboard() {
 
   const daysWithoutReaction = calculateDaysWithoutReaction();
 
+  const handleSendReport = async () => {
+    if (!doctorEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await apiRequest("POST", `/api/babies/${selectedBaby}/send-report`, {
+        email: doctorEmail,
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Report Sent",
+          description: `Food report has been sent to ${doctorEmail}`,
+        });
+        setDoctorEmail("");
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Failed to Send",
+          description: error.message || "Could not send report",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error sending report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send report. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Calculate status based on passes, reactions, bricks, and active trials
+  const getStatus = (passes: number, reactions: number, bricks: Array<{ type: string; date: string }>, foodId: string) => {
+    // Check if there's an active trial for this food
+    const hasActiveTrial = dashboardData?.activeTrials?.some(trial => trial.food.name === dashboardData.foodProgress.find(f => f.food.id === foodId)?.food.name);
+    
+    // Check for 3 consecutive red bricks
+    let hasConsecutiveRedBricks = false;
+    let consecutiveReds = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'warning') {
+        consecutiveReds = 0; // Reset counter when we find amber
+      } else if (brick.type === 'reaction') {
+        consecutiveReds++;
+        if (consecutiveReds >= 3) {
+          hasConsecutiveRedBricks = true;
+          break;
+        }
+      } else {
+        // Safe brick resets everything
+        consecutiveReds = 0;
+      }
+    }
+    
+    // Check for 3 consecutive safe bricks
+    let hasConsecutiveSafeBricks = false;
+    let consecutiveSafes = 0;
+    
+    for (const brick of bricks) {
+      if (brick.type === 'safe') {
+        consecutiveSafes++;
+        if (consecutiveSafes >= 3) {
+          hasConsecutiveSafeBricks = true;
+          break;
+        }
+      } else {
+        // Any non-safe brick resets the counter
+        consecutiveSafes = 0;
+      }
+    }
+    
+    // Check for confirmed allergy (3 consecutive red bricks)
+    if (hasConsecutiveRedBricks) {
+      return hasActiveTrial ? "Confirmed allergy but re-testing" : "Confirmed allergy";
+    }
+    
+    // Check for safe food with past reactions (3 consecutive safe bricks but has reactions in history)
+    if (hasConsecutiveSafeBricks && reactions > 0) {
+      return "Safe food, but signs of sensitivity";
+    }
+    
+    // Safe food (3+ passes, no reactions)
+    if (passes >= 3 && reactions === 0) {
+      return hasActiveTrial ? "Food is safe but re-testing" : "Safe food";
+    }
+    
+    // No trials yet
+    if (passes === 0 && reactions === 0) return "Not tried yet";
+    
+    // Early stage passes
+    if (passes === 1 && reactions === 0) return "Passed once";
+    if (passes === 2 && reactions === 0) return "Building confidence";
+    
+    // 3+ passes with reactions
+    if (passes >= 3 && reactions === 1) return "Caution";
+    if (passes >= 3 && reactions >= 2) return "Likely allergy";
+    
+    // Less than 3 passes with reactions
+    if (passes < 3 && reactions === 1) return "Possible sensitivity";
+    if (passes < 3 && reactions >= 2) return "Allergy suspected";
+    
+    return "Testing";
+  };
+
+  // Get status icon and color
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "Safe food":
+      case "Food is safe but re-testing":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
+      case "Safe food, but signs of sensitivity":
+      case "Caution":
+      case "Possible sensitivity":
+        return { icon: <AlertTriangle className="w-4 h-4" />, color: "text-orange-500", bg: "bg-orange-500/10" };
+      case "Likely allergy":
+      case "Allergy suspected":
+      case "Confirmed allergy":
+      case "Confirmed allergy but re-testing":
+        return { icon: <X className="w-4 h-4" />, color: "text-destructive", bg: "bg-destructive/10" };
+      case "Building confidence":
+      case "Passed once":
+        return { icon: <Check className="w-4 h-4" />, color: "text-success", bg: "bg-success/10" };
+      default:
+        return { icon: null, color: "text-muted-foreground", bg: "bg-muted" };
+    }
+  };
+
   return (
     <div className="min-h-screen pb-20 bg-background" data-testid="dashboard-container">
       <Header 
@@ -377,35 +515,82 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Food Brick Chart Section */}
+        {/* Detailed Food History Table */}
         <section className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-foreground">Recent Food Trials</h3>
-            <Link href="/reports">
-              <Button variant="ghost" size="sm" data-testid="button-view-all-foods">
-                View All
-              </Button>
-            </Link>
-          </div>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-4 border-b border-border bg-muted/30">
+                <h3 className="font-semibold text-foreground">Detailed Food History</h3>
+              </div>
+              
+              {dashboardData?.foodProgress.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground">
+                  No food trials recorded yet. Start tracking to see reports here!
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/20">
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[120px]">Trial</th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Visual</th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground w-[200px]">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboardData?.foodProgress.map((foodData) => {
+                        // Calculate total passes and reactions for final status
+                        const passes = foodData.bricks.filter(b => b.type === 'safe').length;
+                        const reactions = foodData.bricks.filter(b => b.type === 'reaction' || b.type === 'warning').length;
+                        const status = getStatus(passes, reactions, foodData.bricks, foodData.food.id);
+                        const statusDisplay = getStatusDisplay(status);
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {dashboardData?.foodProgress.map((foodData) => {
-              const hasActiveTrial = dashboardData?.activeTrials?.some(trial => trial.food.name === foodData.food.name);
-              return (
-                <FoodCard
-                  key={foodData.food.id}
-                  food={foodData.food}
-                  bricks={foodData.bricks}
-                  passCount={foodData.passCount}
-                  reactionCount={foodData.reactionCount}
-                  lastTrial={foodData.lastTrial ? new Date(foodData.lastTrial) : null}
-                  hasActiveTrial={hasActiveTrial}
-                  onDelete={() => setDeleteDialogData({ isOpen: true, foodId: foodData.food.id, foodName: foodData.food.name })}
-                  data-testid={`card-food-${foodData.food.id}`}
-                />
-              );
-            })}
-          </div>
+                        return (
+                          <tr 
+                            key={foodData.food.id} 
+                            className="border-b border-border/50 last:border-b-0 hover:bg-muted/20 cursor-pointer"
+                            onClick={() => setSelectedFood({ id: foodData.food.id, name: foodData.food.name, emoji: foodData.food.emoji })}
+                            data-testid={`food-row-${foodData.food.id}`}
+                          >
+                            <td className="py-2 px-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{foodData.food.emoji || "🍼"}</span>
+                                <span className="font-medium text-xs">{foodData.food.name}</span>
+                              </div>
+                            </td>
+                            <td className="py-2 px-3">
+                              <div className="flex gap-0.5">
+                                {[...foodData.bricks].reverse().slice(0, 6).map((brick, brickIdx) => (
+                                  <div
+                                    key={brickIdx}
+                                    className={`h-5 rounded`}
+                                    style={{
+                                      width: '16.8px',
+                                      background: brick.type === 'safe' 
+                                        ? 'linear-gradient(135deg, hsl(142 52% 65%) 0%, hsl(142 52% 55%) 100%)'
+                                        : brick.type === 'warning'
+                                        ? 'linear-gradient(135deg, hsl(38 92% 65%) 0%, hsl(38 92% 55%) 100%)'
+                                        : 'linear-gradient(135deg, hsl(0 70% 75%) 0%, hsl(0 70% 65%) 100%)'
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-2 px-3">
+                              <div className="flex items-center gap-1.5">
+                                <span className={statusDisplay.color}>{statusDisplay.icon}</span>
+                                <span className="text-xs">{status}</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         {/* Recent Activity */}
@@ -449,6 +634,32 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Email Food Report Section */}
+        <section className="mb-6">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-foreground mb-4">Email Food Report</h3>
+              <div className="flex gap-3">
+                <Input
+                  type="email"
+                  placeholder="doctor@example.com"
+                  value={doctorEmail}
+                  onChange={(e) => setDoctorEmail(e.target.value)}
+                  className="flex-1"
+                  data-testid="input-doctor-email"
+                />
+                <Button 
+                  onClick={handleSendReport}
+                  className="whitespace-nowrap"
+                  data-testid="button-send-report"
+                >
+                  Send Report
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </section>
@@ -500,6 +711,18 @@ export default function Dashboard() {
         onClose={() => setIsSteroidCreamOpen(false)}
         babyId={selectedBaby}
       />
+
+      {/* Food Detail Modal */}
+      {selectedFood && (
+        <FoodDetailModal
+          isOpen={!!selectedFood}
+          onClose={() => setSelectedFood(null)}
+          babyId={selectedBaby}
+          foodId={selectedFood.id}
+          foodName={selectedFood.name}
+          foodEmoji={selectedFood.emoji}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogData.isOpen} onOpenChange={(open) => !open && setDeleteDialogData({ isOpen: false, foodId: "", foodName: "" })}>
