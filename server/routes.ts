@@ -806,6 +806,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calendar routes
+  app.get('/api/babies/:babyId/calendar/:year/:month', isAuthenticated, async (req: any, res) => {
+    try {
+      const { babyId, year, month } = req.params;
+      const yearNum = parseInt(year, 10);
+      const monthNum = parseInt(month, 10);
+      
+      if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        return res.status(400).json({ message: "Invalid year or month" });
+      }
+      
+      const [steroidCreams, reactions] = await Promise.all([
+        storage.getSteroidCreamsByMonth(babyId, yearNum, monthNum),
+        storage.getReactionsByMonth(babyId, yearNum, monthNum),
+      ]);
+      
+      res.json({ steroidCreams, reactions });
+    } catch (error) {
+      console.error("Error fetching calendar data:", error);
+      res.status(500).json({ message: "Failed to fetch calendar data" });
+    }
+  });
+
   // Notifications routes
   app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
     try {

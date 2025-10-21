@@ -121,6 +121,10 @@ export interface IStorage {
   createSteroidCream(cream: InsertSteroidCream): Promise<SteroidCream>;
   getActiveSteroidCream(babyId: string): Promise<SteroidCream | undefined>;
   endSteroidCream(id: string): Promise<void>;
+  getSteroidCreamsByMonth(babyId: string, year: number, month: number): Promise<SteroidCream[]>;
+  
+  // Calendar operations
+  getReactionsByMonth(babyId: string, year: number, month: number): Promise<Array<Reaction & { trialDate: Date; foodName: string }>>;
   
   // CSV Export operations
   exportBabyDataToCSV(userId: string, babyId: string): Promise<string>;
@@ -585,6 +589,60 @@ export class DatabaseStorage implements IStorage {
       .update(steroidCream)
       .set({ status: "ended", endedAt: new Date() })
       .where(eq(steroidCream.id, id));
+  }
+
+  async getSteroidCreamsByMonth(babyId: string, year: number, month: number): Promise<SteroidCream[]> {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+    
+    const creams = await db
+      .select()
+      .from(steroidCream)
+      .where(
+        and(
+          eq(steroidCream.babyId, babyId),
+          sql`${steroidCream.startedAt} <= ${endOfMonth}`,
+          sql`(${steroidCream.endedAt} IS NULL OR ${steroidCream.endedAt} >= ${startOfMonth})`
+        )
+      )
+      .orderBy(steroidCream.startedAt);
+    
+    return creams;
+  }
+
+  async getReactionsByMonth(babyId: string, year: number, month: number): Promise<Array<Reaction & { trialDate: Date; foodName: string }>> {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+    
+    const reactionsWithTrials = await db
+      .select({
+        id: reactions.id,
+        trialId: reactions.trialId,
+        userId: reactions.userId,
+        types: reactions.types,
+        severity: reactions.severity,
+        startedAt: reactions.startedAt,
+        resolvedAt: reactions.resolvedAt,
+        notes: reactions.notes,
+        photoUrl: reactions.photoUrl,
+        createdAt: reactions.createdAt,
+        updatedAt: reactions.updatedAt,
+        trialDate: trials.trialDate,
+        foodName: foods.name,
+      })
+      .from(reactions)
+      .innerJoin(trials, eq(reactions.trialId, trials.id))
+      .innerJoin(foods, eq(trials.foodId, foods.id))
+      .where(
+        and(
+          eq(trials.babyId, babyId),
+          sql`${reactions.startedAt} >= ${startOfMonth}`,
+          sql`${reactions.startedAt} <= ${endOfMonth}`
+        )
+      )
+      .orderBy(reactions.startedAt);
+    
+    return reactionsWithTrials;
   }
 
   // Notification operations
