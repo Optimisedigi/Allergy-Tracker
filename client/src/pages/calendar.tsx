@@ -258,34 +258,32 @@ export default function Calendar() {
                   return (
                     <div
                       key={index}
-                      className={`
-                        relative aspect-square rounded-lg border
-                        ${!day.isCurrentMonth ? "bg-muted/20" : "bg-card"}
-                        ${isToday ? "border-primary border-2" : "border-border"}
-                        ${isSteroidDay && !isReactionDay ? "bg-amber-100 dark:bg-amber-900/30" : ""}
-                        ${isReactionDay ? "bg-red-100 dark:bg-red-900/30" : ""}
-                        flex flex-col items-center justify-center p-1
-                      `}
+                      className="flex flex-col"
                       data-testid={day.date ? `day-${day.date}` : `empty-${index}`}
                     >
                       {day.date && (
-                        <>
-                          <span className={`
-                            text-sm font-medium
-                            ${isToday ? "text-primary font-bold" : "text-foreground"}
-                          `}>
-                            {day.date}
-                          </span>
-                          {isSteroidDay && (
-                            <span className="text-lg mt-1" data-testid={`steroid-emoji-${day.date}`}>
-                              🧴
-                            </span>
-                          )}
-                          {isReactionDay && !isSteroidDay && (
-                            <div className="w-2 h-2 bg-red-500 rounded-full mt-1" data-testid={`reaction-dot-${day.date}`}></div>
-                          )}
-                        </>
+                        <span className={`
+                          text-xs font-medium text-center mb-0.5
+                          ${isToday ? "text-primary font-bold" : "text-foreground"}
+                        `}>
+                          {day.date}
+                        </span>
                       )}
+                      <div
+                        className={`
+                          aspect-square rounded-lg border flex items-center justify-center
+                          ${!day.isCurrentMonth ? "bg-muted/20 border-border" : "bg-card border-border"}
+                          ${isToday ? "border-primary border-[3px]" : ""}
+                          ${isSteroidDay && !isReactionDay ? "bg-[#fef3c7] dark:bg-amber-900/30" : ""}
+                          ${isReactionDay ? "bg-red-500 dark:bg-red-600" : ""}
+                        `}
+                      >
+                        {isSteroidDay && day.date && (
+                          <span className="text-2xl" data-testid={`steroid-emoji-${day.date}`}>
+                            🧴
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -297,19 +295,17 @@ export default function Calendar() {
               <h4 className="text-sm font-semibold text-foreground mb-3">Legend</h4>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded border border-border bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-sm">
+                  <div className="w-6 h-6 rounded border border-border bg-[#fef3c7] dark:bg-amber-900/30 flex items-center justify-center text-sm">
                     🧴
                   </div>
                   <span className="text-sm text-muted-foreground">Steroid Cream Treatment</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded border border-border bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  </div>
+                  <div className="w-6 h-6 rounded border border-border bg-red-500 dark:bg-red-600"></div>
                   <span className="text-sm text-muted-foreground">Reaction Logged</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded border-2 border-primary bg-card"></div>
+                  <div className="w-6 h-6 rounded border-[3px] border-primary bg-card"></div>
                   <span className="text-sm text-muted-foreground">Today</span>
                 </div>
               </div>
