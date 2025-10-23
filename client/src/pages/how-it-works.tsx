@@ -91,9 +91,12 @@ export default function HowItWorks() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">What This Allergy Tracker Does</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
+          <CardContent className="text-sm space-y-3">
             <p>
-              Allergy Tracker for Bubs takes the guesswork out of food introductions, helping you spot what's really behind your baby's reactions. Each time your baby completes a trial without a reaction, they earn a green brick — building a clear visual record of what's safe and what needs caution.
+              Allergy Tracker for Bubs takes the guesswork out of food introductions, helping you spot what's really behind your baby's reactions.
+            </p>
+            <p>
+              Each time your baby completes a trial without a reaction, they earn a green brick — building a clear visual record of what's safe and what needs caution.
             </p>
           </CardContent>
         </Card>
