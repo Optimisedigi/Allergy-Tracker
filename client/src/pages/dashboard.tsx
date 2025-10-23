@@ -407,7 +407,7 @@ export default function Dashboard() {
         data-testid="dashboard-header"
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-4">
         {/* Stats Overview */}
         <section className="grid grid-cols-3 gap-3 mb-4">
           <Card data-testid="card-stats-foods">
@@ -452,7 +452,7 @@ export default function Dashboard() {
           <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 flex items-start gap-3" data-testid="alert-steroid-cream">
             <Droplet className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
+              <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
               <p className="text-xs text-amber-800 dark:text-amber-200">
                 {activeCream.durationDays}-day treatment in progress.
               </p>
@@ -474,7 +474,7 @@ export default function Dashboard() {
           <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 mb-4 flex items-start gap-3" data-testid="alert-active-trials">
             <Clock className="text-accent text-lg mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-accent-foreground mb-1">Active Observation</h3>
+              <h3 className="text-sm font-semibold text-accent-foreground mb-1">Active Observation</h3>
               {dashboardData.activeTrials.map((trial) => (
                 <div key={trial.id} className="mb-2 last:mb-0">
                   <p className="text-xs text-accent-foreground/80 mb-2">
@@ -519,7 +519,7 @@ export default function Dashboard() {
           <Card className="overflow-hidden">
             <CardContent className="p-0">
               <div className="p-4 border-b border-border bg-muted/30">
-                <h3 className="font-semibold text-foreground">Detailed Food History</h3>
+                <h3 className="text-sm font-semibold text-foreground">Detailed Food History</h3>
               </div>
               
               <div className="overflow-x-auto">
@@ -607,7 +607,7 @@ export default function Dashboard() {
 
         {/* Recent Activity */}
         <section className="mb-6">
-          <h3 className="text-lg font-semibold text-foreground mb-3">Recent Activity</h3>
+          <h3 className="text-base font-semibold text-foreground mb-3">Recent Activity</h3>
           <Card>
             <CardContent className="p-0">
               {dashboardData?.recentActivity.length === 0 ? (
@@ -654,14 +654,14 @@ export default function Dashboard() {
         <section className="mb-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-foreground mb-4">Email Food Report</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-4">Email Food Report</h3>
               <div className="flex gap-3">
                 <Input
                   type="email"
                   placeholder="doctor@example.com"
                   value={doctorEmail}
                   onChange={(e) => setDoctorEmail(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 placeholder:text-xs"
                   data-testid="input-doctor-email"
                 />
                 <Button 

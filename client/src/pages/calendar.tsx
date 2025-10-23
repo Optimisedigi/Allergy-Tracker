@@ -75,6 +75,49 @@ export default function Calendar() {
     retry: false,
   });
 
+  // Get dashboard data to calculate days without reaction
+  const { data: dashboardData } = useQuery<{
+    foodProgress: Array<{
+      food: { id: string; name: string; emoji?: string };
+      bricks: Array<{ type: string; date: string }>;
+    }>;
+  }>({
+    queryKey: ["/api/dashboard", selectedBaby],
+    enabled: isAuthenticated && !!selectedBaby,
+    retry: false,
+  });
+
+  // Calculate days without reaction
+  const calculateDaysWithoutReaction = (): number => {
+    if (!dashboardData?.foodProgress) return 0;
+    
+    const reactionDates: Date[] = [];
+    
+    // Find all reaction dates from all food bricks
+    dashboardData.foodProgress.forEach(food => {
+      food.bricks.forEach(brick => {
+        if (brick.type === 'reaction' || brick.type === 'warning') {
+          reactionDates.push(new Date(brick.date));
+        }
+      });
+    });
+    
+    // If no reactions found, return 0
+    if (reactionDates.length === 0) return 0;
+    
+    // Find the most recent reaction
+    const mostRecentReactionDate = new Date(Math.max(...reactionDates.map(d => d.getTime())));
+    
+    // Calculate days difference
+    const today = new Date();
+    const diffTime = today.getTime() - mostRecentReactionDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const daysWithoutReaction = calculateDaysWithoutReaction();
+
   // Handle swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -186,15 +229,16 @@ export default function Calendar() {
       <Header 
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
+        daysWithoutReaction={daysWithoutReaction}
         data-testid="calendar-header"
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-4">
         {/* Calendar Card */}
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <Button
                 variant="ghost"
                 size="icon"
@@ -204,7 +248,7 @@ export default function Calendar() {
                 <ChevronLeft className="w-5 h-5" />
               </Button>
               
-              <h3 className="text-xl font-semibold text-foreground" data-testid="text-current-month">
+              <h3 className="text-base font-semibold text-foreground" data-testid="text-current-month">
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h3>
               
@@ -226,11 +270,11 @@ export default function Calendar() {
               data-testid="calendar-grid-container"
             >
               {/* Day of week headers */}
-              <div className="grid grid-cols-7 gap-2 mb-2">
+              <div className="grid grid-cols-7 gap-2 mb-1">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                   <div
                     key={day}
-                    className="text-center text-sm font-semibold text-muted-foreground py-2"
+                    className="text-center text-xs font-semibold text-muted-foreground py-1"
                     data-testid={`header-${day}`}
                   >
                     {day}
@@ -239,7 +283,7 @@ export default function Calendar() {
               </div>
 
               {/* Calendar days */}
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1.5">
                 {calendarDays.map((day, index) => {
                   const isSteroidDay = hasSteroidCream(day.date);
                   const isReactionDay = hasReaction(day.date);
@@ -269,7 +313,7 @@ export default function Calendar() {
                         `}
                       >
                         {isSteroidDay && (
-                          <span className="text-2xl" data-testid={`steroid-emoji-${day.date}`}>
+                          <span className="text-xl" data-testid={`steroid-emoji-${day.date}`}>
                             🧴
                           </span>
                         )}

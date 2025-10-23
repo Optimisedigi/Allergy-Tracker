@@ -392,21 +392,21 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-add-food">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">
             Add Food Trial
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6" data-testid="form-add-food">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="form-add-food">
           {/* Food Selection */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-2">
+            <Label className="block text-xs font-medium text-foreground mb-2">
               Select Food {selectedFood && <span className="text-primary">✓ {selectedFood.name} selected</span>}
             </Label>
             
             {!showCustomInput && (
-              <div className="search-input mb-3">
+              <div className="search-input mb-2">
                 <Search className="search-icon w-4 h-4" />
                 <Input
                   type="text"
@@ -457,7 +457,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
               </div>
             ) : (
               <>
-                <div className="max-h-[350px] overflow-y-auto space-y-4 mb-3">
+                <div className="max-h-[300px] overflow-y-auto space-y-3 mb-2">
                   {filteredFoods.length > 0 ? (
                     categoryOrder.map(category => {
                       const foods = foodsByCategory[category];
@@ -465,23 +465,23 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                       
                       return (
                         <div key={category}>
-                          <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+                          <h3 className="text-xs font-semibold text-muted-foreground mb-1.5">
                             {categoryLabels[category]}
                           </h3>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-1.5">
                             {foods.map((food) => (
                               <div key={food.id} className="relative">
                                 <button
                                   type="button"
                                   onClick={() => handleFoodSelect(food)}
-                                  className={`w-full p-3 border rounded-lg transition-all text-center ${
+                                  className={`w-full p-2 border rounded-lg transition-all text-center ${
                                     selectedFood?.id === food.id
                                       ? "bg-primary/10 border-primary"
                                       : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
                                   }`}
                                   data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
                                 >
-                                  <span className="text-2xl block mb-1">{food.emoji || "🍼"}</span>
+                                  <span className="text-xl block mb-0.5">{food.emoji || "🍼"}</span>
                                   <span className="text-xs font-medium">{food.name}</span>
                                 </button>
                                 {food.category === 'other' && !food.isCommon && (
@@ -527,9 +527,9 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
           </div>
 
           {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="trialDate" className="block text-sm font-medium text-foreground mb-2">
+              <Label htmlFor="trialDate" className="block text-xs font-medium text-foreground mb-1.5">
                 Date
               </Label>
               <Input
@@ -542,7 +542,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
               />
             </div>
             <div>
-              <Label htmlFor="trialTime" className="block text-sm font-medium text-foreground mb-2">
+              <Label htmlFor="trialTime" className="block text-xs font-medium text-foreground mb-1.5">
                 Time
               </Label>
               <Input
@@ -558,7 +558,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
 
           {/* Observation Period */}
           <div>
-            <Label className="block text-sm font-medium text-foreground mb-2">
+            <Label className="block text-xs font-medium text-foreground mb-1.5">
               Observation Period
             </Label>
             <Select value={observationPeriod} onValueChange={setObservationPeriod}>
@@ -577,16 +577,16 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
 
           {/* Notes */}
           <div>
-            <Label htmlFor="notes" className="block text-sm font-medium text-foreground mb-2">
+            <Label htmlFor="notes" className="block text-xs font-medium text-foreground mb-1.5">
               Notes (optional)
             </Label>
             <Textarea
               id="notes"
-              rows={3}
+              rows={2}
               placeholder="Add any observations or notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="resize-none"
+              className="resize-none text-sm"
               data-testid="textarea-notes"
             />
           </div>

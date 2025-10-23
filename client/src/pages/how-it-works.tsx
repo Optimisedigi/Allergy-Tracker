@@ -89,7 +89,7 @@ export default function HowItWorks() {
         {/* Introduction */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">What This Allergy Tracker Does</CardTitle>
+            <CardTitle className="text-lg">What This Allergy Tracker Does</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p>
@@ -105,7 +105,7 @@ export default function HowItWorks() {
         {/* The Brick System */}
         <Card className="mb-6">
           <CardHeader>
-            <h3 className="text-xl font-semibold text-foreground mb-2">How it works</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">How it works</h3>
             <CardTitle className="text-sm">The Brick System</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -153,7 +153,7 @@ export default function HowItWorks() {
         {/* Food Status Levels */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">Food Status Levels</CardTitle>
+            <CardTitle className="text-lg">Food Status Levels</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -219,7 +219,7 @@ export default function HowItWorks() {
         {/* How to Use */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">How to Use</CardTitle>
+            <CardTitle className="text-lg">How to Use</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-3 text-sm list-decimal list-inside">
@@ -246,7 +246,7 @@ export default function HowItWorks() {
         {/* Tips for Parents */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">Tips for Parents</CardTitle>
+            <CardTitle className="text-lg">Tips for Parents</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm list-disc list-inside">

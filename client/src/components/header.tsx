@@ -20,7 +20,7 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
               data-testid="logo-image"
             />
             <div>
-              <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-name">
+              <h1 className="text-base font-semibold text-foreground" data-testid="text-app-name">
                 {title || "Allergy Tracker for Bubs"}
               </h1>
               <p className="text-sm text-muted-foreground" data-testid="text-baby-name">
