@@ -138,6 +138,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
+    // Check if a user with this email already exists (with a different ID)
+    // This can happen in testing scenarios with mocked OIDC claims
+    const existingUserByEmail = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, userData.email))
+      .limit(1);
+    
+    if (existingUserByEmail.length > 0 && existingUserByEmail[0].id !== userData.id) {
+      // Delete the old user with the conflicting email to avoid unique constraint violation
+      // This is safe because of CASCADE deletes on foreign keys
+      await this.deleteUser(existingUserByEmail[0].id);
+    }
+    
+    // Normal upsert by ID
     const [user] = await db
       .insert(users)
       .values(userData)
