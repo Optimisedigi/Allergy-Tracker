@@ -50,11 +50,22 @@ export function ObjectUploader({
       })
   );
 
+  const handleOpenModal = () => {
+    // Scroll the dialog content to top for better UX
+    // Find the closest dialog content container and scroll it to top
+    const dialogContent = document.querySelector('[role="dialog"]');
+    if (dialogContent) {
+      dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    setShowModal(true);
+  };
+
   return (
     <div>
       <Button 
         type="button"
-        onClick={() => setShowModal(true)} 
+        onClick={handleOpenModal} 
         className={buttonClassName}
       >
         {children}
