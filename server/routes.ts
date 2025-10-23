@@ -223,35 +223,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
           <head>
             <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-              .container { background: #f9f9f9; border-radius: 10px; padding: 30px; }
-              h1 { color: #5C9EAD; margin-bottom: 20px; }
-              .message { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-              .button { display: inline-block; background: #5C9EAD; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+              .container { background: #fff9eb; border-radius: 10px; padding: 30px; }
+              h1 { color: #2c3e50; margin-bottom: 10px; font-size: 24px; }
+              .subtitle { color: #666; font-size: 16px; margin-bottom: 20px; }
+              .message { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+              .button { display: inline-block; background: #4CAF50; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+              .button:hover { background: #45a049; }
+              .highlight { background: #fff3cd; padding: 12px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107; }
               .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 12px; }
             </style>
           </head>
           <body>
             <div class="container">
-              <h1>You're invited to AllergyTrack!</h1>
+              <h1>🍼 Your Partner Wants You to Join AllergyTrack!</h1>
+              <p class="subtitle">Track Your Baby's Food Allergies Together</p>
               
               <div class="message">
                 <p>Hi there,</p>
                 
-                <p><strong>${inviterName}</strong> has invited you to help track food allergies for <strong>${baby?.name || 'their baby'}</strong> using AllergyTrack for Bubs.</p>
+                <p><strong>${inviterName}</strong> has invited you to help track food allergies and reactions for <strong>${baby?.name || 'your baby'}</strong>.</p>
                 
-                <p>AllergyTrack helps parents collaboratively track food trials, monitor reactions, and build confidence in safe foods through a simple visual system.</p>
+                <p><strong>Why this matters:</strong> Many babies have sensitivities to certain foods that cause rashes, eczema, or tummy troubles. AllergyTrack helps you both keep a clear record of:</p>
                 
-                <p>To get started, simply create your account by clicking the button below:</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                  <li>Which foods your baby has tried</li>
+                  <li>Any reactions or symptoms that occurred</li>
+                  <li>Which foods are safe and which to avoid</li>
+                  <li>Progress over time with a visual brick system</li>
+                </ul>
                 
-                <a href="https://${appUrl}/api/login" class="button">Create Account & Accept Invitation</a>
+                <div class="highlight">
+                  <strong>💚 Work together as a team</strong><br>
+                  Both of you will be able to log food trials, track reactions, and see your baby's complete food history in one place.
+                </div>
                 
-                <p>Once you sign up with this email address (<strong>${email.toLowerCase()}</strong>), you'll automatically get access to ${baby?.name || 'the baby'}'s food tracking data.</p>
+                <p><strong>Get started now:</strong></p>
                 
-                <p>This invitation expires in 7 days.</p>
+                <a href="https://${appUrl}/api/login" class="button">Sign Up & Start Tracking</a>
+                
+                <p style="font-size: 14px; color: #666;">Once you sign up with this email address (<strong>${email.toLowerCase()}</strong>), you'll automatically get access to ${baby?.name || 'the baby'}'s food tracking data.</p>
+                
+                <p style="font-size: 13px; color: #999;">This invitation expires in 7 days.</p>
               </div>
               
               <div class="footer">
                 <p>This invitation was sent to ${email.toLowerCase()}. If you didn't expect this invitation, you can safely ignore this email.</p>
+                <p style="margin-top: 10px;">AllergyTrack for Bubs - Helping parents track food allergies with confidence.</p>
               </div>
             </div>
           </body>

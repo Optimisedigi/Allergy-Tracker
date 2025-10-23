@@ -82,6 +82,7 @@ function updateUserSession(
 
 async function upsertUser(
   claims: any,
+  inviteBabyId?: string,
 ) {
   const userId = claims["sub"];
   const userEmail = claims["email"]?.toLowerCase();
@@ -111,6 +112,22 @@ async function upsertUser(
       console.error('Failed to check for pending invitations:', error);
     }
   }
+
+  // Handle invite link - add user to baby
+  if (inviteBabyId) {
+    try {
+      // Check if user already has access to this baby
+      const babies = await storage.getBabiesByUser(userId);
+      const hasAccess = babies.some(b => b.id === inviteBabyId);
+      
+      if (!hasAccess) {
+        await storage.addUserToBaby(userId, inviteBabyId, 'parent');
+        console.log(`Added user ${userId} to baby ${inviteBabyId} via invite link`);
+      }
+    } catch (error) {
+      console.error(`Failed to add user to baby via invite link:`, error);
+    }
+  }
 }
 
 export async function setupAuth(app: Express) {
@@ -123,11 +140,21 @@ export async function setupAuth(app: Express) {
 
   const verify: VerifyFunction = async (
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
+    verified: passport.AuthenticateCallback,
+    req?: any
   ) => {
     const user = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    
+    // Get invite baby ID from session if present
+    const inviteBabyId = req?.session?.inviteBabyId;
+    await upsertUser(tokens.claims(), inviteBabyId);
+    
+    // Clear invite from session after use
+    if (inviteBabyId && req?.session) {
+      delete req.session.inviteBabyId;
+    }
+    
     verified(null, user);
   };
 
@@ -149,6 +176,11 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    // Store invite baby ID in session if present
+    if (req.query.invite) {
+      (req.session as any).inviteBabyId = req.query.invite;
+    }
+    
     const host = resolveAuthHost(req);
     passport.authenticate(`replitauth:${host}`, {
       prompt: "login consent",

@@ -104,8 +104,7 @@ export default function HowItWorks() {
         {/* The Brick System */}
         <Card className="mb-6">
           <CardHeader>
-            <h3 className="text-lg font-semibold text-foreground mb-2">How it works</h3>
-            <CardTitle className="text-sm">The Brick System</CardTitle>
+            <CardTitle className="text-lg">How it works - the brick system</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">

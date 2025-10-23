@@ -4,6 +4,17 @@ import { Heart, TrendingUp } from "lucide-react";
 import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
 
 export default function Landing() {
+  // Check for invite parameter in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const inviteBabyId = urlParams.get('invite');
+  
+  const handleLogin = () => {
+    const loginUrl = inviteBabyId 
+      ? `/api/login?invite=${inviteBabyId}`
+      : '/api/login';
+    window.location.href = loginUrl;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -65,7 +76,7 @@ export default function Landing() {
             <Button 
               size="lg" 
               className="px-8 py-4 text-sm"
-              onClick={() => window.location.href = "/api/login"}
+              onClick={handleLogin}
               data-testid="button-cta-login"
             >
               Start Tracking Now

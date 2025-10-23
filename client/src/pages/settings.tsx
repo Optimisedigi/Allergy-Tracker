@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronRight, Check, ChevronsUpDown, Download, UserPlus, X, Mail, Clock } from "lucide-react";
+import { ChevronRight, Check, ChevronsUpDown, Download, UserPlus, X, Mail, Clock, Copy, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 
@@ -60,6 +60,7 @@ export default function Settings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [removeCaregiverId, setRemoveCaregiverId] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string>("");
   const [settings, setSettings] = useState<UserSettings>({
     defaultObservationPeriod: 3,
     emailNotifications: true,
@@ -333,6 +334,34 @@ export default function Settings() {
     }
     
     inviteCaregiverMutation.mutate(inviteEmail.trim().toLowerCase());
+  };
+
+  const handleCopyInviteLink = () => {
+    if (!selectedBaby) {
+      toast({
+        title: "Error",
+        description: "Please select a baby first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const appUrl = window.location.origin;
+    const link = `${appUrl}/?invite=${selectedBaby}`;
+    
+    navigator.clipboard.writeText(link).then(() => {
+      setInviteLink(link);
+      toast({
+        title: "Link Copied!",
+        description: "Share this link with your partner to invite them",
+      });
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive",
+      });
+    });
   };
 
   const handleRemoveCaregiver = (caregiverId: string) => {
@@ -736,6 +765,7 @@ export default function Settings() {
                       handleInviteCaregiver();
                     }
                   }}
+                  className="placeholder:text-[0.65rem]"
                   data-testid="input-invite-email"
                 />
                 <Button 
@@ -747,6 +777,27 @@ export default function Settings() {
                   {inviteCaregiverMutation.isPending ? "Sending..." : "Invite"}
                 </Button>
               </div>
+            </div>
+
+            {/* Share Invite Link */}
+            <div className="mb-4">
+              <Label className="block text-xs font-medium text-foreground mb-1.5">
+                Or Share Partner Link
+              </Label>
+              <Button 
+                onClick={handleCopyInviteLink}
+                variant="outline"
+                className="w-full text-xs"
+                data-testid="button-copy-invite-link"
+              >
+                <Link2 className="w-3.5 h-3.5 mr-2" />
+                Copy Invite Link
+              </Button>
+              {inviteLink && (
+                <p className="text-[0.65rem] text-success mt-1.5">
+                  ✓ Link copied! Share it with your partner to grant them access.
+                </p>
+              )}
             </div>
 
             {/* Current Users */}
