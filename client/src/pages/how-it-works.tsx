@@ -105,8 +105,8 @@ export default function HowItWorks() {
         {/* The Brick System */}
         <Card className="mb-6">
           <CardHeader>
-            <h3 className="text-base font-semibold text-foreground mb-2">How it works</h3>
-            <CardTitle className="text-lg">The Brick System</CardTitle>
+            <h3 className="text-xl font-semibold text-foreground mb-2">How it works</h3>
+            <CardTitle className="text-sm">The Brick System</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
@@ -283,7 +283,7 @@ export default function HowItWorks() {
             <Plus className="w-6 h-6" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+        <DropdownMenuContent side="top" align="end" className="w-56 mb-2 shadow-lg border-2" data-testid="menu-add-options">
           <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
             <Plus className="w-4 h-4 mr-2" />
             Add Food Trial

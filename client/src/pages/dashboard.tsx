@@ -409,7 +409,7 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Stats Overview */}
-        <section className="grid grid-cols-3 gap-3 mb-6">
+        <section className="grid grid-cols-3 gap-3 mb-4">
           <Card data-testid="card-stats-foods">
             <CardContent className="p-3">
               <div className="flex items-center justify-between mb-1">
@@ -449,11 +449,11 @@ export default function Dashboard() {
 
         {/* Steroid Cream Alert */}
         {activeCream && (
-          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-6 flex items-start gap-3" data-testid="alert-steroid-cream">
+          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 flex items-start gap-3" data-testid="alert-steroid-cream">
             <Droplet className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+              <p className="text-xs text-amber-800 dark:text-amber-200">
                 {activeCream.durationDays}-day treatment in progress.
               </p>
             </div>
@@ -471,13 +471,13 @@ export default function Dashboard() {
 
         {/* Active Trials Alert */}
         {dashboardData?.activeTrials && dashboardData.activeTrials.length > 0 && (
-          <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 mb-6 flex items-start gap-3" data-testid="alert-active-trials">
+          <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 mb-4 flex items-start gap-3" data-testid="alert-active-trials">
             <Clock className="text-accent text-lg mt-0.5" />
             <div className="flex-1">
               <h3 className="font-semibold text-accent-foreground mb-1">Active Observation</h3>
               {dashboardData.activeTrials.map((trial) => (
                 <div key={trial.id} className="mb-2 last:mb-0">
-                  <p className="text-sm text-accent-foreground/80 mb-2">
+                  <p className="text-xs text-accent-foreground/80 mb-2">
                     {trial.food.emoji} {trial.food.name} trial ends {formatAustralianDate(new Date(trial.observationEndsAt), "relative")}
                   </p>
                   <div className="flex gap-2">
@@ -607,7 +607,7 @@ export default function Dashboard() {
 
         {/* Recent Activity */}
         <section className="mb-6">
-          <h3 className="text-xl font-semibold text-foreground mb-4">Recent Activity</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-3">Recent Activity</h3>
           <Card>
             <CardContent className="p-0">
               {dashboardData?.recentActivity.length === 0 ? (
@@ -619,25 +619,25 @@ export default function Dashboard() {
                   {dashboardData?.recentActivity.map((activity) => (
                     <div 
                       key={activity.id} 
-                      className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                      className="p-3 hover:bg-muted/50 transition-colors cursor-pointer"
                       data-testid={`activity-${activity.id}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                           activity.type === "success" ? "bg-success/10" :
                           activity.type === "error" ? "bg-destructive/10" : "bg-accent/10"
                         }`}>
                           {activity.type === "success" ? (
-                            <Check className={`h-5 w-5 text-success`} />
+                            <Check className={`h-4 w-4 text-success`} />
                           ) : activity.type === "error" ? (
-                            <AlertTriangle className={`h-5 w-5 text-destructive`} />
+                            <AlertTriangle className={`h-4 w-4 text-destructive`} />
                           ) : (
-                            <Clock className={`h-5 w-5 text-accent`} />
+                            <Clock className={`h-4 w-4 text-accent`} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground">{activity.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs font-medium text-foreground">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             {formatAustralianDate(new Date(activity.timestamp))}
                           </p>
                         </div>
@@ -688,7 +688,7 @@ export default function Dashboard() {
               <Plus className="w-6 h-6" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+          <DropdownMenuContent side="top" align="end" className="w-56 mb-2 shadow-lg border-2" data-testid="menu-add-options">
             <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
               <Plus className="w-4 h-4 mr-2" />
               Add Food Trial

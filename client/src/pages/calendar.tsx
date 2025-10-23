@@ -194,7 +194,7 @@ export default function Calendar() {
         <Card>
           <CardContent className="p-4">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-3">
               <Button
                 variant="ghost"
                 size="icon"

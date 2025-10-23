@@ -430,7 +430,7 @@ export default function Reports() {
             <Plus className="w-6 h-6" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 mb-2" data-testid="menu-add-options">
+        <DropdownMenuContent side="top" align="end" className="w-56 mb-2 shadow-lg border-2" data-testid="menu-add-options">
           <DropdownMenuItem onClick={() => setIsAddFoodOpen(true)} data-testid="menu-item-add-food">
             <Plus className="w-4 h-4 mr-2" />
             Add Food Trial
