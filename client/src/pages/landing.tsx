@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, TrendingUp } from "lucide-react";
-import logoImage from "@assets/allergy-track-bubs-logo-transparent_1759840057297.png";
+import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
 
 export default function Landing() {
   return (

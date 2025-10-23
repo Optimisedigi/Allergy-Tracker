@@ -1,4 +1,4 @@
-import logoImage from "@assets/allergy-track-bubs-logo-transparent_1759840057297.png";
+import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
 
 interface HeaderProps {
   babyName: string;
@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export default function Header({ babyName, user, title, daysWithoutReaction }: HeaderProps) {
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-40" data-testid="header-container">
+    <header style={{ backgroundColor: '#fff9eb' }} className="border-b border-border sticky top-0 z-40" data-testid="header-container">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
