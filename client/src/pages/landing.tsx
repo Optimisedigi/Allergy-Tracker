@@ -42,8 +42,8 @@ export default function Landing() {
           </p>
 
           {/* Brick System Section */}
-          <div className="mb-5 rounded-lg bg-muted/30 px-4 py-4 text-center mt-8">
-            <h2 className="mb-3 text-sm font-semibold text-foreground mt-6">
+          <div className="mb-5 rounded-lg bg-muted/30 px-4 py-4 text-center mt-4">
+            <h2 className="mb-3 text-sm font-semibold text-foreground mt-2">
               The Brick System
             </h2>
             
@@ -69,8 +69,8 @@ export default function Landing() {
           </div>
 
           {/* Final CTA Section */}
-          <div className="text-center mt-12">
-            <h2 className="mb-3 text-sm font-semibold text-foreground mt-8">
+          <div className="text-center mt-6">
+            <h2 className="mb-3 text-sm font-semibold text-foreground mt-2">
               Ready to feel confident again?
             </h2>
             <Button 
