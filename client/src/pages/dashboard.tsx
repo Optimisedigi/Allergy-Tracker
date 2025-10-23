@@ -449,15 +449,12 @@ export default function Dashboard() {
 
         {/* Steroid Cream Alert */}
         {activeCream && (
-          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 flex items-start gap-3" data-testid="alert-steroid-cream">
+          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-6 flex items-start gap-3" data-testid="alert-steroid-cream">
             <Droplet className="text-amber-600 dark:text-amber-400 text-lg mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Steroid Cream Active</h3>
-              <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
                 {activeCream.durationDays}-day treatment in progress.
-              </p>
-              <p className="text-xs text-amber-700 dark:text-amber-300">
-                ⚠️ For best results, wait 1 week post-treatment before adding new foods.
               </p>
             </div>
             <Button
@@ -486,6 +483,7 @@ export default function Dashboard() {
                   <div className="flex gap-2">
                     <Button
                       size="sm"
+                      className="h-8"
                       onClick={() => completeTrialMutation.mutate(trial.id)}
                       disabled={completeTrialMutation.isPending}
                       data-testid={`button-complete-${trial.id}`}
@@ -496,6 +494,7 @@ export default function Dashboard() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      className="h-8"
                       onClick={() => setReactionModalData({
                         isOpen: true,
                         trialId: trial.id,
