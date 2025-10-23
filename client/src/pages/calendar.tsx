@@ -327,7 +327,7 @@ export default function Calendar() {
             {/* Legend */}
             <div className="mt-3">
               <h4 className="text-xs font-semibold text-foreground mb-2">Legend</h4>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded border border-border bg-[#fef3c7] dark:bg-amber-900/30 flex items-center justify-center text-sm">
                     🧴

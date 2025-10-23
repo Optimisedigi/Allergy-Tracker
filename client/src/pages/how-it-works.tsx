@@ -88,16 +88,12 @@ export default function HowItWorks() {
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Introduction */}
         <Card className="mb-6">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">What This Allergy Tracker Does</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+          <CardContent className="text-sm">
             <p>
-              Allergy Tracker for Bubs helps you safely introduce foods and record any reactions.
-            </p>
-            <p>
-              Each time your baby completes a trial with no reaction, they earn a green brick. 
-              Bricks build a visual record of what's safe and what needs caution.
+              Allergy Tracker for Bubs takes the guesswork out of food introductions, helping you spot what's really behind your baby's reactions. Each time your baby completes a trial without a reaction, they earn a green brick — building a clear visual record of what's safe and what needs caution.
             </p>
           </CardContent>
         </Card>
