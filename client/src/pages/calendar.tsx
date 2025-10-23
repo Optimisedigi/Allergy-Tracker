@@ -118,16 +118,15 @@ export default function Calendar() {
     const daysInMonth = lastDayOfMonth.getDate();
     const startingDayOfWeek = firstDayOfMonth.getDay();
 
-    const days: Array<{ date: number | null; isCurrentMonth: boolean }> = [];
-
-    // Add empty cells for days before the month starts
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push({ date: null, isCurrentMonth: false });
-    }
+    const days: Array<{ date: number; isCurrentMonth: boolean; gridColumn?: number }> = [];
 
     // Add all days in the month
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push({ date: day, isCurrentMonth: true });
+      days.push({ 
+        date: day, 
+        isCurrentMonth: true,
+        gridColumn: day === 1 ? startingDayOfWeek + 1 : undefined
+      });
     }
 
     return days;
@@ -191,12 +190,6 @@ export default function Calendar() {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold text-foreground" data-testid="text-calendar-title">
-            Calendar
-          </h2>
-        </div>
-
         {/* Calendar Card */}
         <Card>
           <CardContent className="p-4">
@@ -248,10 +241,9 @@ export default function Calendar() {
               {/* Calendar days */}
               <div className="grid grid-cols-7 gap-2">
                 {calendarDays.map((day, index) => {
-                  const isSteroidDay = day.date && hasSteroidCream(day.date);
-                  const isReactionDay = day.date && hasReaction(day.date);
-                  const isToday = day.date && 
-                    day.date === new Date().getDate() &&
+                  const isSteroidDay = hasSteroidCream(day.date);
+                  const isReactionDay = hasReaction(day.date);
+                  const isToday = day.date === new Date().getDate() &&
                     currentDate.getMonth() === new Date().getMonth() &&
                     currentDate.getFullYear() === new Date().getFullYear();
 
@@ -259,26 +251,24 @@ export default function Calendar() {
                     <div
                       key={index}
                       className="flex flex-col"
-                      data-testid={day.date ? `day-${day.date}` : `empty-${index}`}
+                      style={day.gridColumn ? { gridColumnStart: day.gridColumn } : undefined}
+                      data-testid={`day-${day.date}`}
                     >
-                      {day.date && (
-                        <span className={`
-                          text-xs font-medium text-center mb-0.5
-                          ${isToday ? "text-primary font-bold" : "text-foreground"}
-                        `}>
-                          {day.date}
-                        </span>
-                      )}
+                      <span className={`
+                        text-xs font-medium text-center mb-0.5
+                        ${isToday ? "text-primary font-bold" : "text-foreground"}
+                      `}>
+                        {day.date}
+                      </span>
                       <div
                         className={`
-                          aspect-square rounded-lg border flex items-center justify-center
-                          ${!day.isCurrentMonth ? "bg-muted/20 border-border" : "bg-card border-border"}
+                          aspect-square rounded-lg border flex items-center justify-center bg-card border-border
                           ${isToday ? "border-primary border-[3px]" : ""}
                           ${isSteroidDay && !isReactionDay ? "bg-[#fef3c7] dark:bg-amber-900/30" : ""}
                           ${isReactionDay ? "bg-red-500 dark:bg-red-600" : ""}
                         `}
                       >
-                        {isSteroidDay && day.date && (
+                        {isSteroidDay && (
                           <span className="text-2xl" data-testid={`steroid-emoji-${day.date}`}>
                             🧴
                           </span>
