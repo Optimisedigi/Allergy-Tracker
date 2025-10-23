@@ -393,7 +393,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-add-food">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg">
+          <DialogTitle className="text-base">
             Add Food Trial
           </DialogTitle>
         </DialogHeader>
@@ -414,7 +414,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  className="pl-10"
+                  className="pl-10 text-sm"
                   data-testid="input-food-search"
                 />
               </div>
@@ -474,14 +474,14 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                                 <button
                                   type="button"
                                   onClick={() => handleFoodSelect(food)}
-                                  className={`w-full p-2 border rounded-lg transition-all text-center ${
+                                  className={`w-full p-1.5 border rounded-lg transition-all text-center ${
                                     selectedFood?.id === food.id
                                       ? "bg-primary/10 border-primary"
                                       : "bg-muted hover:bg-primary/5 border-border hover:border-primary"
                                   }`}
                                   data-testid={`button-food-${food.name.toLowerCase().replace(/\s+/g, '-')}`}
                                 >
-                                  <span className="text-xl block mb-0.5">{food.emoji || "🍼"}</span>
+                                  <span className="text-lg block mb-0.5">{food.emoji || "🍼"}</span>
                                   <span className="text-xs font-medium">{food.name}</span>
                                 </button>
                                 {food.category === 'other' && !food.isCommon && (
@@ -538,6 +538,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                 value={trialDate}
                 onChange={(e) => setTrialDate(e.target.value)}
                 required
+                className="text-sm"
                 data-testid="input-trial-date"
               />
             </div>
@@ -551,6 +552,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
                 value={trialTime}
                 onChange={(e) => setTrialTime(e.target.value)}
                 required
+                className="text-sm"
                 data-testid="input-trial-time"
               />
             </div>
@@ -562,15 +564,15 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
               Observation Period
             </Label>
             <Select value={observationPeriod} onValueChange={setObservationPeriod}>
-              <SelectTrigger data-testid="select-observation-period">
+              <SelectTrigger data-testid="select-observation-period" className="text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 day</SelectItem>
-                <SelectItem value="2">2 days</SelectItem>
-                <SelectItem value="3">3 days (default)</SelectItem>
-                <SelectItem value="5">5 days</SelectItem>
-                <SelectItem value="7">7 days</SelectItem>
+                <SelectItem value="1" className="text-sm">1 day</SelectItem>
+                <SelectItem value="2" className="text-sm">2 days</SelectItem>
+                <SelectItem value="3" className="text-sm">3 days (default)</SelectItem>
+                <SelectItem value="5" className="text-sm">5 days</SelectItem>
+                <SelectItem value="7" className="text-sm">7 days</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -597,7 +599,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
               type="button" 
               variant="secondary" 
               onClick={handleClose} 
-              className="flex-1"
+              className="flex-1 text-sm"
               disabled={isLoading}
               data-testid="button-cancel"
             >
@@ -605,7 +607,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
             </Button>
             <Button 
               type="submit" 
-              className="flex-1"
+              className="flex-1 text-sm"
               disabled={isLoading || !selectedFood}
               data-testid="button-start-trial"
             >

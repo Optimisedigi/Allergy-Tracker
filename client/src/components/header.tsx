@@ -19,8 +19,8 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
               className="w-10 h-10 object-contain"
               data-testid="logo-image"
             />
-            <div>
-              <h1 className="text-base font-semibold text-foreground" data-testid="text-app-name">
+            <div className="flex flex-col justify-start">
+              <h1 className="text-base font-semibold text-foreground leading-tight" data-testid="text-app-name">
                 {title || "Allergy Tracker for Bubs"}
               </h1>
               <p className="text-sm text-muted-foreground" data-testid="text-baby-name">
@@ -29,8 +29,8 @@ export default function Header({ babyName, user, title, daysWithoutReaction }: H
             </div>
           </div>
           {daysWithoutReaction !== undefined && (
-            <div className="text-right" data-testid="days-without-reaction">
-              <p className="text-xs text-muted-foreground">Days without<br />reaction:</p>
+            <div className="text-right flex flex-col justify-start" data-testid="days-without-reaction">
+              <p className="text-xs text-muted-foreground leading-tight">Days without<br />reaction:</p>
               <p className="text-lg font-bold text-foreground">{daysWithoutReaction}</p>
             </div>
           )}

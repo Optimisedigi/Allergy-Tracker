@@ -325,22 +325,22 @@ export default function Calendar() {
             </div>
 
             {/* Legend */}
-            <div className="mt-6 pt-6 border-t border-border">
-              <h4 className="text-sm font-semibold text-foreground mb-3">Legend</h4>
+            <div className="mt-3">
+              <h4 className="text-xs font-semibold text-foreground mb-2">Legend</h4>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded border border-border bg-[#fef3c7] dark:bg-amber-900/30 flex items-center justify-center text-sm">
                     🧴
                   </div>
-                  <span className="text-sm text-muted-foreground">Steroid Cream Treatment</span>
+                  <span className="text-xs text-muted-foreground">Steroid Cream Treatment</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded border border-border bg-red-500 dark:bg-red-600"></div>
-                  <span className="text-sm text-muted-foreground">Reaction Logged</span>
+                  <span className="text-xs text-muted-foreground">Reaction Logged</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded border-[3px] border-primary bg-card"></div>
-                  <span className="text-sm text-muted-foreground">Today</span>
+                  <span className="text-xs text-muted-foreground">Today</span>
                 </div>
               </div>
             </div>

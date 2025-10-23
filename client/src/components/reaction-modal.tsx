@@ -267,7 +267,7 @@ export default function ReactionModal({
         </DialogHeader>
 
         {/* Food Name Display */}
-        <div className="p-1.5 bg-muted/50 rounded-lg mb-2" data-testid="reaction-food-info">
+        <div className="p-1 bg-muted/50 rounded-lg mb-1" data-testid="reaction-food-info">
           <div className="flex items-center justify-center gap-2">
             <span className="text-3xl">{foodEmoji || "🍼"}</span>
             <div>
