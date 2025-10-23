@@ -267,7 +267,7 @@ export default function ReactionModal({
         </DialogHeader>
 
         {/* Food Name Display */}
-        <div className="p-1 bg-muted/50 rounded-lg mb-1" data-testid="reaction-food-info">
+        <div className="py-0.5 px-1 bg-muted/50 rounded-lg mb-0.5" data-testid="reaction-food-info">
           <div className="flex items-center justify-center gap-2">
             <span className="text-3xl">{foodEmoji || "🍼"}</span>
             <div>
@@ -419,16 +419,16 @@ export default function ReactionModal({
 
           {/* Photo Upload */}
           <div>
-            <Label className="block text-xs font-medium text-foreground mb-1">
-              Attach Photo (optional)
-            </Label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-xs font-medium text-foreground">
+                Attach Photo (optional)
+              </Label>
               <ObjectUploader
                 maxNumberOfFiles={1}
                 maxFileSize={10485760}
                 onGetUploadParameters={handleGetUploadParameters}
                 onComplete={handlePhotoUploadComplete}
-                buttonClassName="w-full"
+                buttonClassName="h-8"
               >
                 <div className="flex items-center gap-2 text-xs">
                   <Camera className="w-3 h-3" />
@@ -441,7 +441,7 @@ export default function ReactionModal({
                   variant="ghost"
                   size="sm"
                   onClick={() => setPhotoUrl("")}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive h-8"
                   data-testid="button-remove-photo"
                 >
                   <X className="w-4 h-4" />
