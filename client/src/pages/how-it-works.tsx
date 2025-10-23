@@ -86,10 +86,6 @@ export default function HowItWorks() {
       />
 
       <main className="max-w-4xl mx-auto px-4 py-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-6" data-testid="text-how-it-works-title">
-          How it works
-        </h2>
-
         {/* Introduction */}
         <Card className="mb-6">
           <CardHeader>
@@ -109,7 +105,8 @@ export default function HowItWorks() {
         {/* The Brick System */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-xl">The Brick System</CardTitle>
+            <h3 className="text-base font-semibold text-foreground mb-2">How it works</h3>
+            <CardTitle className="text-lg">The Brick System</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
