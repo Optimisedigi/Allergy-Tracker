@@ -508,18 +508,18 @@ export default function Settings() {
         data-testid="settings-header"
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-6" data-testid="text-settings-title">
+      <main className="max-w-7xl mx-auto px-4 py-4">
+        <h2 className="text-xl font-semibold text-foreground mb-4" data-testid="text-settings-title">
           Settings
         </h2>
 
         {/* Baby Profile */}
-        <Card className="mb-4" data-testid="card-baby-profile">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Baby Profile</h3>
-            <div className="space-y-4">
+        <Card className="mb-3" data-testid="card-baby-profile">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Baby Profile</h3>
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="babyName" className="block text-sm font-medium text-foreground mb-2">
+                <Label htmlFor="babyName" className="block text-xs font-medium text-foreground mb-1.5">
                   Baby's Name
                 </Label>
                 <div className="flex gap-2">
@@ -541,7 +541,7 @@ export default function Settings() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="birthDate" className="block text-sm font-medium text-foreground mb-2">
+                <Label htmlFor="birthDate" className="block text-xs font-medium text-foreground mb-1.5">
                   Date of Birth
                 </Label>
                 <Input
@@ -558,9 +558,9 @@ export default function Settings() {
         </Card>
 
         {/* Default Settings */}
-        <Card className="mb-4" data-testid="card-default-settings">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Default Observation Period</h3>
+        <Card className="mb-3" data-testid="card-default-settings">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Default Observation Period</h3>
             <Select
               value={settings.defaultObservationPeriod.toString()}
               onValueChange={(value) => handleSettingChange('defaultObservationPeriod', parseInt(value))}
@@ -580,9 +580,9 @@ export default function Settings() {
         </Card>
 
         {/* Timezone */}
-        <Card className="mb-4" data-testid="card-timezone">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Timezone</h3>
+        <Card className="mb-3" data-testid="card-timezone">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Timezone</h3>
             <Popover open={timezoneOpen} onOpenChange={setTimezoneOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -632,28 +632,28 @@ export default function Settings() {
         </Card>
 
         {/* Notifications */}
-        <Card className="mb-4" data-testid="card-notifications">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Notifications</h3>
-            <div className="space-y-3">
-              <label className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer">
-                <span className="text-sm font-medium text-foreground">In-app notifications</span>
+        <Card className="mb-3" data-testid="card-notifications">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Notifications</h3>
+            <div className="space-y-2">
+              <label className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg cursor-pointer">
+                <span className="text-xs font-medium text-foreground">In-app notifications</span>
                 <Checkbox
                   checked={settings.inAppNotifications}
                   onCheckedChange={(checked) => handleSettingChange('inAppNotifications', checked)}
                   data-testid="checkbox-in-app-notifications"
                 />
               </label>
-              <label className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer">
-                <span className="text-sm font-medium text-foreground">Email reminders</span>
+              <label className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg cursor-pointer">
+                <span className="text-xs font-medium text-foreground">Email reminders</span>
                 <Checkbox
                   checked={settings.emailNotifications}
                   onCheckedChange={(checked) => handleSettingChange('emailNotifications', checked)}
                   data-testid="checkbox-email-notifications"
                 />
               </label>
-              <label className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer">
-                <span className="text-sm font-medium text-foreground">Push notifications</span>
+              <label className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg cursor-pointer">
+                <span className="text-xs font-medium text-foreground">Push notifications</span>
                 <Checkbox
                   checked={settings.pushNotifications}
                   onCheckedChange={(checked) => handleSettingChange('pushNotifications', checked)}
@@ -665,63 +665,63 @@ export default function Settings() {
         </Card>
 
         {/* Privacy */}
-        <Card className="mb-4" data-testid="card-privacy">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Privacy & Data</h3>
-            <div className="space-y-3">
+        <Card className="mb-3" data-testid="card-privacy">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Privacy & Data</h3>
+            <div className="space-y-2">
               <Link href="/privacy-policy">
                 <button 
-                  className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between"
+                  className="w-full text-left px-3 py-2.5 text-xs text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between"
                   data-testid="button-view-privacy-policy"
                 >
                   <span>View Privacy Policy</span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </Link>
               <button 
                 onClick={handleExportData}
                 disabled={isExporting}
-                className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-left px-3 py-2.5 text-xs text-foreground hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
                 data-testid="button-export-data"
               >
                 <span className="flex items-center gap-2">
                   {isExporting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-3.5 h-3.5 border-2 border-foreground border-t-transparent rounded-full animate-spin"></div>
                       Exporting...
                     </>
                   ) : (
                     <>
-                      <Download className="w-4 h-4" />
+                      <Download className="w-3.5 h-3.5" />
                       Export All Data
                     </>
                   )}
                 </span>
-                {!isExporting && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                {!isExporting && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
               </button>
               <button 
                 onClick={() => setIsDeleteDialogOpen(true)}
-                className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center justify-between"
+                className="w-full text-left px-3 py-2.5 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center justify-between"
                 data-testid="button-delete-account"
               >
                 <span>Delete Account</span>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </CardContent>
         </Card>
 
         {/* Manage Users */}
-        <Card className="mb-4" data-testid="card-manage-caregivers">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Manage Users</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+        <Card className="mb-3" data-testid="card-manage-caregivers">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Manage Users</h3>
+            <p className="text-xs text-muted-foreground mb-3">
               Share access with your partner or other caregivers so they can track trials and reactions together.
             </p>
             
             {/* Invite Form */}
-            <div className="mb-6">
-              <Label htmlFor="inviteEmail" className="block text-sm font-medium text-foreground mb-2">
+            <div className="mb-4">
+              <Label htmlFor="inviteEmail" className="block text-xs font-medium text-foreground mb-1.5">
                 Invite by Email
               </Label>
               <div className="flex gap-2">
@@ -751,8 +751,8 @@ export default function Settings() {
 
             {/* Current Users */}
             {caregivers.length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-foreground mb-3">Current Users ({caregivers.length})</h4>
+              <div className="mb-3">
+                <h4 className="text-xs font-medium text-foreground mb-2">Current Users ({caregivers.length})</h4>
                 <div className="space-y-2">
                   {caregivers.map((caregiver, index) => {
                     const isCreator = index === 0; // First user in the list is the creator
@@ -762,11 +762,11 @@ export default function Settings() {
                     return (
                       <div 
                         key={caregiver.id} 
-                        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                        className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg"
                         data-testid={`caregiver-item-${caregiver.id}`}
                       >
                         <div className="flex-1">
-                          <p className="text-xs text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
+                          <p className="text-[0.65rem] text-muted-foreground" data-testid={`text-caregiver-email-${caregiver.id}`}>
                             {caregiver.email}
                           </p>
                         </div>
@@ -778,10 +778,10 @@ export default function Settings() {
                             disabled={removeCaregiverMutation.isPending}
                             data-testid={`button-remove-caregiver-${caregiver.id}`}
                           >
-                            <X className="w-4 h-4 text-destructive" />
+                            <X className="w-3.5 h-3.5 text-destructive" />
                           </Button>
                         ) : isCurrentUser ? (
-                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-testid="badge-you">
+                          <span className="text-[0.65rem] bg-primary/10 text-primary px-2 py-0.5 rounded-full" data-testid="badge-you">
                             You
                           </span>
                         ) : null}
@@ -795,24 +795,24 @@ export default function Settings() {
             {/* Pending Invitations */}
             {pendingInvitations.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-3">Pending Invitations ({pendingInvitations.length})</h4>
+                <h4 className="text-xs font-medium text-foreground mb-2">Pending Invitations ({pendingInvitations.length})</h4>
                 <div className="space-y-2">
                   {pendingInvitations.map((invitation) => (
                     <div 
                       key={invitation.id} 
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border-l-2 border-orange-500"
+                      className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg border-l-2 border-orange-500"
                       data-testid={`pending-invitation-${invitation.id}`}
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-0.5">
                           <Mail className="w-3 h-3 text-muted-foreground" />
-                          <p className="text-sm font-medium text-foreground" data-testid={`text-invitation-email-${invitation.id}`}>
+                          <p className="text-xs font-medium text-foreground" data-testid={`text-invitation-email-${invitation.id}`}>
                             {invitation.invitedEmail}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-3 h-3 text-muted-foreground" />
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[0.65rem] text-muted-foreground">
                             Waiting for sign up
                           </p>
                         </div>
@@ -824,7 +824,7 @@ export default function Settings() {
             )}
 
             {caregivers.length === 0 && pendingInvitations.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-caregivers">
+              <p className="text-xs text-muted-foreground text-center py-3" data-testid="text-no-caregivers">
                 No users yet. Invite someone to get started.
               </p>
             )}
@@ -833,8 +833,8 @@ export default function Settings() {
 
         {/* Account */}
         <Card data-testid="card-account">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Account</h3>
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Account</h3>
             <Button 
               variant="secondary" 
               className="w-full"
