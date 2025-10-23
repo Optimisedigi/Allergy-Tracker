@@ -1,3 +1,17 @@
 /* Uppy file uploader styles */
 @import url('/uppy-core.css');
 @import url('/uppy-dashboard.css');
+
+/* Reduce drop zone height */
+.uppy-Dashboard-AddFiles {
+  min-height: 180px !important;
+  height: 180px !important;
+}
+
+.uppy-Dashboard-AddFilesPanel {
+  min-height: 180px !important;
+}
+
+.uppy-Dashboard-dropFilesHereHint {
+  font-size: 14px !important;
+}
