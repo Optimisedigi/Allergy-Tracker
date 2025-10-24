@@ -93,7 +93,7 @@ export default function HowItWorks() {
           </CardHeader>
           <CardContent className="text-sm space-y-3">
             <p>
-              Allergy Tracker for Bubs takes the guesswork out of food introductions, helping you spot what's really behind your baby's reactions.
+              Baby Allergy Tracker takes the guesswork out of food introductions, helping you spot what's really behind your baby's reactions.
             </p>
             <p>
               Each time your baby completes a trial without a reaction, they earn a green brick — building a clear visual record of what's safe and what needs caution.
@@ -262,7 +262,7 @@ export default function HowItWorks() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-amber-900 dark:text-amber-100">
             <p>
-              Allergy Tracker for Bubs is a support and record-keeping tool, not a substitute for professional medical advice, diagnosis, or treatment.
+              Baby Allergy Tracker is a support and record-keeping tool, not a substitute for professional medical advice, diagnosis, or treatment.
             </p>
             <p>
               By using the app, you acknowledge it's a support tool only, and that medical decisions should always be made with a qualified health professional.

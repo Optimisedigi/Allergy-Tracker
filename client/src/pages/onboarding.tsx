@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield } from "lucide-react";
+import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
 
 export default function Onboarding() {
   const { toast } = useToast();
@@ -87,10 +88,15 @@ export default function Onboarding() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md" data-testid="card-onboarding">
         <CardHeader className="text-center pb-8">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Shield className="h-8 w-8" />
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <img 
+              src={logoImage} 
+              alt="Baby Allergy Tracker Logo" 
+              className="h-24 w-auto object-contain"
+              data-testid="onboarding-logo"
+            />
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome to Allergy Tracker for Bubs</CardTitle>
+          <CardTitle className="text-2xl font-bold">Welcome to Baby Allergy Tracker</CardTitle>
           <p className="text-muted-foreground mt-2">
             Let's set up your baby's profile to start tracking their food journey
           </p>

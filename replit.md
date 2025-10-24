@@ -47,7 +47,7 @@ Preferred communication style: Simple, everyday language.
 *   **Notifications**: Intelligent warning system for food trials based on reaction history and severity.
 *   **Layouts**: Dashboard with recent activity, Reports page with a table-based layout showing food trials, results, visual bricks, and status.
 *   **Modals**: Food Detail Modal displaying complete trial history, notes, and reactions.
-*   **Consistency**: Consistent header "AllergyTrack Bubs For [Name]" with "Days without reaction" across relevant pages.
+*   **Consistency**: Consistent header "Baby Allergy Tracker For [Name]" with "Days without reaction" across relevant pages.
 
 ### Feature Specifications
 

@@ -803,7 +803,7 @@ export default function Settings() {
             {/* Current Users */}
             {caregivers.length > 0 && (
               <div className="mb-3">
-                <h4 className="text-xs font-medium text-foreground mb-2">Current Users ({caregivers.length})</h4>
+                <h4 className="text-xs font-medium text-foreground mb-2" data-testid="header-current-users">Current Users ({caregivers.length})</h4>
                 <div className="space-y-2">
                   {caregivers.map((caregiver, index) => {
                     const isCreator = index === 0; // First user in the list is the creator
@@ -843,10 +843,10 @@ export default function Settings() {
               </div>
             )}
 
-            {/* Pending Invitations */}
+            {/* Invitations */}
             {pendingInvitations.length > 0 && (
               <div>
-                <h4 className="text-xs font-medium text-foreground mb-2">Pending Invitations ({pendingInvitations.length})</h4>
+                <h4 className="text-xs font-medium text-foreground mb-2" data-testid="header-invitations">Invitations ({pendingInvitations.length})</h4>
                 <div className="space-y-2">
                   {pendingInvitations.map((invitation) => (
                     <div 

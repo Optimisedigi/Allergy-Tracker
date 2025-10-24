@@ -1032,7 +1032,7 @@ export class DatabaseStorage implements IStorage {
 
     // Add summary header at the top
     const today = new Date();
-    const summary = `Allergy Tracker for Bubs - Export for ${baby.name} - Generated: ${formatDateTime(today)} - Total Records: ${rows.length}`;
+    const summary = `Baby Allergy Tracker - Export for ${baby.name} - Generated: ${formatDateTime(today)} - Total Records: ${rows.length}`;
     csvLines.unshift('');
     csvLines.unshift(summary);
 

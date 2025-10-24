@@ -36,11 +36,11 @@ export default function PrivacyPolicy() {
 
         <Card data-testid="card-privacy-policy">
           <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
-            <h1 className="text-2xl font-bold text-foreground mb-2">Privacy Policy for Allergy Tracker for Bubs</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Privacy Policy for Baby Allergy Tracker</h1>
             <p className="text-sm text-muted-foreground mb-6">Last updated: October 19, 2025</p>
 
             <p className="text-foreground mb-6">
-              Thank you for choosing Allergy Tracker for Bubs. We're committed to protecting your personal data and your baby's food-trial information. This Privacy Policy explains how we collect, use, share and protect information when you use our app.
+              Thank you for choosing Baby Allergy Tracker. We're committed to protecting your personal data and your baby's food-trial information. This Privacy Policy explains how we collect, use, share and protect information when you use our app.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">1. What we collect</h2>
@@ -136,7 +136,7 @@ export default function PrivacyPolicy() {
               <p className="text-foreground font-medium">
                 Thank you for trusting us with your baby's food-trial journey. We're here to help you track safely and confidently.
               </p>
-              <p className="text-muted-foreground mt-2">— The Allergy Tracker for Bubs Team</p>
+              <p className="text-muted-foreground mt-2">— The Baby Allergy Tracker Team</p>
             </div>
           </CardContent>
         </Card>
