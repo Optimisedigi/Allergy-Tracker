@@ -70,6 +70,10 @@ Preferred communication style: Simple, everyday language.
 
 *   **Database**: Neon PostgreSQL (serverless database, WebSocket connection).
 *   **Authentication**: Replit OIDC (OpenID Connect).
+*   **Email Service**: Resend API for transactional emails (invitations, food reports).
+    *   **Verified Domain**: noreply@allergytrackerforbubs.com.au
+    *   **Configuration**: Uses `RESEND_FROM_EMAIL` environment variable for sender address
+    *   **Email Types**: Partner invitations with embedded logo, food allergy reports
 *   **Development Tools**: Drizzle Kit (database migrations).
 *   **Third-Party Libraries**: date-fns & date-fns-tz (date manipulation), zod (schema validation), memoizee (caching), nanoid (ID generation).
 

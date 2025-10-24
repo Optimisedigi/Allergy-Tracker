@@ -290,8 +290,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ? `${inviterName} invited you to track ${baby?.name || 'their baby'}'s food allergies`
           : `You're invited to track ${baby?.name || 'your baby'}'s food allergies on AllergyTrack`;
 
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
         await resend.emails.send({
-          from: 'AllergyTrack <onboarding@resend.dev>',
+          from: `AllergyTrack <${fromEmail}>`,
           to: email.toLowerCase(),
           subject,
           html: htmlContent,
@@ -717,8 +718,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `;
 
       // Send email
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
       await resend.emails.send({
-        from: 'AllergyTrack <onboarding@resend.dev>',
+        from: `AllergyTrack <${fromEmail}>`,
         to: email,
         subject: `Food Allergy Report for ${baby.name}`,
         html: htmlContent,
