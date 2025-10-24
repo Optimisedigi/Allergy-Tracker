@@ -17,13 +17,13 @@ interface DashboardData {
 }
 
 export default function HowItWorks() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [selectedBaby, setSelectedBaby] = useState<string>("");
   const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
   const [isSteroidCreamOpen, setIsSteroidCreamOpen] = useState(false);
 
   // Get user's babies
-  const { data: babies = [] } = useQuery<Array<{ id: string; name: string }>>({
+  const { data: babies = [], isLoading: isBabiesLoading } = useQuery<Array<{ id: string; name: string }>>({
     queryKey: ["/api/babies"],
     enabled: isAuthenticated,
     retry: false,
@@ -37,13 +37,25 @@ export default function HowItWorks() {
   }, [babies, selectedBaby]);
 
   // Get dashboard data
-  const { data: dashboardData } = useQuery<DashboardData>({
+  const { data: dashboardData, isLoading: isDashboardLoading } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard", selectedBaby],
     enabled: isAuthenticated && !!selectedBaby,
     retry: false,
   });
 
   const selectedBabyData = babies.find((b) => b.id === selectedBaby);
+
+  // Show loading state
+  if (isAuthLoading || isBabiesLoading || isDashboardLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Calculate days without reaction
   const calculateDaysWithoutReaction = (): number => {
