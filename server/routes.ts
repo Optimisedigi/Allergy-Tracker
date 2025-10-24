@@ -7,6 +7,7 @@ import { z } from "zod";
 import cron from "node-cron";
 import { reminderService } from "./services/reminder-service";
 import { Resend } from "resend";
+import { LOGO_DATA_URI } from "./emailLogo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 
@@ -211,9 +212,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const inviter = await storage.getUser(userId);
         const resend = new Resend(process.env.RESEND_API_KEY);
         
+        // Use real name only if both first and last name exist
         const inviterName = inviter?.firstName && inviter?.lastName 
           ? `${inviter.firstName} ${inviter.lastName}` 
-          : inviter?.email || 'A caregiver';
+          : null;
+        
+        // Fallback for display in email body (can use email)
+        const inviterDisplayName = inviterName || inviter?.email || 'A caregiver';
         
         const appUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'allergytrack.replit.app';
         
@@ -224,6 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
               .container { background: #fff9eb; border-radius: 10px; padding: 30px; }
+              .logo { text-align: center; margin-bottom: 20px; }
+              .logo img { height: 80px; width: auto; }
               h1 { color: #2c3e50; margin-bottom: 10px; font-size: 24px; }
               .subtitle { color: #666; font-size: 16px; margin-bottom: 20px; }
               .message { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -235,13 +242,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           </head>
           <body>
             <div class="container">
+              <div class="logo">
+                <img src="${LOGO_DATA_URI}" alt="AllergyTrack for Bubs" />
+              </div>
               <h1>🍼 Your Partner Wants You to Join AllergyTrack!</h1>
               <p class="subtitle">Track Your Baby's Food Allergies Together</p>
               
               <div class="message">
                 <p>Hi there,</p>
                 
-                <p><strong>${inviterName}</strong> has invited you to help track food allergies and reactions for <strong>${baby?.name || 'your baby'}</strong>.</p>
+                <p><strong>${inviterDisplayName}</strong> has invited you to help track food allergies and reactions for <strong>${baby?.name || 'your baby'}</strong>.</p>
                 
                 <p><strong>Why this matters:</strong> Many babies have sensitivities to certain foods that cause rashes, eczema, or tummy troubles. AllergyTrack helps you both keep a clear record of:</p>
                 
@@ -275,10 +285,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           </html>
         `;
         
+        // Use generic subject if no real name available
+        const subject = inviterName 
+          ? `${inviterName} invited you to track ${baby?.name || 'their baby'}'s food allergies`
+          : `You're invited to track ${baby?.name || 'your baby'}'s food allergies on AllergyTrack`;
+
         await resend.emails.send({
           from: 'AllergyTrack <onboarding@resend.dev>',
           to: email.toLowerCase(),
-          subject: `${inviterName} invited you to track ${baby?.name || 'their baby'}'s food allergies`,
+          subject,
           html: htmlContent,
         });
         
