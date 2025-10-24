@@ -291,13 +291,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           : `You're invited to track ${baby?.name || 'your baby'}'s food allergies on AllergyTrack`;
 
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-        await resend.emails.send({
+        console.log(`Sending invitation email from: ${fromEmail} to: ${email.toLowerCase()}`);
+        
+        const result = await resend.emails.send({
           from: `AllergyTrack <${fromEmail}>`,
           to: email.toLowerCase(),
           subject,
           html: htmlContent,
         });
         
+        console.log('Resend response:', result);
         console.log(`Invitation email sent to ${email.toLowerCase()} for baby ${babyId}`);
       } catch (emailError) {
         console.error('Failed to send invitation email:', emailError);
@@ -719,13 +722,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Send email
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-      await resend.emails.send({
+      console.log(`Sending email from: ${fromEmail} to: ${email}`);
+      
+      const result = await resend.emails.send({
         from: `AllergyTrack <${fromEmail}>`,
         to: email,
         subject: `Food Allergy Report for ${baby.name}`,
         html: htmlContent,
       });
 
+      console.log('Resend response:', result);
       res.json({ message: "Report sent successfully" });
     } catch (error) {
       console.error("Error sending report:", error);
