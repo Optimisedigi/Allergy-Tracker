@@ -1,9 +1,42 @@
+import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, TrendingUp } from "lucide-react";
 import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
 
 export default function Landing() {
+  // Set SEO metadata
+  useEffect(() => {
+    // Save original values
+    const originalTitle = document.title;
+    const originalMetaDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    
+    // Set landing page SEO metadata
+    document.title = "Baby Food Allergy Tracker App";
+    
+    // Set or update meta description
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', 'Track your baby\'s food introductions and reactions easily. Allergy Tracker for Bubs helps parents spot triggers and share reports with doctors.');
+    
+    // Cleanup: restore original values when navigating away
+    return () => {
+      document.title = originalTitle || "Baby Allergy Tracker";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        if (originalMetaDescription) {
+          metaDesc.setAttribute('content', originalMetaDescription);
+        } else {
+          metaDesc.remove();
+        }
+      }
+    };
+  }, []);
+
   // Check for invite parameter in URL
   const urlParams = new URLSearchParams(window.location.search);
   const inviteBabyId = urlParams.get('invite');
@@ -34,7 +67,7 @@ export default function Landing() {
           <Card className="mb-3">
             <CardContent className="p-4">
               <h1 className="mb-3 text-lg font-bold text-foreground sm:text-xl">
-                Baby Allergy Tracker
+                Baby Food Allergy Tracker
               </h1>
               
               <p className="mb-2 text-xs text-muted-foreground leading-relaxed">
