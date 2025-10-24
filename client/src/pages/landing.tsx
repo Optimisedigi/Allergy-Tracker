@@ -18,8 +18,9 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative px-4 py-8 text-center">
+      <div className="relative px-4 py-6 text-center">
         <div className="mx-auto max-w-4xl">
+          {/* Logo */}
           <div className="mb-4 flex justify-center">
             <img 
               src={logoImage} 
@@ -29,59 +30,68 @@ export default function Landing() {
             />
           </div>
           
-          <h1 className="mb-4 text-lg font-bold text-foreground sm:text-xl">
-            Baby Allergy Tracker
-          </h1>
-          
-          <p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-            We know how hard it is to figure out what foods are triggering your little one's rashes or eczema. We're parents who've been there too. That's why we built this food allergy tracker.
-          </p>
-          
-          <p className="mb-5 text-xs text-muted-foreground leading-relaxed">
-            Our goal is simple: help you clearly track foods and spot reactions with confidence.
-          </p>
+          {/* Introduction Card */}
+          <Card className="mb-3">
+            <CardContent className="p-4">
+              <h1 className="mb-3 text-lg font-bold text-foreground sm:text-xl">
+                Baby Allergy Tracker
+              </h1>
+              
+              <p className="mb-2 text-xs text-muted-foreground leading-relaxed">
+                We know how hard it is to figure out what foods are triggering your little one's rashes or eczema. We're parents who've been there too. That's why we built this food allergy tracker.
+              </p>
+              
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Our goal is simple: help you clearly track foods and spot reactions with confidence.
+              </p>
+            </CardContent>
+          </Card>
 
-          {/* Brick System Section */}
-          <div className="mb-5 rounded-lg bg-muted/30 px-4 py-4 text-center mt-1">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              The Brick System
-            </h2>
-            
-            <p className="mb-3 text-xs text-muted-foreground">
-              Every new food builds your baby's story:
-            </p>
-            
-            <div className="space-y-2 text-xs">
-              <p className="text-foreground">
-                <span className="font-semibold">🟢 Green Bricks</span> — Clear
+          {/* Brick System Card */}
+          <Card className="mb-3">
+            <CardContent className="p-4 text-center">
+              <h2 className="mb-3 text-sm font-semibold text-foreground">
+                How the Brick System Works
+              </h2>
+              
+              <p className="mb-3 text-xs text-muted-foreground">
+                Every food you try builds part of your baby's story:
               </p>
-              <p className="text-foreground">
-                <span className="font-semibold">🟠 Orange Bricks</span> — Care
+              
+              <div className="space-y-2 text-xs">
+                <p className="text-foreground">
+                  <span className="font-semibold">🟢 Green Bricks</span> — Safe foods
+                </p>
+                <p className="text-foreground">
+                  <span className="font-semibold">🟠 Orange Bricks</span> — Watch with care
+                </p>
+                <p className="text-foreground">
+                  <span className="font-semibold">🔴 Red Bricks</span> — Likely allergen or sensitivity
+                </p>
+              </div>
+              
+              <p className="mt-3 text-xs text-muted-foreground">
+                Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause for now.
               </p>
-              <p className="text-foreground">
-                <span className="font-semibold">🔴 Red Bricks</span> — Likely sensitivity
-              </p>
-            </div>
-            
-            <p className="mt-3 text-xs text-muted-foreground italic">
-              Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause.
-            </p>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Final CTA Section */}
-          <div className="text-center mt-3">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              Ready to feel confident again?
-            </h2>
-            <Button 
-              size="lg" 
-              className="px-8 py-4 text-sm"
-              onClick={handleLogin}
-              data-testid="button-cta-login"
-            >
-              Start Tracking Now
-            </Button>
-          </div>
+          {/* CTA Card */}
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h2 className="mb-3 text-sm font-semibold text-foreground">
+                Ready to feel confident again?
+              </h2>
+              <Button 
+                size="lg" 
+                className="px-8 py-4 text-sm"
+                onClick={handleLogin}
+                data-testid="button-cta-login"
+              >
+                Start Tracking Now
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
