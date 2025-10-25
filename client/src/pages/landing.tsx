@@ -88,7 +88,7 @@ export default function Landing() {
               </h2>
               
               <p className="mb-3 text-xs text-muted-foreground">
-                Every food your baby tries adds a brick to tell a clear story:
+                Every food your baby tries adds a brick to tell a story:
               </p>
               
               <div className="space-y-2 text-xs">
@@ -117,7 +117,7 @@ export default function Landing() {
               </h2>
               <Button 
                 size="lg" 
-                className="px-8 py-2 text-sm"
+                className="px-8 py-[0.35rem] text-sm"
                 onClick={handleLogin}
                 data-testid="button-cta-login"
               >
