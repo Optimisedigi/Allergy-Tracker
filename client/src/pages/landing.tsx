@@ -49,16 +49,16 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#fff9eb] dark:bg-background">
       {/* Hero Section */}
       <div className="relative px-4 py-6 text-center">
         <div className="mx-auto max-w-4xl">
-          {/* Logo */}
+          {/* Logo - reduced by 15% */}
           <div className="mb-4 flex justify-center">
             <img 
               src={logoImage} 
               alt="Baby Allergy Tracker Logo" 
-              className="h-28 w-auto object-contain"
+              className="h-24 w-auto object-contain"
               data-testid="landing-logo"
             />
           </div>
@@ -66,7 +66,7 @@ export default function Landing() {
           {/* Introduction Card */}
           <Card className="mb-3">
             <CardContent className="p-4">
-              <h1 className="mb-3 text-lg font-bold text-foreground sm:text-xl">
+              <h1 className="mb-2 text-lg font-bold text-foreground sm:text-xl">
                 Baby Food Allergy Tracker
               </h1>
               
@@ -83,12 +83,12 @@ export default function Landing() {
           {/* Brick System Card */}
           <Card className="mb-3">
             <CardContent className="p-4 text-center">
-              <h2 className="mb-3 text-sm font-semibold text-foreground">
+              <h2 className="mb-2 text-sm font-semibold text-foreground">
                 How the Brick System Works
               </h2>
               
               <p className="mb-3 text-xs text-muted-foreground">
-                Every food you try builds part of your baby's story:
+                Every food your baby tries adds a brick to tell a clear story:
               </p>
               
               <div className="space-y-2 text-xs">
@@ -104,7 +104,7 @@ export default function Landing() {
               </div>
               
               <p className="mt-3 text-xs text-muted-foreground">
-                Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause for now.
+                Each brick shows progress over time, helping you see which foods are safe, which need watching, and which to pause.
               </p>
             </CardContent>
           </Card>
@@ -112,12 +112,12 @@ export default function Landing() {
           {/* CTA Card */}
           <Card>
             <CardContent className="p-4 text-center">
-              <h2 className="mb-3 text-sm font-semibold text-foreground">
+              <h2 className="mb-2 text-sm font-semibold text-foreground">
                 Ready to feel confident again?
               </h2>
               <Button 
                 size="lg" 
-                className="px-8 py-4 text-sm"
+                className="px-8 py-2 text-sm"
                 onClick={handleLogin}
                 data-testid="button-cta-login"
               >
