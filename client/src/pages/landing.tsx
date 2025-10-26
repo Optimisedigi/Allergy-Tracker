@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Heart, TrendingUp } from "lucide-react";
+import { Heart, TrendingUp, Download, Smartphone } from "lucide-react";
 import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
+import { showInstallPrompt, canShowInstallPrompt, isPWA } from "@/registerServiceWorker";
 
 const faqData = [
   {
@@ -45,6 +46,23 @@ const faqData = [
 ];
 
 export default function Landing() {
+  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [isInstallingPWA, setIsInstallingPWA] = useState(false);
+
+  // Check if PWA can be installed
+  useEffect(() => {
+    const checkInstallable = () => {
+      setShowInstallButton(canShowInstallPrompt() && !isPWA());
+    };
+
+    checkInstallable();
+    window.addEventListener('pwa-installable', checkInstallable);
+
+    return () => {
+      window.removeEventListener('pwa-installable', checkInstallable);
+    };
+  }, []);
+
   // Set SEO metadata
   useEffect(() => {
     // Save original values
@@ -115,6 +133,15 @@ export default function Landing() {
     window.location.href = loginUrl;
   };
 
+  const handleInstallPWA = async () => {
+    setIsInstallingPWA(true);
+    const installed = await showInstallPrompt();
+    if (installed) {
+      setShowInstallButton(false);
+    }
+    setIsInstallingPWA(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#fff9eb] dark:bg-background">
       {/* Hero Section */}
@@ -182,14 +209,33 @@ export default function Landing() {
               <h2 className="mb-2 text-sm font-semibold text-foreground">
                 Ready to feel confident again?
               </h2>
-              <Button 
-                size="lg" 
-                className="px-8 py-[0.25rem] text-sm"
-                onClick={handleLogin}
-                data-testid="button-cta-login"
-              >
-                Start Tracking Now
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  size="lg" 
+                  className="px-8 py-[0.25rem] text-sm w-full sm:w-auto"
+                  onClick={handleLogin}
+                  data-testid="button-cta-login"
+                >
+                  Start Tracking Now
+                </Button>
+                
+                {showInstallButton && (
+                  <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-muted">
+                    <Smartphone className="w-4 h-4 text-muted-foreground" />
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={handleInstallPWA}
+                      disabled={isInstallingPWA}
+                      data-testid="button-install-pwa"
+                      className="text-xs"
+                    >
+                      <Download className="w-3 h-3 mr-1" />
+                      {isInstallingPWA ? "Installing..." : "Install as App"}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
