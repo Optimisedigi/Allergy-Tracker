@@ -17,6 +17,7 @@ Preferred communication style: Simple, everyday language.
 *   **State Management**: TanStack Query for server state, React hooks for local UI state, custom `useAuth` for authentication, React Hook Form for form state.
 *   **Design**: Mobile-first, component co-location, path aliases, CSS variables for theming (light/dark mode), Australian timezone (Australia/Sydney).
 *   **Navigation**: Automatic scroll-to-top on tab/route changes for improved UX.
+*   **SEO**: Custom favicon, sitemap.xml with public pages only, robots.txt to guide search engines.
 
 ### Backend
 
