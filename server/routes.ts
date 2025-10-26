@@ -10,7 +10,6 @@ import { Resend } from "resend";
 import { LOGO_DATA_URI } from "./emailLogo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -1025,15 +1024,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error setting reaction photo:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  });
-
-  // Serve SEO files
-  app.get('/sitemap.xml', (_req, res) => {
-    res.sendFile(path.join(process.cwd(), 'sitemap.xml'));
-  });
-
-  app.get('/robots.txt', (_req, res) => {
-    res.sendFile(path.join(process.cwd(), 'robots.txt'));
   });
 
   // Setup cron job for reminders (runs every hour)
