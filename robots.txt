@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /calendar
+Disallow: /settings
+Sitemap: https://babyallergytracker.com/sitemap.xml
