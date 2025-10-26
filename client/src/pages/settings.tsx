@@ -534,6 +534,9 @@ export default function Settings() {
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
         daysWithoutReaction={daysWithoutReaction}
+        babies={babies}
+        selectedBaby={selectedBaby}
+        onBabyChange={setSelectedBaby}
         data-testid="settings-header"
       />
 

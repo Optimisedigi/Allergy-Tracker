@@ -273,6 +273,9 @@ export default function Reports() {
         babyName={selectedBabyData?.name || "Baby"} 
         user={user}
         daysWithoutReaction={daysWithoutReaction}
+        babies={babies}
+        selectedBaby={selectedBaby}
+        onBabyChange={setSelectedBaby}
         data-testid="reports-header"
       />
 
