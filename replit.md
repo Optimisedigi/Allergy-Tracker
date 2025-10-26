@@ -72,6 +72,10 @@ Preferred communication style: Simple, everyday language.
     *   **Pending Invitations**: If invited user doesn't exist yet, invitation is stored and auto-accepted when they sign up.
     *   **Caregiver Management**: View all caregivers with access, remove caregivers (cannot remove yourself as sole caregiver).
     *   **Settings UI**: "Manage Caregivers" section in Settings page with invite form, caregiver list, and pending invitations.
+*   **Multi-Baby Management**:
+    *   **Add Another Baby**: Settings page includes "Add Another Baby" button in Baby Profile section, allowing users to create additional baby profiles at any time.
+    *   **Profile Creation Flow**: Button navigates to existing onboarding flow (/onboarding) for consistent baby setup experience.
+    *   **Automatic Selector Display**: Profile selector automatically appears in header when user has 2+ babies, enabling easy switching between children's profiles.
 
 ## External Dependencies
 
