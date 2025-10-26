@@ -16,6 +16,7 @@ Preferred communication style: Simple, everyday language.
 *   **UI**: Radix UI primitives, shadcn/ui (built on Radix UI and Tailwind CSS), Tailwind CSS (utility-first styling).
 *   **State Management**: TanStack Query for server state, React hooks for local UI state, custom `useAuth` for authentication, React Hook Form for form state.
 *   **Design**: Mobile-first, component co-location, path aliases, CSS variables for theming (light/dark mode), Australian timezone (Australia/Sydney).
+*   **Navigation**: Automatic scroll-to-top on tab/route changes for improved UX.
 
 ### Backend
 
@@ -48,11 +49,15 @@ Preferred communication style: Simple, everyday language.
 *   **Layouts**: Dashboard with recent activity, Reports page with a table-based layout showing food trials, results, visual bricks, and status.
 *   **Modals**: Food Detail Modal displaying complete trial history, notes, and reactions.
 *   **Consistency**: Consistent header "Baby Allergy Tracker For [Name]" with "Days without reaction" across relevant pages.
+*   **Landing Page**: Unauthenticated users see cream background (#fff9eb) with simplified messaging: "Each brick adds more to your baby's food story."
 
 ### Feature Specifications
 
 *   **Food Trial Tracking**: Logging food introductions, observation periods (default 3 days), and reactions.
+    *   **Custom Foods**: User-created foods display with 🍽️ (plate) emoji.
+    *   **DOB Validation**: Onboarding prevents selecting future dates for baby's date of birth.
 *   **Reaction Tracking**: Detailed tracking of reaction types, severity, and duration.
+    *   **Available Reaction Types**: itchiness, hives, swelling, rash, vomiting, irritability (updated from diarrhea on Oct 26, 2025).
 *   **Allergy Detection Logic**:
     *   **Confirmed Allergy**: Defined by 3+ consecutive red bricks, or one amber followed by 3+ consecutive red bricks, or any moderate/severe reaction. Consecutive requirement for red bricks is strict.
     *   **Likely Allergy**: Based on multiple reactions without meeting "confirmed" criteria.
