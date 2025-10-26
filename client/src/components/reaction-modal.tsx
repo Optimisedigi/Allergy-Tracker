@@ -33,7 +33,7 @@ const REACTION_TYPES = [
   "swelling",
   "rash",
   "vomiting",
-  "diarrhea"
+  "irritability"
 ];
 
 const SEVERITY_LEVELS = [

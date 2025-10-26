@@ -95,7 +95,7 @@ export const trials = pgTable("trials", {
 // Reaction severity and type enums
 export const reactionSeverityEnum = pgEnum("reaction_severity", ["mild", "moderate", "severe"]);
 export const reactionTypeEnum = pgEnum("reaction_type", [
-  "itchiness", "redness", "rash", "hives", "diarrhea", "vomiting", "swelling", "other"
+  "itchiness", "redness", "rash", "hives", "irritability", "vomiting", "swelling", "other"
 ]);
 
 // Food status enum

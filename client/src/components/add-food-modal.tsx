@@ -220,7 +220,7 @@ export default function AddFoodModal({ isOpen, onClose, babyId }: AddFoodModalPr
       const formattedName = toSentenceCase(customFoodName.trim());
       const newFood = await createFoodMutation.mutateAsync({
         name: formattedName,
-        emoji: "🍼",
+        emoji: "🍽️",
         category: "other",
       });
       setSelectedFood(newFood);

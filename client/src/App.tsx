@@ -18,6 +18,11 @@ function Router() {
   const { isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
   const { data: babies = [], isLoading: babiesLoading } = useQuery<Array<{ id: string }>>({
     queryKey: ["/api/babies"],
     enabled: isAuthenticated,

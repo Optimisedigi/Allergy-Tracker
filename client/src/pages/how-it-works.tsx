@@ -238,7 +238,7 @@ export default function HowItWorks() {
               </li>
               <li>
                 <strong>Log a reaction:</strong> If symptoms appear, tap "Log Reaction", choose what happened, and save. 
-                The right brick is added automatically.
+                A brick is added automatically.
               </li>
               <li>
                 <strong>Complete the trial:</strong> After 3 days with no reaction, tap "Complete Trial" to add a green brick.
