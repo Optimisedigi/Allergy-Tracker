@@ -50,6 +50,7 @@ Preferred communication style: Simple, everyday language.
 *   **Layouts**: Dashboard with recent activity, Reports page with a table-based layout showing food trials, results, visual bricks, and status.
 *   **Modals**: Food Detail Modal displaying complete trial history, notes, and reactions.
 *   **Consistency**: Consistent header "Baby Allergy Tracker For [Name]" with "Days without reaction" across relevant pages.
+*   **Multi-Baby Support**: Header displays baby profile selector dropdown when user has 2+ babies, allowing easy switching between children's profiles across all pages.
 *   **Landing Page**: Unauthenticated users see cream background (#fff9eb) with simplified messaging: "Each brick adds more to your baby's food story."
 
 ### Feature Specifications
