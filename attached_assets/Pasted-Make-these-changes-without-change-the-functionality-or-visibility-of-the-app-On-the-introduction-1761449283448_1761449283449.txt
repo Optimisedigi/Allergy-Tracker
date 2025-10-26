@@ -1,0 +1,52 @@
+Make these changes without change the functionality or visibility of the app: 
+- On the introduction page when not signed in (Not changing any of the tabs once logged in), Below the Ready to feel confident box (underneath the fold). Add the following FAQs with the equivalent SEO best practice FAQ schema added in the backend
+
+FAQs — Allergy Tracker for Bubs
+1. What is Allergy Tracker for Bubs?
+Allergy Tracker for Bubs is a parent-designed app that helps you log your baby’s food introductions, track any reactions, and share clear reports with your doctor. It takes the guesswork out of identifying which foods may be causing sensitivities or allergies.
+
+2. Is the app a medical tool?
+No. Allergy Tracker for Bubs is a support and record-keeping tool, not a medical diagnostic app. Always consult a qualified health professional for medical advice, diagnosis, or treatment.
+
+3. What kind of reactions can I track?
+You can record common reactions like itchiness, rash, hives, swelling, vomiting, or irritability. You can also log notes about behavioural changes such as fussiness or sleep disturbance.
+
+4. Can I share my baby’s allergy data via email?
+Yes. You can easily export all your data as a report (CSV or PDF) to share with your paediatrician or allergist. It’s a simple way to give healthcare professionals a clear overview of your child’s food history.
+
+5. How is my data protected?
+Allergy Tracker for Bubs follows Australian privacy standards under the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs). Your data is encrypted, stored securely on Australian servers, and never sold or shared for marketing purposes.
+
+6. Can I use the app for more than one child?
+Yes! You can create separate baby profiles within the same account, so each child’s food trials and reactions are tracked individually.
+
+7. Is Allergy Tracker for Bubs free to use?
+The core features are free to use as we’re gaining feedback from parents. You can use it for free now.
+
+8. Does the app remind me when a food trial ends?
+Yes. The app automatically tracks your observation period (usually 3 days) and can send gentle reminders when it’s time to complete or review a trial.
+
+9. Who created Allergy Tracker for Bubs?
+Allergy Tracker for Bubs was created by parents who’ve experienced the challenge of having a child with eczema when starting their solid food journey and the issue with identifying food reactions first-hand. It’s built with empathy, simplicity, and safety in mind to make life easier for families navigating food introductions.
+
+
+
+
+
+Past complete changes
+
+Make these changes without change the functionality or visibility of the app: 
+* On the introduction page when not signed in (Not changing any of the tabs once logged in), update this copy from 'Every food your baby tries adds a brick to tell a story:’ ‘Each brick adds more to your baby's food story.’
+- When first signing in for a new user, when creating the profile with the name and DOB, Make it so you cannot select years ahead of the current year for the DOB
+- In the log food reaction page, change the emoji for all custom food to a plate 🍽️
+* On the introduction page when not signed in (Not changing any of the tabs once logged in), reduce the height of the spacing within the CTA ‘Start Track now’ so the height is smaller than what it is now
+- Make every time when the user switches between tabs, it should open up the tab on the top of the tab rather than where it was scrolled down to last
+- In the how it works tab, change copy “The right brick is added automatically” to “A brick is added automatically”
+- In the log reaction page, under reaction type: change ‘diarrhea’ to ‘Irritability’
+
+
+
+
+
+
+
