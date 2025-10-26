@@ -242,8 +242,8 @@ export default function Landing() {
           {/* FAQ Section */}
           <Card className="mt-3">
             <CardContent className="p-4">
-              <h2 className="mb-3 text-center text-base font-bold text-foreground">
-                FAQs — Allergy Tracker for Bubs
+              <h2 className="mb-3 text-center text-xs font-bold text-foreground">
+                FAQs
               </h2>
               <Accordion type="single" collapsible className="w-full">
                 {faqData.map((faq, index) => (
