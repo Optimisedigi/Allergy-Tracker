@@ -548,7 +548,18 @@ export default function Settings() {
         {/* Baby Profile */}
         <Card className="mb-3" data-testid="card-baby-profile">
           <CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Baby Profile</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Baby Profile</h3>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.location.href = "/onboarding"}
+                data-testid="button-add-baby"
+              >
+                <UserPlus className="w-4 h-4 mr-1" />
+                Add Another Baby
+              </Button>
+            </div>
             <div className="space-y-3">
               <div>
                 <Label htmlFor="babyName" className="block text-xs font-medium text-foreground mb-1.5">
