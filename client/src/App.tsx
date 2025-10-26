@@ -50,12 +50,20 @@ function Router() {
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/how-it-works" component={HowItWorks} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+        </>
       ) : needsOnboarding ? (
-        <Route path="/" component={Onboarding} />
+        <>
+          <Route path="/" component={Onboarding} />
+          <Route path="/onboarding" component={Onboarding} />
+        </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
+          <Route path="/onboarding" component={Onboarding} />
           <Route path="/calendar" component={Calendar} />
           <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/settings" component={Settings} />
