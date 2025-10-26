@@ -557,7 +557,7 @@ export default function Settings() {
                 data-testid="button-add-baby"
               >
                 <UserPlus className="w-4 h-4 mr-1" />
-                Add Another Baby
+                Add Another Profile
               </Button>
             </div>
             <div className="space-y-3">

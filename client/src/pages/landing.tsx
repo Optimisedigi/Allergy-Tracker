@@ -1,8 +1,48 @@
 import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Heart, TrendingUp } from "lucide-react";
 import logoImage from "@assets/Allergy-tracker-bubs-logo_1761222543067.png";
+
+const faqData = [
+  {
+    question: "What is Allergy Tracker for Bubs?",
+    answer: "Allergy Tracker for Bubs is a parent-designed app that helps you log your baby's food introductions, track any reactions, and share clear reports with your doctor. It takes the guesswork out of identifying which foods may be causing sensitivities or allergies."
+  },
+  {
+    question: "Is the app a medical tool?",
+    answer: "No. Allergy Tracker for Bubs is a support and record-keeping tool, not a medical diagnostic app. Always consult a qualified health professional for medical advice, diagnosis, or treatment."
+  },
+  {
+    question: "What kind of reactions can I track?",
+    answer: "You can record common reactions like itchiness, rash, hives, swelling, vomiting, or irritability. You can also log notes about behavioural changes such as fussiness or sleep disturbance."
+  },
+  {
+    question: "Can I share my baby's allergy data via email?",
+    answer: "Yes. You can easily export all your data as a report (CSV or PDF) to share with your paediatrician or allergist. It's a simple way to give healthcare professionals a clear overview of your child's food history."
+  },
+  {
+    question: "How is my data protected?",
+    answer: "Allergy Tracker for Bubs follows Australian privacy standards under the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs). Your data is encrypted, stored securely on Australian servers, and never sold or shared for marketing purposes."
+  },
+  {
+    question: "Can I use the app for more than one child?",
+    answer: "Yes! You can create separate baby profiles within the same account, so each child's food trials and reactions are tracked individually."
+  },
+  {
+    question: "Is Allergy Tracker for Bubs free to use?",
+    answer: "The core features are free to use as we're gaining feedback from parents. You can use it for free now."
+  },
+  {
+    question: "Does the app remind me when a food trial ends?",
+    answer: "Yes. The app automatically tracks your observation period (usually 3 days) and can send gentle reminders when it's time to complete or review a trial."
+  },
+  {
+    question: "Who created Allergy Tracker for Bubs?",
+    answer: "Allergy Tracker for Bubs was created by parents who've experienced the challenge of having a child with eczema when starting their solid food journey and the issue with identifying food reactions first-hand. It's built with empathy, simplicity, and safety in mind to make life easier for families navigating food introductions."
+  }
+];
 
 export default function Landing() {
   // Set SEO metadata
@@ -23,6 +63,29 @@ export default function Landing() {
     }
     metaDescription.setAttribute('content', 'Track your baby\'s food introductions and reactions easily. Allergy Tracker for Bubs helps parents spot triggers and share reports with doctors.');
     
+    // Add FAQ Schema
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqData.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    };
+    
+    let faqScript = document.querySelector('script#faq-schema');
+    if (!faqScript) {
+      faqScript = document.createElement('script');
+      faqScript.setAttribute('type', 'application/ld+json');
+      faqScript.setAttribute('id', 'faq-schema');
+      document.head.appendChild(faqScript);
+    }
+    faqScript.textContent = JSON.stringify(faqSchema);
+    
     // Cleanup: restore original values when navigating away
     return () => {
       document.title = originalTitle || "Baby Allergy Tracker";
@@ -33,6 +96,10 @@ export default function Landing() {
         } else {
           metaDesc.remove();
         }
+      }
+      const script = document.querySelector('script#faq-schema');
+      if (script) {
+        script.remove();
       }
     };
   }, []);
@@ -123,6 +190,27 @@ export default function Landing() {
               >
                 Start Tracking Now
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* FAQ Section */}
+          <Card className="mt-3">
+            <CardContent className="p-4">
+              <h2 className="mb-3 text-center text-base font-bold text-foreground">
+                FAQs — Allergy Tracker for Bubs
+              </h2>
+              <Accordion type="single" collapsible className="w-full">
+                {faqData.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="text-left text-sm font-semibold">
+                      {index + 1}. {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-xs text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </CardContent>
           </Card>
         </div>
